@@ -1,20 +1,18 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BarChart, BookOpen, Boxes, ChevronDown, Contact, LogIn, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BarChart, BookOpen, Boxes, ChevronDown, Contact, Zap } from "lucide-react";
 import Link from "next/link";
 // Direct path imports (barrel removed)
-import { UserButton } from '@/components/global/user-button'
-import { ModeToggle } from '@/components/global/mode-toggle'
-import { AnimatePresence, motion } from "framer-motion";
-import LiquidGlass from "liquid-glass-react";
-import LiquidGlassComponent from "@/components/ui/liquid-glass";
-import { Geist } from "next/font/google";
-import { usePathname } from "next/navigation";
+import { ModeToggle } from '@/components/global/mode-toggle';
+import { UserButton } from '@/components/global/user-button';
+import LiquidGlass from "@/components/ui/liquid-glass";
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
-import React, { useEffect, useRef, useState } from "react";
+import { Geist } from "next/font/google";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -149,45 +147,11 @@ const navbarOptions: NavbarOptions[] = [
   { label: "Features", href: "/site/features" },
 ]
 
-type LiquidGlassProps = React.ComponentProps<typeof LiquidGlass>;
-function Base(props: LiquidGlassProps) {
-  return (
-    <LiquidGlass
-      displacementScale={100}
-      blurAmount={0.5}
-      saturation={140}
-      aberrationIntensity={2}
-      cornerRadius={5}
-      mode="prominent"
-      padding="8px 16px"
-      elasticity={0}
-      style={{
-        ...props.style,
-        position: "fixed",
-        top: "2.8%",
-        left: "50%",
-        width: 'calc(var(--spacing) * 12) + 100vw',
-
-        height: "calc(var(--spacing) * 12)px",
-        transform: "translateX(-50%) translateY(-50%)",
-        zIndex: 100,
-        display: "inline-flex",
-        alignItems: "baseline",
-        msOverflowStyle: 'none',
-        scrollbarWidth: 'none'
-      }}
-      mouseContainer={props.mouseContainer}
-    >
-      {props.children}
-    </LiquidGlass>
-  );
-}
-
-export function SiteHeader() {
-  const [displacementScale, setDisplacementScale] = useState(100)
-  const [blurAmount, setBlurAmount] = useState(0.5)
-  const [saturation, setSaturation] = useState(140)
-  const [aberrationIntensity, setAberrationIntensity] = useState(2)
+export function Navbar() {
+  const [displacementScale, setDisplacementScale] = useState(100) // Effect: It creates a wavy, distorted effect on the glass surface.
+  const [blurAmount, setBlurAmount] = useState(0.5) // Effect: It controls the amount of blur applied to the background seen through the glass.
+  const [saturation, setSaturation] = useState(140) // Effect: It adjusts the color intensity of the background seen through the glass.
+  const [aberrationIntensity, setAberrationIntensity] = useState(2) // Effect: It adds a chromatic aberration effect, causing color fringing around the edges of objects seen through the glass.
   const [elasticity, setElasticity] = useState(0)
   const [cornerRadius, setCornerRadius] = useState(32)
   const [overLight, setOverLight] = useState(false)
@@ -297,7 +261,7 @@ export function SiteHeader() {
     <div className={`${geistSans.className} min-w-screen justify-between`}>
       {/*  Glass Effect Demo */}
       <div className="w-full flex flex-1" ref={containerRef} onScroll={handleScroll}>
-        <LiquidGlassComponent
+        <LiquidGlass
           displacementScale={displacementScale}
           blurAmount={blurAmount}
           saturation={saturation}
@@ -486,10 +450,10 @@ export function SiteHeader() {
                         className={cn(
                           "group relative flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                           isActive
-                            ? useLightText ? "text-white" : "text-gray-900"
+                            ? useLightText ? "text-primary" : "text-secondary" // isActive and useLightText : isActive and !useLightText
                             : useLightText
-                              ? "text-gray-300 hover:text-white"
-                              : "text-gray-600 hover:text-gray-900"
+                              ? "text-foreground hover:text-muted-foreground"  // !isActive and useLightText
+                              : "text-foreground hover:text-muted-foreground" // !isActive and !useLightText
                         )}
                         onClick={option.onClick}
                         // target={option.target}
@@ -559,7 +523,7 @@ export function SiteHeader() {
             <div className="flex items-center gap-3 w-48 justify-end">
               <Link
                 href={'/agency'}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="bg-gradient-to-br from-blue-800 via-blue-600 to-primary text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-label="Login to your account"
               >
                 Login
@@ -568,7 +532,7 @@ export function SiteHeader() {
               <ModeToggle />
             </div>
           </div>
-        </LiquidGlassComponent>
+        </LiquidGlass>
       </div >
     </div >
   )

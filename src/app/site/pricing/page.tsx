@@ -1,3 +1,9 @@
+import React from "react";
+import Link from "next/link";
+import Stripe from "stripe";
+import clsx from "clsx";
+import { Check, ChevronRight, Sparkles } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -5,235 +11,219 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { pricingCards } from '@/lib/constants'
-import { stripe } from '@/lib/stripe'
-import clsx from 'clsx'
-import { Check, Sparkles, ChevronRight, Lock } from 'lucide-react'
-import Link from 'next/link'
-import Stripe from 'stripe'
-import { getAuthUserDetails } from '@/lib/queries'
-import { Separator } from '@/components/ui/separator'
+} from "@/components/ui/card";
+import { pricingCards } from "@/lib/constants";
+import { stripe } from "@/lib/stripe";
+import { getAuthUserDetails } from "@/lib/queries";
 
 const Pricing: React.FC = async () => {
   let prices: Stripe.ApiList<Stripe.Price> = {
     data: [],
     has_more: false,
-    object: 'list',
-    url: '',
-  }
+    object: "list",
+    url: "",
+  };
 
   if (process.env.NEXT_AUTLIFY_PRODUCT_ID) {
     prices = await stripe.prices.list({
       product: process.env.NEXT_AUTLIFY_PRODUCT_ID,
       active: true,
-    })
+    });
   }
 
-  const userDetails = await getAuthUserDetails()
+const user = await getAuthUserDetails();
 
   return (
-    <section className="min-h-screen relative overflow-hidden">
-      {/* Premium Background */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-400/30 to-cyan-400/30 blur-3xl dark:from-blue-500/20 dark:to-cyan-500/20" />
-        <div className="absolute bottom-[-200px] right-[-200px] h-[600px] w-[600px] rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl dark:from-cyan-500/15 dark:to-blue-500/15" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:80px_80px] opacity-[0.15] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_100%)]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-20 sm:pb-24">
-        {/* Breadcrumb */}
-        <nav className="mb-8" aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-            <li><Link href="/" className="hover:text-foreground transition-colors">Home</Link></li>
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            <li className="text-foreground font-medium">Pricing</li>
-          </ol>
-        </nav>
-
-        {/* Header */}
-        <div className="text-center mb-16 sm:mb-20">
-          {/* Badge */}
-          {/* <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur-sm mb-6" role="status">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>All plans include 14-day free trial</span>
-          </div> */}
-          
-          <h1 className="font-bold tracking-tight text-4xl sm:text-5xl lg:text-6xl leading-[1.1]">
-            Simple, Transparent
-            <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-cyan-400 dark:to-blue-400">
-              Pricing
-            </span>
+    <div className="w-full min-h-screen relative overflow-hidden bg-background">
+      {/* Ambient background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.05),transparent_50%)]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_80%)]" aria-hidden="true" />
+      
+      {/* Header Section */}
+      <section className="relative px-4 pt-16 sm:pt-28">
+        <div className="container mx-auto max-w-4xl text-center">
+ 
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold max-w-4xl mx-auto text-center relative bg-clip-text text-transparent bg-gradient-to-b from-foreground via-foreground/90 to-foreground/70 leading-tight pb-2">
+            Pricing Plans
           </h1>
-          
-          <p className="mx-auto mt-6 max-w-3xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Choose the right plan for your agency. All plans include a 14-day free trial.
-            <br className="hidden sm:block" />
-            No credit card required to get started.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-6 leading-relaxed">
+            Choose the plan that best fits your needs and start enhancing your
+            productivity today.
           </p>
         </div>
+      </section>
 
-        <Separator className="mb-16 sm:mb-20" />
-
-        {/* Pricing Cards */}
-        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 mx-auto max-w-6xl">
+      {/* Pricing Cards Section */}
+      <section
+        className="relative mx-auto max-w-6xl px-4 pt-18 sm:px-6 lg:px-8 pb-24 sm:pb-40"
+        aria-labelledby="pricing-heading"
+      >
+        <div className="grid gap-6 md:grid-cols-3">
           {prices.data.map((price) => {
-            const cardInfo = pricingCards.find((c) => c.title === price.nickname)
-            const isPopular = price.nickname === 'Advanced'
+            const cardInfo = pricingCards.find((c) => c.title === price.nickname);
+            const isPopular = price.nickname === "Advanced";
 
             const amount =
-              price.unit_amount != null ? Math.round(price.unit_amount / 100) : 0
-            const interval = price.recurring?.interval || 'month'
+              price.unit_amount != null ? Math.round(price.unit_amount / 100) : 0;
+            const interval = price.recurring?.interval || "month";
+
+            // Premium card border wrapper:
+            // - Idle: subtle border with light/dark mode awareness
+            // - Hover: primary gradient border with enhanced shadow
+            const wrapperClass = clsx(
+              "group relative rounded-2xl p-[1px] transition-all duration-500 max-w-[340px]",
+              // Idle state - refined borders using theme colors
+              "bg-gradient-to-br from-border via-border/60 to-border",
+              // Hover effects with smooth transitions
+              "hover:-translate-y-1",
+              "hover:bg-[linear-gradient(135deg,hsl(var(--primary)/0.6),hsl(var(--primary)/0.3),hsl(var(--primary)/0.1))]",
+              "hover:shadow-[0_8px_30px_hsl(var(--foreground)/0.08),0_0_0_1px_hsl(var(--primary)/0.2)]"
+            );
+
+            // Card surface with premium gradients and glass effect
+            const surfaceClass = clsx(
+              "relative overflow-hidden rounded-2xl border-0 flex flex-col h-full backdrop-blur-sm bg-card",
+              "shadow-[inset_0_1px_0_hsl(var(--border)),inset_0_-1px_0_hsl(var(--border)/0.5)]",
+              "transition-all duration-500"
+            );
+            //pointer-events-none absolute left-0 top-[-100px] z-[-1] h-full w-full bg-[radial-gradient(100%_100%_at_50%_50%,hsl(0deg_0%_100%/8%)_0,hsl(0deg_0%_100%/2%)_50%)] blur-2xl md:left-[-100px] md:h-[calc(100%+200px)] md:w-[calc(100%+200px)]
 
             return (
-              <Card
-                key={price.id}
-                className={clsx(
-                  'group relative flex flex-col justify-between backdrop-blur-sm transition-all duration-300',
-                  'hover:-translate-y-1 hover:shadow-2xl',
-                  isPopular
-                    ? 'border-2 border-primary/40 shadow-xl shadow-blue-500/20 bg-gradient-to-br from-background/95 to-primary/5 dark:shadow-blue-500/10'
-                    : 'border border-border/50 bg-gradient-to-br from-background/80 to-background/40 hover:border-primary/30'
-                )}
-                role="article"
-                aria-label={`${price.nickname} pricing plan`}
-              >
-                {isPopular && (
-                  <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-1.5 text-xs font-semibold text-white shadow-lg" role="status">
-                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                      Most Popular
-                    </span>
-                  </div>
-                )}
+              <div key={price.id} className={wrapperClass}>
+                <Card
+                  className={surfaceClass}
+                  role="article"
+                  aria-label={`${price.nickname} pricing plan`}
+                >
+                  {/* Hover glow overlay with refined gradients */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 bg-[radial-gradient(600px_circle_at_50%_-10%,hsl(var(--primary)/0.12),transparent_55%)]"
+                  />
 
-                <CardHeader className="px-6 pt-8 pb-6">
-                  <CardTitle className="text-2xl font-bold">
-                    {price.nickname}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                    {cardInfo?.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="px-6 py-6 space-y-6">
-                  {/* Price */}
-                  <div className="flex items-baseline gap-2">
-                    <span className={clsx(
-                      'text-5xl font-bold tracking-tight',
-                      isPopular && 'bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-cyan-400'
-                    )}>
-                      RM {amount}
-                    </span>
-                    <span className="text-base text-muted-foreground font-medium">/{interval}</span>
-                  </div>
-
-                  <Separator className={clsx(
-                    isPopular ? 'bg-gradient-to-r from-blue-500/30 to-cyan-500/30' : ''
-                  )} />
-
-                  {/* Features */}
-                  <ul className="space-y-3" role="list" aria-label="Plan features">
-                    {cardInfo?.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500" aria-hidden="true">
-                          <Check className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="text-sm text-foreground leading-relaxed">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Trial Badge */}
-                  {userDetails?.trialEligibled && cardInfo?.trialEnabled && (
-                    <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-cyan-500/10 px-4 py-3 text-center" role="status">
-                      <p className="text-sm font-medium text-primary flex items-center justify-center gap-2">
-                        <Sparkles className="h-4 w-4" aria-hidden="true" />
-                        14-day free trial included
-                      </p>
+                  <CardHeader className="relative px-7 pt-7 pb-5 min-h-[150px]">
+                    <div className="flex items-center justify-between mb-5 h-7">
+                      <div className="flex-shrink-0">
+                        {isPopular && (
+                          <div className="rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-sm">
+                            ✨ Popular
+                          </div>
+                        )}
+                      </div>
+                      <div className="rounded-lg bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground border border-border">
+                        {price.nickname}
+                      </div>
                     </div>
-                  )}
-                </CardContent>
+                    <CardTitle className="text-xl font-bold min-h-[28px]">
+                      {cardInfo?.title || price.nickname}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                      {cardInfo?.description}
+                    </CardDescription>
+                  </CardHeader>
 
-                <CardFooter className="px-6 pb-8 pt-4">
-                  <Link
-                    href={`/site/pricing/checkout/${price.id}`}
-                    className={clsx(
-                      'w-full text-center rounded-xl font-semibold text-base transition-all duration-200',
-                      'h-12 inline-flex items-center justify-center gap-2',
-                      'focus:outline-none focus:ring-2 focus:ring-offset-2',
-                      isPopular
-                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 focus:ring-blue-500'
-                        : 'bg-secondary hover:bg-secondary/80 text-foreground border-2 border-border hover:border-primary/50 focus:ring-primary'
-                    )}
-                    aria-label={`Get started with ${price.nickname} plan`}
-                  >
-                    Get Started
-                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                  </Link>
-                </CardFooter>
-              </Card>
-            )
+                  <CardContent className="relative px-7 py-5 flex-1">
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2.5 h-14">
+                      <span className="text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
+                        RM {amount}
+                      </span>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        / {interval}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground mt-5 min-h-[44px] leading-relaxed">
+                      {cardInfo?.highlight ||
+                        `The best option for ${price.nickname?.toLowerCase()} notetakers`}
+                    </p>
+
+                    {/* Divider */}
+                    <div className="mt-7 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+
+                    {/* Features */}
+                    <ul className="space-y-3.5 pt-7" role="list" aria-label="Plan features">
+                      {cardInfo?.features.map((feature, idx) => (
+                        <li key={feature} className="flex items-start gap-3">
+                          <div className="flex-shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 border border-primary/20 transition-all duration-300 group-hover:bg-primary/20 group-hover:border-primary/40 mt-0.5" aria-hidden="true">
+                            <Check className="h-3.5 w-3.5 text-muted-foreground/80 group-hover:text-primary/90 transition-all duration-300 group-hover:scale-110" strokeWidth={2.5} />
+                          </div>
+                          <span className="text-sm text-foreground leading-relaxed font-medium">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter className="relative px-7 pb-7 pt-5">
+                    <Link
+                      href={`/site/pricing/checkout/${price.id}`}
+                      className={clsx(
+                        "group/cta w-full text-center rounded-xl font-bold text-base transition-all duration-300",
+                        "h-12 inline-flex items-center justify-center gap-1.5",
+                        "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background",
+                        isPopular
+                          ? // Popular - Premium primary gradient
+                            "bg-primary hover:bg-primary/90 "
+                            + "text-primary-foreground "
+                            + "shadow-[0_8px_30px_hsl(var(--primary)/0.3)] "
+                            + "hover:shadow-[0_12px_40px_hsl(var(--primary)/0.4)] "
+                            + "hover:scale-[1.02] active:scale-[0.99] focus:ring-primary"
+                          : // Regular - Secondary button
+                            "bg-secondary hover:bg-secondary/80 "
+                            + "text-secondary-foreground "
+                            + "shadow-sm hover:shadow-md "
+                            + "hover:scale-[1.02] active:scale-[0.99] focus:ring-ring"
+                      )}
+                      aria-label={`Get started with ${price.nickname} plan`}
+                    >
+                      {/* Show "(Trial)" if user is eligible and trial is enabled for the plan else Shows "(Subscribe)" */}
+                      {user?.trialEligibled && cardInfo?.trialEnabled ? (
+                        <span className="font-bold tracking-wide">
+                         Start <span className="text-emerald-400">Trial</span>
+                        </span>
+                      ) : (
+                        <span className="font-bold tracking-wide">
+                          Subscribe
+                        </span>
+                      )}
+                      <ChevronRight
+                        className="h-4 w-4 transition-transform duration-300 group-hover/cta:translate-x-1"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </CardFooter>
+                </Card>
+              </div>
+            );
           })}
         </div>
 
-        {/* Enterprise Section */}
-        <div className="mt-20 sm:mt-24 mx-auto max-w-4xl">
-          <div className="rounded-3xl border border-border/50 bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-sm p-8 sm:p-12 text-center shadow-lg" role="complementary" aria-label="Enterprise plan information">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/20 mb-6" aria-hidden="true">
-              <Lock className="h-8 w-8" />
-            </div>
-            
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">
-              Need a custom plan?
-            </h2>
-            
-            <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-              Looking for enterprise features, custom integrations, or dedicated support?
-              Our team is here to help you build the perfect solution.
-            </p>
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
+      </section>
 
-            <Link
-              href="/agency/sign-up"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="Contact sales team"
-            >
-              Contact Sales
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+      <section className="relative mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center pb-16">
+        <p className="text-base text-muted-foreground">
+          Have questions?{" "}
+          <Link
+            href="#faq"
+            className="text-primary hover:text-primary/80 font-bold transition-colors focus:outline-none focus:underline underline-offset-4"
+          >
+            View our FAQ
+          </Link>
+          {" "}or{" "}
+          <Link
+            href="/contact"
+            className="text-primary hover:text-primary/80 font-bold transition-colors focus:outline-none focus:underline underline-offset-4"
+          >
+            contact support
+          </Link>
+        </p>
+      </section>
+    </div>
+  );
+};
 
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-8">
-              <Lock className="h-4 w-4" aria-hidden="true" />
-              <span>Secure payment powered by Stripe</span>
-            </div>
-          </div>
-        </div>
-
-        {/* FAQ Teaser */}
-        <div className="mt-20 sm:mt-24 text-center">
-          <p className="text-sm text-muted-foreground">
-            Have questions?{' '}
-            <Link
-              href="#faq"
-              className="text-primary hover:underline font-semibold focus:outline-none focus:underline"
-            >
-              View our FAQ
-            </Link>
-            {' '}or{' '}
-            <Link
-              href="/contact"
-              className="text-primary hover:underline font-semibold focus:outline-none focus:underline"
-            >
-              contact support
-            </Link>
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export default Pricing
+export default Pricing;

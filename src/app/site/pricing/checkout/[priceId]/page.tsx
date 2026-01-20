@@ -62,15 +62,18 @@ export default async function CheckoutPage({ params }: Props) {
             country: existingCustomer.address.country ?? null,
         } : null,
         metadata: existingCustomer.metadata as Record<string, string>,
+        default_payment_method: existingCustomer.invoice_settings.default_payment_method ?? null,
     } : null
 
     const paymentMethodsData = existingPaymentMethods.map(pm => ({
         id: pm.id,
         card: pm.card ? {
+            cardholder_name: pm.card_present?.cardholder_name || null,
             brand: pm.card.brand,
             last4: pm.card.last4,
             exp_month: pm.card.exp_month,
             exp_year: pm.card.exp_year,
+            isDefault: pm.id === customerData?.default_payment_method ? true : false
         } : null,
     }))
 

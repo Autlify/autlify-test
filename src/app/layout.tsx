@@ -6,6 +6,7 @@ import { AuthProvider } from '@/providers/auth-provider'
 import ModalProvider from '@/providers/modal-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as SonnarToaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const font = DM_Sans({ subsets: ['latin'] })
 
@@ -24,7 +25,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={font.className}>
+      <body className={`${font.className } bg-background text-foreground`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -32,11 +33,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ModalProvider>
-              {children}
-              <Toaster />
-              <SonnarToaster position="bottom-left" />
-            </ModalProvider>
+            <TooltipProvider>
+              <ModalProvider>
+                {children}
+                <Toaster />
+                <SonnarToaster position="bottom-left" />
+              </ModalProvider>
+            </TooltipProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

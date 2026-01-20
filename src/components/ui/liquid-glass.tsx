@@ -5,7 +5,7 @@ import LiquidGlassBase  from 'liquid-glass-react'
 
 type Props = React.ComponentProps<typeof LiquidGlassBase>;
 
-const LiquidGlassComponent = (props: Props) => {
+const LiquidGlass = (props: Props) => {
   return (
     <LiquidGlassBase
     {...props}
@@ -16,6 +16,6 @@ const LiquidGlassComponent = (props: Props) => {
   );
 }
 
-LiquidGlassComponent.displayName = 'LiquidGlassComponent';
+LiquidGlass.displayName = 'LiquidGlass';
 
-export default LiquidGlassComponent;
+export default LiquidGlass;

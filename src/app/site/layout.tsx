@@ -1,8 +1,8 @@
 'use client'
 
 import Navigation from '@/components/site/navigation'
-import { SiteHeader } from '@/components/site/navbar'
-import { SiteFooter } from '@/components/site/footer'
+import { Navbar } from '@/components/site/navbar'
+import { Footer } from '@/components/site/footer'
 import React from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -11,11 +11,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const hideNavigation = pathname?.includes('/checkout')
 
   return (
-    <main className="h-full">
+    <main className={`${hideNavigation} ? 'w-full' : 'w-full pt-16 min-h-screen'}`}>
       {/* {!hideNavigation && <Navigation />} */}
-      {!hideNavigation && <SiteHeader />}
+      {!hideNavigation && <Navbar />}
       {children}
-      {!hideNavigation && <SiteFooter />}
+      {!hideNavigation && <Footer />}
     </main>
   )
 }

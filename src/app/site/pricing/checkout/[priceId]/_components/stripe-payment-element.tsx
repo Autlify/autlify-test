@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils'
 type Props = {
   billingData: any
   onPaymentMethodCollected: (paymentMethodId: string) => void
+  onCardChange?: (data: { brand: string; last4: string; complete: boolean }) => void
 }
 
-export function StripePaymentElement({ billingData, onPaymentMethodCollected }: Props) {
+export function StripePaymentElement({ billingData, onPaymentMethodCollected, onCardChange }: Props) {
   const stripe = useStripe()
   const elements = useElements()
   const [error, setError] = useState<string | null>(null)
@@ -51,6 +52,16 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected }: 
 
       if (paymentMethod?.id) {
         console.log('💳 Payment method created:', paymentMethod.id)
+        
+        // Update card preview with actual data from payment method
+        if (paymentMethod.card) {
+          onCardChange?.({
+            brand: paymentMethod.card.brand || 'visa',
+            last4: paymentMethod.card.last4 || '',
+            complete: true,
+          })
+        }
+        
         onPaymentMethodCollected(paymentMethod.id)
         setIsValidated(true)
         setError(null)
@@ -65,12 +76,12 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected }: 
   }
 
   return (
-    <div className="space-y-4">
-      <div className="border-l-4 border-blue-500 dark:border-blue-400 pl-4 mb-4">
-        <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
+    <div className="space-y-5">
+      <div className="border-l-4 border-primary dark:border-primary/80 pl-5 mb-5">
+        <h3 className="text-xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent tracking-tight">
           Card Information
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Enter your card details securely</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Enter your card details securely</p>
       </div>
       <PaymentElement 
         options={{
@@ -91,6 +102,16 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected }: 
             },
           },
         }}
+        onChange={(event) => {
+          // Update card preview when user types
+          if (event.value.type === 'card' && event.complete) {
+            onCardChange?.({
+              brand: 'visa', // Stripe doesn't expose this in onChange, will get it after validation
+              last4: '',
+              complete: event.complete,
+            })
+          }
+        }}
       />
       
       <Button
@@ -98,10 +119,10 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected }: 
         onClick={handleValidateCard}
         disabled={!stripe || isValidating || isValidated}
         className={cn(
-          "w-full shadow-lg transition-all",
+          "w-full h-12 font-bold transition-all duration-300",
           isValidated
-            ? "bg-green-500 hover:bg-green-600 text-white"
-            : "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-blue-200 dark:shadow-blue-950/50"
+            ? "bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-[0_8px_30px_rgba(34,197,94,0.3)] hover:shadow-[0_12px_40px_rgba(34,197,94,0.4)]"
+            : "bg-gradient-to-br from-primary via-blue-600 to-blue-700 hover:from-primary hover:via-blue-500 hover:to-blue-600 dark:from-primary dark:via-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:via-primary dark:hover:to-blue-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_12px_40px_rgba(var(--primary-rgb,59,130,246),0.35),0_0_0_1px_rgba(255,255,255,0.15)_inset] dark:shadow-[0_10px_40px_rgba(var(--primary-rgb,59,130,246),0.3),0_0_0_1px_rgba(255,255,255,0.1)_inset] dark:hover:shadow-[0_15px_50px_rgba(var(--primary-rgb,59,130,246),0.45),0_0_0_1px_rgba(255,255,255,0.15)_inset] hover:scale-[1.01] active:scale-[0.99]"
         )}
       >
         {isValidating ? (
@@ -119,14 +140,18 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected }: 
       </Button>
 
       {error && (
-        <p className="text-sm text-destructive mt-2">{error}</p>
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-lg p-3">
+          <p className="text-sm text-red-700 dark:text-red-300 font-medium">{error}</p>
+        </div>
       )}
       {isValidated && (
-        <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-          ✓ Payment method validated successfully
-        </p>
+        <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 rounded-lg p-3">
+          <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+            ✓ Payment method validated successfully
+          </p>
+        </div>
       )}
-      <p className="text-xs text-gray-500 dark:text-gray-400">
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">
         Your payment information is securely processed by Stripe. We never store your card details.
       </p>
     </div>

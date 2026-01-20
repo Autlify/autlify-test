@@ -8,7 +8,7 @@ import { useTheme } from 'next-themes';
 import { ThemeProvider } from '@/providers/theme-provider';
 
 
-export function SiteFooter() {
+export function Footer() {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
 
@@ -77,7 +77,7 @@ export function SiteFooter() {
 
   return (
     <motion.footer
-      className="relative overflow-hidden"
+      className="border-t border-border/40 bg-background/95 backdrop-blur relative overflow-hidden"
       style={{
         background: `linear-gradient(135deg, 
           hsl(${'bg-background'}) 0%, 
@@ -223,36 +223,36 @@ export function SiteFooter() {
                     {category}
                   </h3>
                   <ul className="space-y-3">
-                
-                      {links.map((link, linkIndex) => (
-                        <motion.li
-                          key={link.name}
-                          initial={{ opacity: 0, x: -10 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{
-                            duration: 0.3,
-                            delay: categoryIndex * 0.1 + linkIndex * 0.05
-                          }}
-                          viewport={{ once: true }}
-                        >
-                          <Link
-                            href={link.href}
-                            className="relative text-sm text-muted-foreground hover:text-foreground transition-all duration-200 group inline-block"
-                          >
-                            <span className="relative z-10">{link.name}</span>
 
-                            {/* Hover underline effect */}
-                            <motion.div
-                              className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300"
-                              style={{
-                                background: `linear-gradient(90deg, 
+                    {links.map((link, linkIndex) => (
+                      <motion.li
+                        key={link.name}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: categoryIndex * 0.1 + linkIndex * 0.05
+                        }}
+                        viewport={{ once: true }}
+                      >
+                        <Link
+                          href={link.href}
+                          className="relative text-sm text-muted-foreground hover:text-foreground transition-all duration-200 group inline-block"
+                        >
+                          <span className="relative z-10">{link.name}</span>
+
+                          {/* Hover underline effect */}
+                          <motion.div
+                            className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300"
+                            style={{
+                              background: `linear-gradient(90deg, 
                                 hsl(${'primary'}) 0%, 
                                 hsl(${'accent'}) 100%)`
-                              }}
-                            />
-                          </Link>
-                        </motion.li>
-                      ))} 
+                            }}
+                          />
+                        </Link>
+                      </motion.li>
+                    ))}
                   </ul>
                 </motion.div>
               ))}
@@ -261,8 +261,8 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom Section */}
-        <motion.div
-          className="py-6 relative"
+        {/* <motion.div
+          className="mb-6 relative"
           style={{ borderTop: `1px solid hsl(${'border'}/0.3)` }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -298,7 +298,7 @@ export function SiteFooter() {
               <span>Next.js, Tailwind CSS, and Framer Motion</span>
             </motion.div>
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </motion.footer>
   );

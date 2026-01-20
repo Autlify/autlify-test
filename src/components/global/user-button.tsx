@@ -29,10 +29,10 @@ export function UserButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative h-8 w-8 rounded-full">
+        <button className="relative h-8 w-8 text-foreground rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage src={session.user.image || ''} alt={session.user.name || ''} />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback><span className="text-sm">{initials}</span></AvatarFallback>
           </Avatar>
         </button>
       </DropdownMenuTrigger>

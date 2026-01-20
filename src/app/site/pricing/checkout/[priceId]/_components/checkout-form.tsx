@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { Loader2, Check, ChevronLeft, Tag, MoreVertical, Trash2 } from 'lucide-react'
+import { Loader2, Check, ChevronLeft, Tag, MoreVertical, Trash2, CreditCard, X } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +27,12 @@ import {
   PostalCodeInput,
   PhoneCodeSelector,
 } from '@/components/global/location'
+import { MultiStepLoader } from '@/components/ui/multi-step-loader'
+import { Country, State, City } from 'country-state-city'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { SavedBankCardsGallery, InteractiveBankCard } from '@/components/ui/bank-card'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -98,21 +101,22 @@ type Props = {
   existingPaymentMethods: {
     id: string
     card: {
+      cardholder_name: string | null
       brand: string
       last4: string
       exp_month: number
       exp_year: number
+      isDefault: boolean
     } | null
   }[]
 }
 
-type Step = 'billing' | 'payment' | 'review' | 'processing'
+type Step = 'billing' | 'payment' | 'review'
 
 const steps: { id: Step; label: string; description: string }[] = [
   { id: 'billing', label: 'Billing', description: 'Billing information' },
   { id: 'payment', label: 'Payment', description: 'Payment method' },
   { id: 'review', label: 'Review', description: 'Review & Confirm' },
-  { id: 'processing', label: 'Processing', description: 'Creating your agency' },
 ]
 
 export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingCustomer, existingPaymentMethods }: Props) {
@@ -132,6 +136,26 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
     existingPaymentMethods.length > 0 ? existingPaymentMethods[0].id : null
   )
 
+  // Card modal state
+  const [cardModalOpen, setCardModalOpen] = useState(false)
+  const [cardModalMode, setCardModalMode] = useState<'add' | 'replace'>('add')
+  const [cardPreview, setCardPreview] = useState({
+    brand: 'visa' as string,
+    last4: '',
+    complete: false,
+    isFlipped: false,
+  })
+  const [cardToReplace, setCardToReplace] = useState<string | null>(null)
+
+  // Multi-step loader state
+  const [showLoader, setShowLoader] = useState(false)
+  const loadingStates = [
+    { text: 'Verifying payment method' },
+    { text: 'Creating your subscription' },
+    { text: 'Setting up your agency' },
+    { text: 'Finalizing your account' },
+  ]
+
   // Coupon state
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
@@ -143,6 +167,10 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
   const [city, setCity] = useState<string>('')
   const [phoneCode, setPhoneCode] = useState<string>('')
   const [phoneNumber, setPhoneNumber] = useState<string>('')
+
+  const countries = Country.getAllCountries()
+  const states = countryCode ? State.getStatesOfCountry(countryCode) : []
+  const cities = countryCode && stateCode ? City.getCitiesOfState(countryCode, stateCode) : []
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
@@ -172,27 +200,53 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
   useEffect(() => {
     if (existingCustomer) {
       console.log('🔄 Pre-filling form with existing customer data:', existingCustomer.id)
-
       // Parse metadata for additional fields
       const metadata = existingCustomer.metadata || {}
 
       // Pre-fill billing address
       if (existingCustomer.address) {
-        if (existingCustomer.address.line1) form.setValue('line1', existingCustomer.address.line1)
-        if (existingCustomer.address.line2) form.setValue('line2', existingCustomer.address.line2 || '')
-        if (existingCustomer.address.city) {
-          form.setValue('city', existingCustomer.address.city)
-          setCity(existingCustomer.address.city)
-        }
-        if (existingCustomer.address.state) {
-          form.setValue('state', existingCustomer.address.state)
-          setStateCode(existingCustomer.address.state)
-        }
-        if (existingCustomer.address.postal_code) form.setValue('postalCode', existingCustomer.address.postal_code)
-        if (existingCustomer.address.country) {
-          form.setValue('country', existingCustomer.address.country)
-          setCountryCode(existingCustomer.address.country)
-        }
+        const country = Country.getAllCountries().find(c => c.name === existingCustomer.address?.country)
+        const state = State.getStatesOfCountry(country?.isoCode).find(s => s.name === existingCustomer.address?.state)
+        const city = City.getCitiesOfState(state?.countryCode || '', state?.isoCode || '').find(c => c.name === existingCustomer.address?.city)
+        const countryCodeLength = country ? country.isoCode.length + 1 : 0
+        // Matches if existing phone starts with country phone code eg., +60 for Malaysia
+        const phoneMatch = existingCustomer.phone ? existingCustomer.phone.match(/^(\+\d+)(.*)$/) : null // Matches +code and rest of number Eg., +1 5551234567
+        // Match '+' & country isocode at start of stripe phone number
+        const phoneCodeMatch = existingCustomer.phone && country ? existingCustomer.phone.match(new RegExp(`^(\\+${country.phonecode})(.*)$`)) : null
+        const phoneCodeFromMatch = phoneCodeMatch ? phoneCodeMatch[1] : null
+        const phoneNumberFromMatch = phoneCodeMatch ? phoneCodeMatch[2].toString().trim() : null
+
+
+        form.setValue('line1', existingCustomer.address.line1 || '')
+        form.setValue('line2', existingCustomer.address.line2 || '')
+        setCountryCode(country ? country.isoCode : '')
+        form.setValue('country', country ? country.name : existingCustomer.address.country || '')
+        form.setValue('countryCode', country ? country.isoCode : '')
+        setStateCode(state ? state.isoCode : '')
+        form.setValue('state', state ? state.name : existingCustomer.address.state || '')
+        form.setValue('stateCode', state ? state.isoCode : '')
+        setCity(city ? city.name : '')
+        form.setValue('city', city ? city.name : existingCustomer.address.city || '')
+        form.setValue('postalCode', existingCustomer.address.postal_code || '')
+        setPhoneCode(phoneCodeFromMatch || '')
+        form.setValue('phoneCode', phoneCodeFromMatch || '')
+        setPhoneNumber(phoneNumberFromMatch || existingCustomer.phone || '')
+        form.setValue('companyPhone', phoneNumberFromMatch || existingCustomer.phone || '')
+
+
+
+        console.log('🏙️ Pre-filled address:', {
+          line1: existingCustomer.address.line1 || '',
+          line2: existingCustomer.address.line2 || '',
+          country: country ? country.name : existingCustomer.address.country || '',
+          countryCode: country ? country.isoCode : '',
+          state: state ? state.name : existingCustomer.address.state || '',
+          stateCode: state ? state.isoCode : '',
+          city: city ? city.name : existingCustomer.address.city || '',
+          postalCode: existingCustomer.address.postal_code || '',
+          phoneCode: phoneCodeFromMatch || '',
+          companyPhone: phoneNumberFromMatch || `${existingCustomer.phone} (stripe)` || '',
+        })
       }
 
       // Pre-fill user details from metadata
@@ -201,19 +255,19 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
       if (metadata.tinNumber) form.setValue('tinNumber', metadata.tinNumber)
 
       // Pre-fill phone
-      if (existingCustomer.phone) {
-        // Extract phone code and number
-        const phoneMatch = existingCustomer.phone.match(/^(\+\d+)(.*)$/)
-        if (phoneMatch) {
-          setPhoneCode(phoneMatch[1])
-          form.setValue('phoneCode', phoneMatch[1])
-          setPhoneNumber(phoneMatch[2].trim())
-          form.setValue('companyPhone', phoneMatch[2].trim())
-        } else {
-          setPhoneNumber(existingCustomer.phone)
-          form.setValue('companyPhone', existingCustomer.phone)
-        }
-      }
+      // if (existingCustomer.phone) {
+      //   // Extract phone code and number
+      //   const phoneMatch = existingCustomer.phone.match(/^(\+\d+)(.*)$/) // Matches +code and rest of number Eg., +1 5551234567
+      //   if (phoneMatch) {
+      //     setPhoneCode(phoneMatch[1]) // 1st capture group is phone code Eg., +1, +44, +60, etc.
+      //     form.setValue('phoneCode', phoneMatch[1]) // Set phone code in form Eg., +1, +44, +60, etc.
+      //     setPhoneNumber(phoneMatch[2].trim()) // 2nd capture group is the rest of the number
+      //     form.setValue('companyPhone', phoneMatch[2].trim()) // Set phone number in form
+      //   } else {
+      //     setPhoneNumber(existingCustomer.phone) // Fallback to full phone if parsing fails
+      //     form.setValue('companyPhone', existingCustomer.phone) // Set full phone number in form
+      //   }
+      // }
 
       console.log('✅ Form pre-filled successfully')
     }
@@ -247,7 +301,6 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
       ],
       payment: [],
       review: [],
-      processing: [],
     }
 
     const fields = fieldsMap[step]
@@ -347,14 +400,14 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
   const processCheckout = async () => {
     let agencyId = ''  // Declare at function scope
     try {
-      setCurrentStep('processing')
+      setShowLoader(true)
       const data = savedBillingData || form.getValues()
 
       // Format phone number with country code
-      const formattedPhone = data.phoneCode && data.companyPhone 
-        ? `${data.phoneCode}${data.companyPhone}` 
+      const formattedPhone = data.phoneCode && data.companyPhone
+        ? `${data.phoneCode}${data.companyPhone}`
         : data.companyPhone
-      
+
       console.log('📞 Phone formatting:', {
         phoneCode: data.phoneCode,
         companyPhone: data.companyPhone,
@@ -443,7 +496,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
       console.log('📝 Creating agency...')
       const { upsertAgency } = await import('@/lib/queries')
       agencyId = uuid()
-      
+
       await upsertAgency({
         id: agencyId,
         customerId: finalCustomerId,
@@ -498,12 +551,12 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
       router.push(`/agency/${agencyId}`)
     } catch (error) {
       console.error('Checkout error:', error)
+      setShowLoader(false)
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to process checkout',
         variant: 'destructive',
       })
-      setCurrentStep('review')
     }
   }
 
@@ -560,35 +613,35 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
     <div className="min-h-screen relative overflow-hidden">
       {/* Background (premium: blobs + subtle grid mask) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-300/20 to-purple-300/20 blur-3xl dark:from-blue-600/10 dark:to-purple-600/10" />
-        <div className="absolute bottom-[-180px] right-[-180px] h-[520px] w-[520px] rounded-full bg-gradient-to-br from-cyan-300/15 to-pink-300/15 blur-3xl dark:from-cyan-600/10 dark:to-pink-600/10" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.22] [mask-image:radial-gradient(ellipse_55%_45%_at_50%_0%,#000_55%,transparent_78%)]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-background to-purple-50/20 dark:from-slate-900/50 dark:via-background dark:to-purple-950/30" />
+        <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-300/25 to-purple-300/25 blur-3xl dark:from-blue-600/15 dark:to-purple-600/15" />
+        <div className="absolute bottom-[-180px] right-[-180px] h-[520px] w-[520px] rounded-full bg-gradient-to-br from-cyan-300/20 to-pink-300/20 blur-3xl dark:from-cyan-600/15 dark:to-pink-600/15" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.15] dark:opacity-[0.08] [mask-image:radial-gradient(ellipse_55%_45%_at_50%_0%,#000_55%,transparent_78%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-background to-purple-50/30 dark:from-slate-900/60 dark:via-background dark:to-purple-950/40" />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12 relative z-10">
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-br from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 text-transparent bg-clip-text pb-1">
               Complete Your Subscription
             </h1>
-            <p className="text-sm text-muted-foreground mt-2">
-              Home / Pricing / <span className="text-foreground">Checkout</span>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-3 font-medium">
+              Home / Pricing / <span className="text-neutral-900 dark:text-neutral-200 font-semibold">Checkout</span>
             </p>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push('/site/pricing')}
-            className="hover:bg-blue-50 dark:hover:bg-blue-950/50"
+            className="hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Pricing
           </Button>
         </div>
-        <Separator className="my-6" />
+        <Separator className="my-8 bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-6">
@@ -598,11 +651,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
 
             {/* Step Indicator */}
-            <div className="relative bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl p-5 sm:p-6 shadow-sm border border-border/60">
+            <div className="relative bg-gradient-to-b from-white via-neutral-50/50 to-white dark:from-neutral-900/95 dark:via-neutral-900/80 dark:to-black/95 backdrop-blur-sm rounded-2xl p-2 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-neutral-300/60 dark:border-neutral-700/60">
               {/* Progress Lines Background */}
-              <div className="absolute top-[calc(1.5rem+24px)] left-[8%] right-[8%] flex items-center z-0">
+              <div className="absolute top-[calc(1.5rem+16px)] left-[8%] right-[8%] flex items-center z-0">
                 {steps.slice(0, -1).map((step, index) => (
-                  <div key={`line-${index}`} className={`h-1 bg-gray-200 dark:bg-slate-700 rounded-full ${index === 0 ? 'flex-1' : 'flex-1'}`}>
+                  <div key={`line-${index}`} className={`h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full ${index === 0 ? 'flex-1' : 'flex-1'}`}>
                     <div
                       className={`h-1 rounded-full transition-all duration-500 ${completedSteps.has(step.id) ? 'bg-gradient-to-r from-blue-500 to-blue-600 w-full' : 'w-0'
                         }`}
@@ -623,16 +676,16 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                       <button
                         onClick={() => isAccessible && goToStep(step.id)}
                         disabled={!isAccessible}
-                        className="flex flex-col items-center group cursor-pointer disabled:cursor-not-allowed transition-all hover:scale-105"
+                        className="flex flex-col items-center group cursor-pointer disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
                       >
                         <div
                           className={`
-                        w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center mb-2 transition-all duration-300 shadow-md bg-white dark:bg-slate-900
+                         w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-1 transition-all duration-500 bg-white dark:bg-slate-900
                         ${isCompleted
-                              ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-blue-200 dark:shadow-blue-900/50'
+                              ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-[0_8px_20px_rgba(59,130,246,0.3)] dark:shadow-[0_12px_30px_rgba(59,130,246,0.4)]'
                               : isCurrent
-                                ? 'bg-gradient-to-br from-blue-400 to-cyan-400 text-white shadow-blue-300 dark:shadow-blue-800/50 scale-110'
-                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 shadow-none'
+                                ? 'bg-gradient-to-br from-primary via-blue-500 to-cyan-500 text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.5)] scale-110'
+                                : 'bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 text-neutral-400 dark:text-neutral-500 shadow-sm'
                             }
                       `}
                         >
@@ -661,890 +714,917 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
             </div>
 
             {/* Main Form */}
-            <Card className="border border-border/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm shadow-sm">
-              <CardContent className="pt-5 pb-6 px-5 sm:px-6">
-                <form>
-                  {/* Billing Information */}
-                  {currentStep === 'billing' && (
-                    <div className="space-y-6">
-                      <div className="border-l-4 border-blue-500 dark:border-blue-400 pl-4">
-                        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-1">
-                          Account
-                        </h2>
-                        {/* <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Your contact information
-                        </p> */}
-                      </div>
-
-
-                      <div className="grid md:grid-cols-2 gap-5">
-                        <div>
-                          <Label className="mb-2 block">Full Name *</Label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Input
-                              id="firstName"
-                              type="text"
-                              {...form.register('firstName')}
-                              placeholder="First"
-                              className="h-10"
-                            />
-                            <Input
-                              id="lastName"
-                              type="text"
-                              {...form.register('lastName')}
-                              placeholder="Last"
-                              className="h-10"
-                            />
-                          </div>
-                          {(form.formState.errors.firstName || form.formState.errors.lastName) && (
-                            <p className="text-sm text-destructive mt-1">
-                              {form.formState.errors.firstName?.message || form.formState.errors.lastName?.message}
-                            </p>
-                          )}
+            <div className="group relative rounded-2xl p-[1.5px] bg-gradient-to-br from-neutral-300/70 via-neutral-200/50 to-neutral-300/70 dark:from-neutral-700/60 dark:via-neutral-800/40 dark:to-neutral-700/60 transition-all duration-500 shadow-sm dark:shadow-[0_0_20px_rgba(0,0,0,0.2)]">
+              <Card className="border-0 bg-gradient-to-b from-white via-neutral-50/50 to-white dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800/90 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.02)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.5)] rounded-2xl">
+                <CardContent className="pt-6 pb-7 px-6 sm:px-7">
+                  <form>
+                    {/* Billing Information */}
+                    {currentStep === 'billing' && (
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
+                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-1 tracking-tight">
+                            Account
+                          </h2>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            Your contact information
+                          </p>
                         </div>
 
-                        <div>
-                          <Label htmlFor="agencyEmail" className="mb-2 block">Email Address *</Label>
-                          <Input
-                            id="agencyEmail"
-                            type="email"
-                            readOnly
-                            {...form.register('agencyEmail')}
-                            placeholder="john@example.com"
-                            className="h-10"
-                          />
-                          {form.formState.errors.agencyEmail && (
-                            <p className="text-sm text-destructive mt-1">
-                              {form.formState.errors.agencyEmail.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
 
-                      <div className="grid md:grid-cols-2 gap-5">
-                        <div>
-                          <Label htmlFor="agencyName" className="mb-2 block">
-                            Tenant Name *
-                          </Label>
-                          <Input
-                            id="agencyName"
-                            {...form.register('agencyName')}
-                            placeholder="My Tenant"
-                            className="h-10"
-                          />
-                          {form.formState.errors.agencyName && (
-                            <p className="text-sm text-destructive mt-1">
-                              {form.formState.errors.agencyName.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="companyPhone" className="mb-2 block">Phone Number*</Label>
-                          <PhoneCodeSelector
-                            value={phoneNumber}
-                            onValueChange={(value, phoneCodeData) => {
-                              setPhoneNumber(value)
-                              setPhoneCode(phoneCodeData || '')
-                              form.setValue('companyPhone', value)
-                              form.setValue('phoneCode', phoneCodeData || '')
-                            }}
-                            countryCode={countryCode}
-                            onCountryCodeChange={(code, countryData) => {
-                              setCountryCode(code)
-                              form.setValue('phoneCode', countryData?.phonecode || '')
-                              form.setValue('country', countryData?.name || '', { shouldValidate: true })
-                              form.setValue('countryCode', code)
-                            }}
-                            placeholder="Enter phone number"
-                            disabled={isLoading}
-                            styleVariant="plain"
-                          />
-
-                          {form.formState.errors.companyPhone && (
-                            <p className="text-sm text-destructive mt-1">
-                              {form.formState.errors.companyPhone.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <Separator className="my-6" />
-
-
-                      <div className="border-l-4 border-blue-500 dark:border-blue-400 pl-4">
-                        <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-1">
-                          Billing
-                        </h2>
-                        {/* <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Billing address and tax information
-                        </p> */}
-                      </div>
-
-
-                      <div className="space-y-5 mt-2">
                         <div className="grid md:grid-cols-2 gap-5">
                           <div>
-                            <Label htmlFor="companyName" className="mb-2 block">Company Name <span className="text-xs text-muted-foreground ml-1">(Optional)</span></Label>
-                            <Input
-                              id="companyName"
-                              {...form.register('companyName')}
-                              placeholder="My Company Ltd."
-                              className="h-10"
-                            />
-                            {form.formState.errors.companyName && (
+                            <Label className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Full Name *</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                id="firstName"
+                                type="text"
+                                {...form.register('firstName')}
+                                placeholder="First"
+                                className="h-10"
+                              />
+                              <Input
+                                id="lastName"
+                                type="text"
+                                {...form.register('lastName')}
+                                placeholder="Last"
+                                className="h-10"
+                              />
+                            </div>
+                            {(form.formState.errors.firstName || form.formState.errors.lastName) && (
                               <p className="text-sm text-destructive mt-1">
-                                {form.formState.errors.companyName.message}
+                                {form.formState.errors.firstName?.message || form.formState.errors.lastName?.message}
                               </p>
                             )}
                           </div>
 
                           <div>
-                            <Label htmlFor="tinNumber" className="mb-2 block">Tax ID <span className="text-xs text-muted-foreground ml-1">(Optional)</span></Label>
+                            <Label htmlFor="agencyEmail" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Email Address *</Label>
                             <Input
-                              id="tinNumber"
-                              {...form.register('tinNumber')}
-                              placeholder="123-45-6789"
+                              id="agencyEmail"
+                              type="email"
+                              readOnly
+                              {...form.register('agencyEmail')}
+                              placeholder="john@example.com"
                               className="h-10"
                             />
-                            {form.formState.errors.tinNumber && (
+                            {form.formState.errors.agencyEmail && (
                               <p className="text-sm text-destructive mt-1">
-                                {form.formState.errors.tinNumber.message}
+                                {form.formState.errors.agencyEmail.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-5">
+                          <div>
+                            <Label htmlFor="agencyName" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">
+                              Tenant Name *
+                            </Label>
+                            <Input
+                              id="agencyName"
+                              {...form.register('agencyName')}
+                              placeholder="My Tenant"
+                              className="h-10"
+                            />
+                            {form.formState.errors.agencyName && (
+                              <p className="text-sm text-destructive mt-1">
+                                {form.formState.errors.agencyName.message}
                               </p>
                             )}
                           </div>
 
-
-                        </div>
-
-                        {/* Address */}
-                        <div>
-                          <Label className="mb-2 block">Address *</Label>
-                          <div className="grid md:grid-cols-4 gap-2">
-                            <Input
-                              id="line2"
-                              {...form.register('line2')}
-                              placeholder="Apt/Suite (Optional)"
-                              className="h-10"
-                            />
-                            <Input
-                              id="line1"
-                              className="md:col-span-2 h-10"
-                              {...form.register('line1')}
-                              placeholder="Street Address"
-                            />
-                            <PostalCodeInput
-                              value={form.watch('postalCode')}
-                              onValueChange={(value: string) => form.setValue('postalCode', value)}
-                              placeholder="Postal Code"
-                            />
-                          </div>
-                          {(form.formState.errors.line1 || form.formState.errors.postalCode) && (
-                            <p className="text-sm text-destructive mt-1">
-                              {form.formState.errors.line1?.message || form.formState.errors.postalCode?.message}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Country, State, City */}
-                        <div className="grid md:grid-cols-3 gap-5">
-
                           <div>
-                            <Label htmlFor="country" className="mb-2 block">Country *</Label>
-                            <CountrySelector
-                              value={countryCode}
-                              onValueChange={(code, countryData) => {
-                                setCountryCode(code)
-                                setStateCode('')
-
-                                form.setValue('country', countryData?.name || '')
-                                form.setValue('countryCode', code)
-                                form.setValue('state', '')
-                                form.setValue('stateCode', '')
-                                form.setValue('city', '')
+                            <Label htmlFor="companyPhone" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Phone Number*</Label>
+                            <PhoneCodeSelector
+                              value={phoneNumber}
+                              onValueChange={(value, phoneCodeData) => {
+                                setPhoneNumber(value)
+                                setPhoneCode(phoneCodeData || '')
+                                form.setValue('companyPhone', value)
+                                form.setValue('phoneCode', phoneCodeData || '')
                               }}
-
-                              placeholder="Select country"
+                              countryCode={countryCode}
+                              onCountryCodeChange={(code, countryData) => {
+                                setCountryCode(code)
+                                form.setValue('phoneCode', countryData?.phonecode || '')
+                                form.setValue('country', countryData?.name || '', { shouldValidate: true })
+                                form.setValue('countryCode', code)
+                              }}
+                              placeholder="Enter phone number"
                               disabled={isLoading}
                               styleVariant="plain"
                             />
-                            {form.formState.errors.country && (
-                              <p className="text-sm text-destructive mt-1">
-                                {form.formState.errors.country.message}
-                              </p>
-                            )}
-                          </div>
 
-
-                          <div>
-                            <Label htmlFor="state" className="mb-2 block">State/Province *</Label>
-                            <StateSelector
-                              countryCode={countryCode}
-                              value={stateCode}
-                              onValueChange={(isoCode: string, stateData: any) => {
-                                setStateCode(isoCode)
-                                form.setValue('state', stateData.name)
-                                form.setValue('stateCode', isoCode)
-                              }}
-                            />
-                            {form.formState.errors.state && (
+                            {form.formState.errors.companyPhone && (
                               <p className="text-sm text-destructive mt-1">
-                                {form.formState.errors.state.message}
-                              </p>
-                            )}
-                          </div>
-
-                          <div>
-                            <Label htmlFor="city" className="mb-2 block">City *</Label>
-                            <CitySelector
-                              countryCode={countryCode}
-                              stateCode={stateCode}
-                              value={city}
-                              onValueChange={(cityName: string, cityData: any) => {
-                                setCity(cityData.name)
-                                form.setValue('city', cityData.name)
-                              }}
-                            />
-                            {form.formState.errors.city && (
-                              <p className="text-sm text-destructive mt-1">
-                                {form.formState.errors.city.message}
+                                {form.formState.errors.companyPhone.message}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="grid md:grid-cols-1 gap-6">
+                        <Separator className="my-6" />
+
+
+                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
+                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-1 tracking-tight">
+                            Billing
+                          </h2>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            Billing address and tax information
+                          </p>
                         </div>
-                      </div>
 
-                    </div>
-                  )}
 
-                  {/* Payment Step */}
-                  {currentStep === 'payment' && (
-                    <div className="space-y-6">
-                      <div className="border-l-4 border-blue-500 dark:border-blue-400 pl-4">
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
-                          Payment Method
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          {existingPaymentMethods.length > 0
-                            ? 'Choose a payment method or add a new card'
-                            : 'Securely add your payment information'
-                          }
-                        </p>
-                      </div>
-
-                      {/* Existing Payment Methods */}
-                      {existingPaymentMethods.length > 0 && (
-                        <div className="space-y-3">
-                          <Label className="text-base font-semibold">Your Saved Cards</Label>
-                          <div className="grid gap-3">
-                            {existingPaymentMethods.map((pm) => {
-                              const isSelected = useExistingPayment && selectedPaymentMethodId === pm.id
-                              const brandColor = pm.card?.brand === 'visa' ? 'from-blue-600 to-blue-700' : pm.card?.brand === 'mastercard' ? 'from-orange-600 to-red-600' : 'from-gray-600 to-gray-700'
-
-                              return (
-                                <div
-                                  key={pm.id}
-                                  onClick={() => {
-                                    setUseExistingPayment(true)
-                                    setSelectedPaymentMethodId(pm.id)
-                                  }}
-                                  className={cn(
-                                    "relative group cursor-pointer transition-all rounded-xl overflow-hidden",
-                                    isSelected ? "ring-2 ring-blue-500 shadow-lg" : "hover:shadow-md"
-                                  )}
-                                >
-                                  <div className={cn(
-                                    "bg-gradient-to-br p-4",
-                                    brandColor
-                                  )}>
-                                    <div className="flex items-start justify-between mb-8">
-                                      <div className="flex items-center gap-2">
-                                        <div className={cn(
-                                          "w-5 h-5 rounded-full border-2 flex items-center justify-center bg-white/20 backdrop-blur-sm",
-                                          isSelected ? "border-white" : "border-white/60"
-                                        )}>
-                                          {isSelected && (
-                                            <div className="w-3 h-3 rounded-full bg-white" />
-                                          )}
-                                        </div>
-                                        <span className="text-xs font-medium text-white/80 uppercase tracking-wider">
-                                          Card Number
-                                        </span>
-                                      </div>
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            <MoreVertical className="h-4 w-4" />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-48">
-                                          <DropdownMenuItem onClick={(e) => {
-                                            e.stopPropagation()
-                                            // TODO: Implement set as default
-                                            toast({ title: 'Set as default - Coming soon' })
-                                          }}>
-                                            <Check className="mr-2 h-4 w-4" />
-                                            Set as Default
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem onClick={(e) => {
-                                            e.stopPropagation()
-                                            // TODO: Implement delete card
-                                            toast({ title: 'Delete card - Coming soon', variant: 'destructive' })
-                                          }}>
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Delete Card
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </div>
-                                    <div className="space-y-4">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-2xl font-bold text-white tracking-widest">
-                                          •••• •••• •••• {pm.card?.last4}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-end justify-between">
-                                        <div>
-                                          <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Card Holder</p>
-                                          <p className="text-sm font-semibold text-white capitalize">
-                                            {user.name || 'Cardholder'}
-                                          </p>
-                                        </div>
-                                        <div className="text-right">
-                                          <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Valid Thru</p>
-                                          <p className="text-sm font-semibold text-white">
-                                            {String(pm.card?.exp_month).padStart(2, '0')}/{String(pm.card?.exp_year).slice(-2)}
-                                          </p>
-                                        </div>
-                                        <div className="bg-white/20 backdrop-blur-sm rounded px-3 py-1">
-                                          <span className="text-xs font-bold text-white uppercase">
-                                            {pm.card?.brand}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-
-                          <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                              <span className="w-full border-t border-gray-200 dark:border-gray-700" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                              <span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">
-                                Or add new card
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* New Payment Method Option - Only show if user has existing cards */}
-                      {existingPaymentMethods.length > 0 && (
-                        <div
-                          onClick={() => setUseExistingPayment(false)}
-                          className={cn(
-                            "p-4 border-2 rounded-lg cursor-pointer transition-all",
-                            !useExistingPayment
-                              ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                              : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700"
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                              !useExistingPayment
-                                ? "border-blue-500"
-                                : "border-gray-300 dark:border-gray-600"
-                            )}>
-                              {!useExistingPayment && (
-                                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                        <div className="space-y-5 mt-2">
+                          <div className="grid md:grid-cols-2 gap-5">
+                            <div>
+                              <Label htmlFor="companyName" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Company Name <span className="text-xs text-muted-foreground ml-1 font-normal">(Optional)</span></Label>
+                              <Input
+                                id="companyName"
+                                {...form.register('companyName')}
+                                placeholder="My Company Ltd."
+                                className="h-10"
+                              />
+                              {form.formState.errors.companyName && (
+                                <p className="text-sm text-destructive mt-1">
+                                  {form.formState.errors.companyName.message}
+                                </p>
                               )}
                             </div>
-                            <span className="font-medium">Add a new card</span>
-                          </div>
-                        </div>
-                      )}
 
-                      {/* Stripe Elements for New Card */}
-                      {!useExistingPayment && !savedPaymentMethodId && (
-                        <div className="mt-4 p-4 border rounded-lg bg-gray-50 dark:bg-slate-800/50">
-                          <Elements
-                            stripe={stripePromise}
-                            options={{
-                              mode: 'setup',
-                              currency: 'usd',
-                              paymentMethodCreation: 'manual',
-                              appearance: {
-                                theme: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'stripe',
-                                variables: {
-                                  colorPrimary: '#3b82f6',
-                                  colorBackground: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? '#0f172a' : '#ffffff',
-                                  colorText: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f1f5f9' : '#0f172a',
-                                  colorDanger: '#ef4444',
-                                  fontFamily: 'system-ui, sans-serif',
-                                  borderRadius: '0.5rem',
-                                },
-                              },
-                            }}
-                          >
-                            <StripePaymentElement
-                              billingData={savedBillingData}
-                              onPaymentMethodCollected={(paymentMethodId) => {
-                                setSavedPaymentMethodId(paymentMethodId)
-                                console.log('💳 Payment method collected:', paymentMethodId)
-                              }}
-                            />
-                          </Elements>
-                        </div>
-                      )}
-
-                      {/* Show success message if payment method already validated */}
-                      {!useExistingPayment && savedPaymentMethodId && (
-                        <div className="mt-4 p-4 border-2 border-green-500 dark:border-green-600 rounded-lg bg-green-50 dark:bg-green-950/20">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                              <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-semibold text-green-900 dark:text-green-100">
-                                Payment Method Validated
-                              </p>
-                              <p className="text-sm text-green-700 dark:text-green-300">
-                                Your new card has been successfully validated and is ready to use
-                              </p>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSavedPaymentMethodId(null)
-                                console.log('🔄 Resetting payment method')
-                              }}
-                              className="border-green-600 dark:border-green-500 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30"
-                            >
-                              Change Card
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Review Step */}
-                  {currentStep === 'review' && (
-                    <div className="space-y-6">
-                      <div className="border-l-4 border-blue-500 dark:border-blue-400 pl-4">
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
-                          Review & Confirm
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Please review your information before confirming your subscription
-                        </p>
-                      </div>
-
-                      {/* Billing Information Summary */}
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                            <Check className="h-5 w-5 text-green-500" />
-                            Billing Information
-                          </h3>
-                          <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-2">
-                            <div className="grid md:grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                                <p className="font-medium">
-                                  {savedBillingData?.firstName} {savedBillingData?.lastName}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                                <p className="font-medium">{savedBillingData?.agencyEmail}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
-                                <p className="font-medium">{savedBillingData?.phoneCode} {savedBillingData?.companyPhone}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Tenant Name</p>
-                                <p className="font-medium">{savedBillingData?.agencyName}</p>
-                              </div>
-                            </div>
-                            {savedBillingData?.companyName && (
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Company</p>
-                                <p className="font-medium">{savedBillingData.companyName}</p>
-                              </div>
-                            )}
-                            <Separator className="my-2" />
                             <div>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
-                              <p className="font-medium">
-                                {savedBillingData?.line1}
-                                {savedBillingData?.line2 && `, ${savedBillingData.line2}`}
-                              </p>
-                              <p className="font-medium">
-                                {savedBillingData?.city}, {savedBillingData?.state} {savedBillingData?.postalCode}
-                              </p>
-                              <p className="font-medium">{savedBillingData?.country}</p>
+                              <Label htmlFor="tinNumber" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Tax ID <span className="text-xs text-muted-foreground ml-1 font-normal">(Optional)</span></Label>
+                              <Input
+                                id="tinNumber"
+                                {...form.register('tinNumber')}
+                                placeholder="123-45-6789"
+                                className="h-10"
+                              />
+                              {form.formState.errors.tinNumber && (
+                                <p className="text-sm text-destructive mt-1">
+                                  {form.formState.errors.tinNumber.message}
+                                </p>
+                              )}
                             </div>
+
+
+                          </div>
+
+                          {/* Address */}
+                          <div>
+                            <Label className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Address *</Label>
+                            <div className="grid md:grid-cols-4 gap-2">
+                              <Input
+                                id="line2"
+                                {...form.register('line2')}
+                                placeholder="Apt/Suite (Optional)"
+                                className="h-10"
+                              />
+                              <Input
+                                id="line1"
+                                className="md:col-span-2 h-10"
+                                {...form.register('line1')}
+                                placeholder="Street Address"
+                              />
+                              <PostalCodeInput
+                                value={form.watch('postalCode')}
+                                onValueChange={(value: string) => form.setValue('postalCode', value)}
+                                placeholder="Postal Code"
+                              />
+                            </div>
+                            {(form.formState.errors.line1 || form.formState.errors.postalCode) && (
+                              <p className="text-sm text-destructive mt-1">
+                                {form.formState.errors.line1?.message || form.formState.errors.postalCode?.message}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Country, State, City */}
+                          <div className="grid md:grid-cols-3 gap-5">
+
+                            <div>
+                              <Label htmlFor="country" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Country *</Label>
+                              <CountrySelector
+                                value={countryCode}
+                                onValueChange={(code, countryData) => {
+                                  setCountryCode(code)
+                                  setStateCode('')
+
+                                  form.setValue('country', countryData?.name || '')
+                                  form.setValue('countryCode', code)
+                                  form.setValue('state', '')
+                                  form.setValue('stateCode', '')
+                                  form.setValue('city', '')
+                                }}
+
+                                placeholder="Select country"
+                                disabled={isLoading}
+                                styleVariant="plain"
+                              />
+                              {form.formState.errors.country && (
+                                <p className="text-sm text-destructive mt-1">
+                                  {form.formState.errors.country.message}
+                                </p>
+                              )}
+                            </div>
+
+
+                            <div>
+                              <Label htmlFor="state" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">State/Province *</Label>
+                              <StateSelector
+                                countryCode={countryCode}
+                                value={stateCode}
+                                onValueChange={(isoCode: string, stateData: any) => {
+                                  setStateCode(isoCode)
+                                  form.setValue('state', stateData.name)
+                                  form.setValue('stateCode', isoCode)
+                                }}
+                              />
+                              {form.formState.errors.state && (
+                                <p className="text-sm text-destructive mt-1">
+                                  {form.formState.errors.state.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <Label htmlFor="city" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">City *</Label>
+                              <CitySelector
+                                countryCode={countryCode}
+                                stateCode={stateCode}
+                                value={city}
+                                onValueChange={(cityName: string, cityData: any) => {
+                                  setCity(cityData.name)
+                                  form.setValue('city', cityData.name)
+                                }}
+                              />
+                              {form.formState.errors.city && (
+                                <p className="text-sm text-destructive mt-1">
+                                  {form.formState.errors.city.message}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid md:grid-cols-1 gap-6">
                           </div>
                         </div>
 
-                        {/* Payment Method Summary */}
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                            <Check className="h-5 w-5 text-green-500" />
+                      </div>
+                    )}
+
+                    {/* Payment Step */}
+                    {currentStep === 'payment' && (
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
+                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-2 tracking-tight">
                             Payment Method
-                          </h3>
-                          <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4">
-                            {useExistingPayment && selectedPaymentMethodId ? (
-                              <div>
-                                {(() => {
-                                  const pm = existingPaymentMethods.find(m => m.id === selectedPaymentMethodId)
-                                  return pm ? (
-                                    <div className="flex items-center gap-3">
-                                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <span className="text-blue-600 dark:text-blue-400 font-semibold">
-                                          {pm.card?.brand?.charAt(0).toUpperCase()}
-                                        </span>
-                                      </div>
-                                      <div>
-                                        <p className="font-medium capitalize">
-                                          {pm.card?.brand} •••• {pm.card?.last4}
-                                        </p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                          Expires {pm.card?.exp_month}/{pm.card?.exp_year}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ) : null
-                                })()}
-                              </div>
-                            ) : savedPaymentMethodId ? (
-                              <p className="font-medium">New card ending in ••••</p>
-                            ) : (
-                              <p className="text-amber-600 dark:text-amber-400">No payment method selected</p>
-                            )}
-                          </div>
+                          </h2>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {existingPaymentMethods.length > 0
+                              ? 'Choose a payment method or add a new card'
+                              : 'Securely add your payment information'
+                            }
+                          </p>
                         </div>
 
-                        {/* Subscription Summary */}
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                            <Check className="h-5 w-5 text-green-500" />
-                            Subscription
-                          </h3>
-                          <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-semibold text-lg">{planConfig.title}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {planConfig.duration === 'month' ? 'Monthly' : 'Yearly'} subscription
-                                </p>
+                        {/* Existing Payment Methods */}
+                        {existingPaymentMethods.length > 0 && (
+                          <div className="space-y-4">
+                            {/* <Label className="text-base font-bold text-neutral-900 dark:text-neutral-100">Your Saved Cards</Label> */}
+
+                            <SavedBankCardsGallery
+                              cards={existingPaymentMethods.map((pm) => ({
+                                id: pm.id,
+                                cardNumber: `**** **** **** ${pm.card?.last4}`,
+                                cardholderName: pm.card?.cardholder_name || 'N/A',
+                                expiryMonth: String(pm.card?.exp_month).padStart(2, '0'),
+                                expiryYear: String(pm.card?.exp_year),
+                                brand: pm.card?.brand,
+                                variant:
+                                  pm.card?.brand === 'visa' ? 'default' :
+                                    pm.card?.brand === 'mastercard' ? 'premium' :
+                                      pm.card?.brand === 'amex' ? 'platinum' :
+                                        'default',
+                                isDefault: pm.card?.isDefault, // TODO: Implement default card logic from Stripe metadata
+                              }))}
+                              selectedCardId={useExistingPayment && selectedPaymentMethodId ? selectedPaymentMethodId : undefined}
+                              onCardSelect={(cardId) => {
+                                setUseExistingPayment(true)
+                                setSelectedPaymentMethodId(cardId)
+                              }}
+                              onAddCard={() => {
+                                setCardModalMode('add')
+                                setCardModalOpen(true)
+                              }}
+                              onSetDefault={(cardId) => {
+                                // TODO: Implement set as default via Stripe API
+                                toast({
+                                  title: 'Set as Default',
+                                  description: 'This feature will be available soon.',
+                                })
+                              }}
+                              onReplaceCard={(cardId) => {
+                                setCardToReplace(cardId)
+                                setCardModalMode('replace')
+                                setCardModalOpen(true)
+                              }}
+                              onRemoveCard={async (cardId) => {
+                                // TODO: Implement remove card via Stripe API
+                                toast({
+                                  title: 'Remove Card',
+                                  description: 'Are you sure? This feature will be available soon.',
+                                  variant: 'destructive',
+                                })
+                              }}
+                              className="mb-4"
+                            />
+
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-gray-200 dark:border-gray-700" />
                               </div>
-                              <div className="text-right">
-                                <p className="font-bold text-xl">{planConfig.price}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">per {planConfig.duration}</p>
+                              <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">
+                                  {useExistingPayment ? 'Or add new card' : 'Adding new card'}
+                                </span>
                               </div>
                             </div>
-
-                            <Separator />
-
-                            <div className="flex justify-between items-center">
-                              <p className="font-semibold">Total Due Today</p>
-                              <p className="font-bold text-xl text-blue-600 dark:text-blue-400">
-                                {isTrialAccepted ? 'RM 0.00' : `$${planConfig.price}`}
-                              </p>
-                            </div>
-
-                            {isTrialAccepted ? (
-                              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                  💡 Your {planConfig.trialPeriodDays}-day free trial starts today. You'll be charged RM {planConfig.price} after your trial ends on the same day each {planConfig.duration}.
-                                  You can cancel anytime from your account settings.
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                  💡 Your subscription will automatically renew on the same day each {planConfig.duration}.
-                                  You can cancel anytime from your account settings.
-                                </p>
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Confirm & Pay Button */}
-                      <div className="flex gap-4 mt-6 pt-4 border-t border-blue-100 dark:border-blue-900/50">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={prevStep}
-                          className="border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                        >
-                          <ChevronLeft className="h-4 w-4 mr-1" />
-                          Back to Payment
-                        </Button>
-                        <Button
-                          type="button"
-                          className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-lg h-11"
-                          onClick={processCheckout}
-                          disabled={isLoading || (!useExistingPayment && !savedPaymentMethodId) || (useExistingPayment && !selectedPaymentMethodId)}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                              Processing Payment...
-                            </>
-                          ) : (
-                            <>
-                              🔒 Confirm & Pay {isTrialAccepted ? 'RM 0.00' : `$${planConfig.price}`}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Processing Step */}
-                  {currentStep === 'processing' && (
-                    <div className="space-y-6 py-12 text-center">
-                      <div className="flex justify-center">
-                        <Loader2 className="h-16 w-16 animate-spin text-blue-500" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2">Processing Your Subscription</h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Please wait while we set up your account...
-                        </p>
-                      </div>
-                      <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                        <p>✓ Verifying payment method</p>
-                        <p>✓ Creating your subscription</p>
-                        <p>✓ Setting up your agency</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Navigation Buttons */}
-                  {currentStep !== 'processing' && currentStep !== 'review' && (
-                    <div className="flex gap-3 mt-6 pt-4 border-t border-blue-100 dark:border-blue-900/50">
-                      {currentStepIndex > 0 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={prevStep}
-                          className="border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 h-10"
-                        >
-                          <ChevronLeft className="h-4 w-4 mr-1" />
-                          Back
-                        </Button>
-                      )}
-                      <Button
-                        type="button"
-                        className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-lg shadow-blue-200 dark:shadow-blue-950/50 hover:shadow-xl hover:shadow-blue-300 dark:hover:shadow-blue-900/50 transition-all h-11"
-                        onClick={nextStep}
-                        disabled={isLoading || (currentStep === 'payment' && !useExistingPayment && !savedPaymentMethodId) || (currentStep === 'payment' && useExistingPayment && !selectedPaymentMethodId)}
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Processing...
-                          </>
-                        ) : currentStep === 'billing' ? (
-                          'Continue to Payment →'
-                        ) : currentStep === 'payment' ? (
-                          'Continue to Review →'
-                        ) : (
-                          'Continue →'
                         )}
-                      </Button>
-                    </div>
-                  )}
-                </form>
-              </CardContent>
-            </Card>
+
+                        {/* Stripe Elements for New Card - Now in Modal */}
+                        {!useExistingPayment && !savedPaymentMethodId && (
+                          <div className="mt-4">
+                            <div
+                              onClick={() => {
+                                setCardModalMode('add')
+                                setCardModalOpen(true)
+                              }}
+                              className="p-6 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
+                            >
+                              <div className="flex flex-col items-center gap-3 text-center">
+                                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                  <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900 dark:text-gray-100">Add New Payment Method</p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Click to securely add your card details</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Card Addition/Update Modal */}
+                        {cardModalOpen && (
+                          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setCardModalOpen(false)}>
+                            <div
+                              className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {/* Modal Header */}
+                              <div className="flex items-start justify-between mb-6">
+                                <div>
+                                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {cardModalMode === 'add' ? 'Add New Card' : 'Replace Card'}
+                                  </h2>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Your payment information is securely processed by Stripe
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setCardModalOpen(false)}
+                                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                >
+                                  <X className="h-6 w-6" />
+                                </button>
+                              </div>
+
+                              {/* Visual Card Preview */}
+                              <div className="mb-6">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    Card Preview
+                                  </h3>
+                                  {cardPreview.complete && (
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                                      <Check className="h-3 w-3" />
+                                      Validated
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="w-full max-w-sm mx-auto" style={{ aspectRatio: '1.586' }}>
+                                  <InteractiveBankCard
+                                    cardNumber={cardPreview.last4 ? `•••• •••• •••• ${cardPreview.last4}` : '•••• •••• •••• ••••'}
+                                    cardholderName=""
+                                    expiryMonth=""
+                                    expiryYear=""
+                                    cvv=""
+                                    brand={cardPreview.brand}
+                                    isMasked={true}
+                                    isFlipped={cardPreview.isFlipped}
+                                    variant="default"
+                                    showInputs={false}
+                                    showInputValidationErrors={false}
+                                  />
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                                  Card details will appear after validation for security
+                                </p>
+                              </div>
+
+                              {/* Stripe Elements */}
+                              <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-br from-neutral-300/70 via-neutral-200/50 to-neutral-300/70 dark:from-neutral-700/60 dark:via-neutral-800/40 dark:to-neutral-700/60 overflow-hidden shadow-lg">
+                                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-neutral-50 to-white dark:from-neutral-900 dark:via-neutral-800/90 dark:to-neutral-900 p-6">
+                                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent dark:via-white/10" />
+                                  <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_0%,rgba(59,130,246,0.03),transparent_60%)] dark:bg-[radial-gradient(600px_circle_at_50%_0%,rgba(59,130,246,0.08),transparent_60%)]" />
+
+                                  <div className="relative z-10">
+                                    <Elements
+                                      stripe={stripePromise}
+                                      options={{
+                                        mode: 'setup',
+                                        currency: 'usd',
+                                        paymentMethodCreation: 'manual',
+                                        appearance: {
+                                          theme: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'stripe',
+                                          variables: {
+                                            colorPrimary: '#3b82f6',
+                                            colorBackground: 'transparent',
+                                            colorText: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f1f5f9' : '#0f172a',
+                                            colorDanger: '#ef4444',
+                                            fontFamily: 'system-ui, sans-serif',
+                                            borderRadius: '0.75rem',
+                                            spacingUnit: '4px',
+                                          },
+                                        },
+                                      }}
+                                    >
+                                      <StripePaymentElement
+                                        billingData={savedBillingData}
+                                        onPaymentMethodCollected={(paymentMethodId) => {
+                                          setSavedPaymentMethodId(paymentMethodId)
+                                          setCardModalOpen(false)
+                                          if (cardModalMode === 'replace' && cardToReplace) {
+                                            // TODO: Implement replace logic - detach old, attach new
+                                            toast({
+                                              title: 'Card Replaced',
+                                              description: 'Your payment method has been updated.',
+                                            })
+                                          } else {
+                                            setUseExistingPayment(false)
+                                            toast({
+                                              title: 'Card Added',
+                                              description: 'Your new payment method is ready to use.',
+                                            })
+                                          }
+                                        }}
+                                        onCardChange={(data) => {
+                                          setCardPreview({
+                                            brand: data.brand,
+                                            last4: data.last4,
+                                            complete: data.complete,
+                                            isFlipped: false,
+                                          })
+                                        }}
+                                      />
+                                    </Elements>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Modal Footer */}
+                              <div className="mt-6 flex gap-3">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => setCardModalOpen(false)}
+                                  className="flex-1"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Show success message if payment method already validated */}
+                        {!useExistingPayment && savedPaymentMethodId && (
+                          <div className="mt-4 relative rounded-2xl p-[1.5px] bg-gradient-to-br from-green-400/60 via-green-300/40 to-green-400/60 dark:from-green-600/60 dark:via-green-700/40 dark:to-green-600/60 overflow-hidden shadow-lg dark:shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 dark:from-green-950/40 dark:via-emerald-950/30 dark:to-green-950/40 p-5">
+                              {/* Subtle top glow */}
+                              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-300/60 to-transparent dark:via-green-500/30" />
+                              {/* Success glow */}
+                              <div className="absolute inset-0 bg-[radial-gradient(400px_circle_at_50%_0%,rgba(34,197,94,0.08),transparent_60%)] dark:bg-[radial-gradient(400px_circle_at_50%_0%,rgba(34,197,94,0.12),transparent_60%)]" />
+
+                              <div className="relative z-10 flex items-center gap-4">
+                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 flex items-center justify-center shadow-lg shadow-green-500/20 dark:shadow-green-500/30">
+                                  <Check className="h-7 w-7 text-white" strokeWidth={3} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-lg text-green-900 dark:text-green-100">
+                                    Payment Method Validated
+                                  </p>
+                                  <p className="text-sm text-green-700 dark:text-green-300 mt-0.5">
+                                    Your new card has been successfully validated and is ready to use
+                                  </p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSavedPaymentMethodId(null)
+                                    console.log('🔄 Resetting payment method')
+                                  }}
+                                  className="flex-shrink-0 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                                >
+                                  Change Card
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Review Step */}
+                    {currentStep === 'review' && (
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
+                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-2 tracking-tight">
+                            Review & Confirm
+                          </h2>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Please review your information before confirming your subscription
+                          </p>
+                        </div>
+
+                        {/* Billing Information Summary */}
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                              <Check className="h-5 w-5 text-green-500" />
+                              Billing Information
+                            </h3>
+                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-2">
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                                  <p className="font-medium">
+                                    {savedBillingData?.firstName} {savedBillingData?.lastName}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                                  <p className="font-medium">{savedBillingData?.agencyEmail}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                                  <p className="font-medium">{savedBillingData?.phoneCode} {savedBillingData?.companyPhone}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Tenant Name</p>
+                                  <p className="font-medium">{savedBillingData?.agencyName}</p>
+                                </div>
+                              </div>
+                              {savedBillingData?.companyName && (
+                                <div>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Company</p>
+                                  <p className="font-medium">{savedBillingData.companyName}</p>
+                                </div>
+                              )}
+                              <Separator className="my-2" />
+                              <div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                                <p className="font-medium">
+                                  {savedBillingData?.line1}
+                                  {savedBillingData?.line2 && `, ${savedBillingData.line2}`}
+                                </p>
+                                <p className="font-medium">
+                                  {savedBillingData?.city}, {savedBillingData?.state} {savedBillingData?.postalCode}
+                                </p>
+                                <p className="font-medium">{savedBillingData?.country}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Payment Method Summary */}
+                          <div>
+                            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                              <Check className="h-5 w-5 text-green-500" />
+                              Payment Method
+                            </h3>
+                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4">
+                              {useExistingPayment && selectedPaymentMethodId ? (
+                                <div>
+                                  {(() => {
+                                    const pm = existingPaymentMethods.find(m => m.id === selectedPaymentMethodId)
+                                    return pm ? (
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                          <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                            {pm.card?.brand?.charAt(0).toUpperCase()}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <p className="font-medium capitalize">
+                                            {pm.card?.brand} •••• {pm.card?.last4}
+                                          </p>
+                                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            Expires {pm.card?.exp_month}/{pm.card?.exp_year}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ) : null
+                                  })()}
+                                </div>
+                              ) : savedPaymentMethodId ? (
+                                <p className="font-medium">New card ending in ••••</p>
+                              ) : (
+                                <p className="text-amber-600 dark:text-amber-400">No payment method selected</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Subscription Summary */}
+                          <div>
+                            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                              <Check className="h-5 w-5 text-green-500" />
+                              Subscription
+                            </h3>
+                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-3">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-semibold text-lg">{planConfig.title}</p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    {planConfig.duration === 'month' ? 'Monthly' : 'Yearly'} subscription
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-xl">{planConfig.price}</p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">per {planConfig.duration}</p>
+                                </div>
+                              </div>
+
+                              <Separator />
+
+                              <div className="flex justify-between items-center">
+                                <p className="font-semibold">Total Due Today</p>
+                                <p className="font-bold text-xl text-blue-600 dark:text-blue-400">
+                                  {isTrialAccepted ? 'RM 0.00' : `$${planConfig.price}`}
+                                </p>
+                              </div>
+
+                              {isTrialAccepted ? (
+                                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
+                                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                                    💡 Your {planConfig.trialPeriodDays}-day free trial starts today. You'll be charged RM {planConfig.price} after your trial ends on the same day each {planConfig.duration}.
+                                    You can cancel anytime from your account settings.
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
+                                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                                    💡 Your subscription will automatically renew on the same day each {planConfig.duration}.
+                                    You can cancel anytime from your account settings.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Confirm & Pay Button */}
+                        <div className="flex gap-3 mt-7 pt-5 border-t border-neutral-200 dark:border-neutral-800">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={prevStep}
+                            className="border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:border-neutral-400 dark:hover:border-neutral-600 h-11 transition-all duration-300"
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Back
+                          </Button>
+                          <Button
+                            type="button"
+                            className="bg-gradient-to-br from-primary via-blue-600 to-blue-700 hover:from-primary hover:via-blue-500 hover:to-blue-600 dark:from-primary dark:via-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:via-primary dark:hover:to-blue-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_12px_40px_rgba(var(--primary-rgb,59,130,246),0.35),0_0_0_1px_rgba(255,255,255,0.15)_inset] dark:shadow-[0_10px_40px_rgba(var(--primary-rgb,59,130,246),0.3),0_0_0_1px_rgba(255,255,255,0.1)_inset] dark:hover:shadow-[0_15px_50px_rgba(var(--primary-rgb,59,130,246),0.45),0_0_0_1px_rgba(255,255,255,0.15)_inset] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] h-11"
+                            onClick={processCheckout}
+                            disabled={showLoader || (!useExistingPayment && !savedPaymentMethodId) || (useExistingPayment && !selectedPaymentMethodId)}
+                          >
+                            🔒 Confirm & Pay {isTrialAccepted ? 'RM 0.00' : `$${planConfig.price}`}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Navigation Buttons */}
+                    {currentStep !== 'review' && (
+                      <div className="flex gap-3 mt-7 pt-5 border-t border-neutral-200 dark:border-neutral-800">
+                        {currentStepIndex > 0 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={prevStep}
+                            className="border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:border-neutral-400 dark:hover:border-neutral-600 h-11 transition-all duration-300"
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Back
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          className="bg-gradient-to-br from-primary via-blue-600 to-blue-700 hover:from-primary hover:via-blue-500 hover:to-blue-600 dark:from-primary dark:via-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:via-primary dark:hover:to-blue-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_12px_40px_rgba(var(--primary-rgb,59,130,246),0.35),0_0_0_1px_rgba(255,255,255,0.15)_inset] dark:shadow-[0_10px_40px_rgba(var(--primary-rgb,59,130,246),0.3),0_0_0_1px_rgba(255,255,255,0.1)_inset] dark:hover:shadow-[0_15px_50px_rgba(var(--primary-rgb,59,130,246),0.45),0_0_0_1px_rgba(255,255,255,0.15)_inset] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] h-11"
+                          onClick={nextStep}
+                          disabled={isLoading || (currentStep === 'payment' && !useExistingPayment && !savedPaymentMethodId) || (currentStep === 'payment' && useExistingPayment && !selectedPaymentMethodId)}
+                        >
+                          {currentStep === 'billing' ? 'Continue to Payment →' : 'Continue to Review →'}
+                        </Button>
+                      </div>
+                    )}
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Right Column - Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="lg:sticky lg:top-6 border border-border/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm shadow-sm">
-              <CardHeader className="bg-blue-50/50 dark:bg-slate-800/40 border-b border-border/60">
-                <CardTitle className="text-blue-900 dark:text-blue-50">Order Summary</CardTitle>
-                <CardDescription className="text-blue-700 dark:text-blue-200">Review your subscription details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-4">
-                {/* Plan Details */}
-                <div className="bg-background dark:bg-slate-800/40 dark:border dark:border-blue-900/30 rounded-xl p-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-bold text-blue-900 dark:text-blue-50">{planConfig.title} Plan</h3>
-                      <p className="text-sm text-blue-600 dark:text-blue-200">Monthly subscription</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-blue-900 dark:text-blue-50 text-lg">
-                        {planConfig.price}
-                        <span className="text-xs text-blue-600 dark:text-blue-200 ml-1">/ {planConfig.duration}</span>
+            <div className="lg:sticky lg:top-6 rounded-2xl p-[2px] bg-gradient-to-br from-blue-400/40 via-primary/30 to-purple-400/40 dark:from-blue-500/50 dark:via-primary/40 dark:to-purple-500/50 shadow-[0_8px_32px_rgba(59,130,246,0.12)] dark:shadow-[0_12px_48px_rgba(59,130,246,0.25)] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(59,130,246,0.18)] dark:hover:shadow-[0_16px_56px_rgba(59,130,246,0.35)]">
+              <Card className="border-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.03)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden relative">
+                {/* Premium glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 dark:from-blue-400/10 dark:via-transparent dark:to-purple-400/10 pointer-events-none" />
+                <CardHeader className="relative bg-gradient-to-br from-primary/8 via-blue-500/8 to-transparent dark:from-primary/15 dark:via-blue-500/12 dark:to-transparent border-b border-neutral-200/80 dark:border-neutral-700/80 pb-5">
+                  <CardTitle className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-blue-400 dark:via-primary dark:to-blue-500 bg-clip-text text-transparent tracking-tight">Order Summary</CardTitle>
+                  <CardDescription className="text-neutral-600 dark:text-neutral-400 font-medium mt-1.5">Review your subscription details</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-6 relative">
+                  {/* Plan Details */}
+                  <div className="relative bg-gradient-to-br from-white to-neutral-50/50 dark:from-slate-800/60 dark:to-slate-800/40 backdrop-blur-sm border border-neutral-200/60 dark:border-blue-900/40 rounded-xl p-4 shadow-sm dark:shadow-blue-900/10 transition-all duration-300 hover:shadow-md dark:hover:shadow-blue-900/20 hover:border-neutral-300/80 dark:hover:border-blue-800/60">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-blue-900 dark:text-blue-50">{planConfig.title} Plan</h3>
+                        <p className="text-sm text-blue-600 dark:text-blue-200">Monthly subscription</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-blue-900 dark:text-blue-50 text-lg">
+                          {planConfig.price}
+                          <span className="text-xs text-blue-600 dark:text-blue-200 ml-1">/ {planConfig.duration}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {isTrialAccepted && (
-                    <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium shadow-md">
-                      <span className='text-lg mr-2'>🎁</span> {planConfig.trialPeriodDays}-day free trial included
-                    </div>
-                  )}
-                </div>
-
-                <Separator className="dark:bg-blue-900/30" />
-
-                {/* Features */}
-                <div>
-                  <h4 className="font-semibold mb-2 text-sm text-blue-900 dark:text-blue-50">What's included:</h4>
-                  <ul className="space-y-1.5">
-                    {planConfig.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <div className="bg-blue-100 dark:bg-blue-900/40 rounded-full p-0.5 mt-0.5">
-                          <Check className="h-3 w-3 text-blue-600 dark:text-blue-200 flex-shrink-0" />
+                    {isTrialAccepted && (
+                      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-[0_4px_20px_rgba(59,130,246,0.4)] dark:shadow-[0_6px_28px_rgba(59,130,246,0.5)] group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                        <div className="relative flex items-center gap-2">
+                          <span className='text-xl'>🎁</span>
+                          <span className="tracking-wide">{planConfig.trialPeriodDays}-day free trial included</span>
                         </div>
-                        <span className="text-gray-700 dark:text-gray-200">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Separator className="bg-blue-100 dark:bg-blue-900/50" />
-
-                {/* Coupon Code */}
-                <div>
-                  <Label htmlFor="coupon" className="text-sm font-semibold mb-2 block text-blue-900 dark:text-blue-50">
-                    Promo Code
-                  </Label>
-                  {!appliedCoupon ? (
-                    <div className="flex gap-2">
-                      <Input
-                        id="coupon"
-                        placeholder="Enter code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        disabled={couponLoading}
-                        className="border-blue-200 dark:border-blue-800 focus:border-blue-400 dark:focus:border-blue-600 focus:ring-blue-400 dark:focus:ring-blue-600"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={applyCoupon}
-                        disabled={!couponCode.trim() || couponLoading}
-                        className="border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 text-blue-600 dark:text-blue-300"
-                      >
-                        {couponLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Tag className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 shadow-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-green-100 dark:bg-green-900/50 rounded-full p-1">
-                          <Tag className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
-                        </div>
-                        <span className="text-sm font-semibold text-green-700 dark:text-green-200">
-                          {appliedCoupon.id}
-                        </span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={removeCoupon}
-                        className="h-7 text-xs text-green-700 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/50"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                <Separator className="bg-blue-100 dark:bg-blue-900/30" />
-
-                {/* Price Breakdown */}
-                <div className="space-y-3 bg-gray-50 dark:bg-slate-800/40 rounded-lg p-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-50">RM {subtotal.toFixed(2)}</span>
+                    )}
                   </div>
 
-                  {appliedCoupon && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600 dark:text-green-300 font-medium">Discount ({appliedCoupon.percent_off || ''}%)</span>
-                      <span className="text-green-600 dark:text-green-300 font-semibold">- RM {discount.toFixed(2)}</span>
-                    </div>
-                  )}
+                  <Separator className="dark:bg-neutral-700/60" />
 
-                  <div className="flex justify-between text-md font-bold pt-1">
-                    <span className="text-blue-900 dark:text-blue-50">Total</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-50">RM {total.toFixed(2)}</span>
+                  {/* Features */}
+                  <div>
+                    <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-neutral-900 dark:text-neutral-100">What's included</h4>
+                    <ul className="space-y-3">
+                      {planConfig.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-3 text-sm group">
+                          <div className="flex-shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/10 dark:from-primary/25 dark:to-primary/15 border border-primary/30 dark:border-primary/40 mt-0.5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm group-hover:shadow-primary/20">
+                            <Check className="h-3.5 w-3.5 text-primary dark:text-primary" strokeWidth={2.5} />
+                          </div>
+                          <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Separator className="bg-blue-100 dark:bg-blue-900/50" />
+
+                  {/* Coupon Code */}
+                  <div>
+                    <Label htmlFor="coupon" className="text-sm font-bold mb-3 block text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">
+                      Promo Code
+                    </Label>
+                    {!appliedCoupon ? (
+                      <div className="flex gap-2">
+                        <Input
+                          id="coupon"
+                          placeholder="Enter code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          disabled={couponLoading}
+                          className="border-blue-200/60 dark:border-blue-800/60 focus:border-blue-400 dark:focus:border-blue-600 focus:ring-blue-400/30 dark:focus:ring-blue-600/30 transition-all duration-300 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] dark:focus:shadow-[0_0_0_3px_rgba(59,130,246,0.2)]"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={applyCoupon}
+                          disabled={!couponCode.trim() || couponLoading}
+                          className="border-blue-200/60 dark:border-blue-800/60 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 text-blue-600 dark:text-blue-300 transition-all duration-300 hover:shadow-sm"
+                        >
+                          {couponLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Tag className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-green-950/40 dark:via-emerald-950/30 dark:to-green-950/40 border border-green-300/60 dark:border-green-700/60 rounded-xl px-4 py-3.5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-400/70 dark:hover:border-green-600/70">
+                        <div className="flex items-center gap-2.5">
+                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/60 dark:to-emerald-900/50 rounded-full p-1.5 shadow-sm">
+                            <Tag className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
+                          </div>
+                          <span className="text-sm font-bold text-green-700 dark:text-green-200 tracking-wide">
+                            {appliedCoupon.id}
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeCoupon}
+                          className="h-8 text-xs font-semibold text-green-700 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all duration-300 hover:scale-105"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <Separator className="bg-blue-100 dark:bg-blue-900/30" />
 
-                  {isTrialAccepted && (
-                    <div className="flex justify-between text-lg font-bold pt-1">
-                      <span className="text-blue-600 dark:text-blue-300">Pay Now</span>
-                      <span className="text-blue-600 dark:text-blue-300">RM 0.00</span>
+                  {/* Price Breakdown */}
+                  <div className="space-y-3 bg-gradient-to-br from-neutral-100/80 to-neutral-50/50 dark:from-neutral-800/60 dark:to-neutral-900/40 rounded-lg p-4 border border-neutral-200/50 dark:border-neutral-700/40">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-50">RM {subtotal.toFixed(2)}</span>
                     </div>
 
-                  )}
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600 dark:text-green-300 font-medium">Discount ({appliedCoupon.percent_off || ''}%)</span>
+                        <span className="text-green-600 dark:text-green-300 font-semibold">- RM {discount.toFixed(2)}</span>
+                      </div>
+                    )}
 
-                  {isTrialAccepted && (
-                    <p className="text-xs text-gray-500 dark:text-gray-300 bg-blue-50 dark:bg-blue-950/20 rounded p-2 border border-blue-100 dark:border-blue-900/30">
-                      💡 You'll be charged RM {total.toFixed(2)} after your {planConfig.trialPeriodDays}
-                      -day trial ends
-                    </p>
-                  )}
-                </div>
+                    <div className="flex justify-between text-md font-bold pt-1">
+                      <span className="text-blue-900 dark:text-blue-50">Total</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-50">RM {total.toFixed(2)}</span>
+                    </div>
 
-                {/* Security Badge */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-300 pt-4 border-t border-blue-100 dark:border-blue-900/30 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-slate-800/20 dark:to-slate-800/20 -mx-6 px-6 pb-6 -mb-6 rounded-b-lg">
-                  <svg
-                    className="h-5 w-5 text-blue-600 dark:text-blue-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                  <span>Secure payment powered by Stripe</span>
-                </div>
-              </CardContent>
-            </Card>
+                    <Separator className="bg-blue-100 dark:bg-blue-900/30" />
+
+                    {isTrialAccepted && (
+                      <div className="flex justify-between text-lg font-bold pt-1">
+                        <span className="text-blue-600 dark:text-blue-300">Pay Now</span>
+                        <span className="text-blue-600 dark:text-blue-300">RM 0.00</span>
+                      </div>
+
+                    )}
+
+                    {isTrialAccepted && (
+                      <p className="text-xs text-neutral-700 dark:text-neutral-300 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/30 font-medium">
+                        💡 You'll be charged RM {total.toFixed(2)} after your {planConfig.trialPeriodDays}
+                        -day trial ends
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Security Badge */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-300 pt-4 border-t border-blue-100 dark:border-blue-900/30 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-slate-800/20 dark:to-slate-800/20 -mx-6 px-6 pb-6 -mb-6 rounded-b-lg">
+                    <svg
+                      className="h-5 w-5 text-blue-600 dark:text-blue-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    <span>Secure payment powered by Stripe</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Multi-Step Loader */}
+      <MultiStepLoader loadingStates={loadingStates} loading={showLoader} duration={2000} loop={false} />
     </div>
   )
 }
