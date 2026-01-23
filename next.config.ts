@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  reactStrictMode: false,
+  reactStrictMode: true,
   serverExternalPackages: ['@uploadthing/mime-types'],
   allowedDevOrigins: [
     'http://localhost:3000',

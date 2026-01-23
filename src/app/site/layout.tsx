@@ -8,10 +8,13 @@ import { usePathname } from 'next/navigation'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
-  const hideNavigation = pathname?.includes('/checkout')
+  const hideNavigation = 
+      pathname.includes('/checkout') ||
+      pathname.includes('/docs') 
+
 
   return (
-    <main className={`${hideNavigation} ? 'w-full' : 'w-full pt-16 min-h-screen'}`}>
+    <main className={hideNavigation ? 'w-full min-h-screen' : 'min-h-screen'}>
       {/* {!hideNavigation && <Navigation />} */}
       {!hideNavigation && <Navbar />}
       {children}

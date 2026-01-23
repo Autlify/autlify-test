@@ -42,7 +42,7 @@ const MediaComponent = ({ data, subaccountId }: Props) => {
                 <div className="flex items-center justify-center w-full flex-col">
                   <FolderSearch
                     size={200}
-                    className="dark:text-muted text-slate-300"
+                    className="text-muted-foreground"
                   />
                   <p className="text-muted-foreground ">
                     Empty! no files to show.

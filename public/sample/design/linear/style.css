@@ -190,7 +190,7 @@
     color: var(--color-text-primary)
 }
 
-[data-theme=dark] {
+[data-theme=dark] { 
     --lightningcss-light: ;
     --lightningcss-dark: initial;
     color-scheme: dark;

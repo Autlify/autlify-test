@@ -1,9 +1,13 @@
-import type { NextAuthConfig } from 'next-auth'
+import type { NextAuthConfig, NextAuthResult } from 'next-auth'
+import { NextApiResponse, NextApiRequest } from 'next'
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import GitHub from 'next-auth/providers/github'
+import { NextRequest, NextResponse } from 'next/server'
 
-// Edge-compatible auth config (no Prisma)
-const authConfig = {
+
+
+const authConfig = { 
+
   providers: [
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID!,

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { BarChart, BookOpen, Boxes, ChevronDown, Contact, Zap } from "lucide-react";
 import Link from "next/link";
 // Direct path imports (barrel removed)
-import { ModeToggle } from '@/components/global/mode-toggle';
+import { ModeToggle, ModeButton } from '@/components/global/mode-toggle';
 import { UserButton } from '@/components/global/user-button';
 import LiquidGlass from "@/components/ui/liquid-glass";
 import { motion } from "framer-motion";
@@ -77,56 +77,6 @@ const useBackgroundContrast = (containerRef: React.RefObject<HTMLDivElement | nu
   return isDarkBackground
 }
 
-type TabItem = {
-  label: string;
-  icon: React.ReactNode;
-  href?: string;
-  onClick?: () => void;
-  active?: boolean;
-  className?: string;
-  target?: string;
-  rel?: string;
-  disabled?: boolean;
-  external?: boolean;
-}
-
-
-interface NavItem extends NavChildItem {
-  children?: NavChildItem[];
-  active?: boolean;
-  className?: string;
-  onClick?: () => void;
-}
-
-interface NavChildItem {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-  active?: boolean;
-  onClick?: () => void;
-  className?: string;
-  target?: string;
-  rel?: string;
-  disabled?: boolean;
-  external?: boolean;
-}
-
-const resourcesChildItems: NavChildItem[] = [
-  { icon: <BookOpen className="w-5 h-5" />, label: "Documentation", href: "/resources/docs" },
-  { icon: <BookOpen className="w-5 h-5" />, label: "API Reference", href: "/resources/api" },
-  { icon: <BookOpen className="w-5 h-5" />, label: "Tutorials", href: "/resources/tutorials" },
-  { icon: <BookOpen className="w-5 h-5" />, label: "Blog", href: "/resources/blog" },
-  { icon: <BookOpen className="w-5 h-5" />, label: "Support", href: "/resources/support" },
-]
-
-const navItems: NavItem[] = [
-  { icon: <Zap className="w-5 h-5" />, label: "Features", href: "/features" },
-  { icon: <BarChart className="w-5 h-5" />, label: "Pricing", href: "/pricing" },
-  { icon: <BookOpen className="w-5 h-5" />, label: "Resources", href: "/resources", children: resourcesChildItems },
-  { icon: <Boxes className="w-5 h-5" />, label: "Products", href: "/products" },
-  { icon: <Contact className="w-5 h-5" />, label: "Contact", href: "/contacts" },
-];
-
 type NavbarOptions = {
   label: string;
   href: string;
@@ -138,23 +88,24 @@ type NavbarOptions = {
   icon?: React.ReactNode;
 }
 
-
 const navbarOptions: NavbarOptions[] = [
-  { label: "Home", href: "/" },
-  { label: "Pricing", href: "/site/pricing" },
-  { label: "About", href: "/site/about" },
-  { label: "Documentation", href: "/site/documentation" },
+  { label: "Home", href: "/site" },
   { label: "Features", href: "/site/features" },
+  { label: "Pricing", href: "/site/pricing" },
+  { label: "Docs", href: "/site/docs" },
+  { label: "Blog", href: "/site/blog" },
+  { label: "About", href: "/site/about" },
+  { label: "Contact", href: "/site/contact" },
 ]
 
 export function Navbar() {
-  const [displacementScale, setDisplacementScale] = useState(100) // Effect: It creates a wavy, distorted effect on the glass surface.
+  const [displacementScale, setDisplacementScale] = useState(140) // Effect: It creates a wavy, distorted effect on the glass surface.
   const [blurAmount, setBlurAmount] = useState(0.5) // Effect: It controls the amount of blur applied to the background seen through the glass.
   const [saturation, setSaturation] = useState(140) // Effect: It adjusts the color intensity of the background seen through the glass.
   const [aberrationIntensity, setAberrationIntensity] = useState(2) // Effect: It adds a chromatic aberration effect, causing color fringing around the edges of objects seen through the glass.
   const [elasticity, setElasticity] = useState(0)
   const [cornerRadius, setCornerRadius] = useState(32)
-  const [overLight, setOverLight] = useState(false)
+  const [overLight, setOverLight] = useState(true)
   const [mode, setMode] = useState<"standard" | "polar" | "prominent" | "shader">("standard")
   const containerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -169,7 +120,7 @@ export function Navbar() {
 
   // Use dynamic background contrast detection
   const isDarkBackground = useBackgroundContrast(containerRef)
-  
+
   // Determine if we should use light text (dark theme or dark background)
   const useLightText = theme === 'dark' || isDarkBackground;
 
@@ -196,11 +147,26 @@ export function Navbar() {
     };
   }, [hoverTimeout]);
 
+  // useEffect(() => {
+  //   const updateScroll = () => {
+  //     const scroll = window.scrollY || document.documentElement.scrollTop;
+  //     setScroll(scroll);
+  //     setIsScrolled(scroll > 10);
+  //   };
+  //   window.addEventListener("scroll", updateScroll);
+  //   return () => {
+  //     window.removeEventListener("scroll", updateScroll);
+  //   };
+  // }, []);
+     
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     requestAnimationFrame(() => {
-      setScroll((event?.target as any)?.scrollTop)
+      const scroll = window.scrollY || document.documentElement.scrollTop;
+      setScroll(scroll);
+      setIsScrolled(scroll > 10);
     })
   }
+
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -260,7 +226,7 @@ export function Navbar() {
   return (
     <div className={`${geistSans.className} min-w-screen justify-between`}>
       {/*  Glass Effect Demo */}
-      <div className="w-full flex flex-1" ref={containerRef} onScroll={handleScroll}>
+      <div className="-z-10 w-full flex flex-1" ref={containerRef} onScroll={handleScroll}>
         <LiquidGlass
           displacementScale={displacementScale}
           blurAmount={blurAmount}
@@ -300,17 +266,17 @@ export function Navbar() {
                     "flex items-center justify-center",
                     "group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-500/30 transition-all duration-200"
                   )}> */}
-                  {/* Autlify Logo */}
-                  {/* <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Autlify Logo */}
+                {/* <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold" fontFamily="system-ui">A</text>
                   </svg> */}
-                  <Image
-                    src="/assets/autlify-logo.svg"
-                    alt="Autlify Logo"
-                    width={48}
-                    height={48}
-                    className="object-contain"
-                  />
+                <Image
+                  src="/assets/autlify-logo.svg"
+                  alt="Autlify Logo"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
                 {/* </div> */}
                 <span className="text-xl font-bold text-white select-none">Autlify</span>
               </Link>
@@ -329,10 +295,10 @@ export function Navbar() {
                           className={cn(
                             "group relative flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                             isResourcesOpen || isActive
-                              ? useLightText ? "text-white" : "text-gray-900"
+                              ? useLightText ? "text-white" : "text-foreground"
                               : useLightText
-                                ? "text-gray-300 hover:text-white"
-                                : "text-gray-600 hover:text-gray-900"
+                                ? "text-muted-foreground hover:text-foreground"
+                                : "text-muted-foreground hover:text-foreground"
                           )}
                           onMouseEnter={() => handleMouseEnter(option)}
                           onMouseLeave={handleMouseLeave}
@@ -396,10 +362,10 @@ export function Navbar() {
                         className={cn(
                           "group relative flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                           isActive
-                            ? useLightText ? "text-white" : "text-gray-900"
+                            ? useLightText ? "text-white" : "text-foreground"
                             : useLightText
-                              ? "text-gray-300 hover:text-white"
-                              : "text-gray-600 hover:text-gray-900"
+                              ? "text-muted-foreground hover:text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         <span className="flex items-center gap-2 relative">
@@ -516,20 +482,28 @@ export function Navbar() {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M4 6h16M4 12h16m-7 6h7"
-                />
+                /> 
               </svg>
             </button>
             {/* Buttons Section - Fixed width */}
             <div className="flex items-center gap-3 w-48 justify-end">
-              <Link
+              {/* <Link
                 href={'/agency'}
                 className="bg-gradient-to-br from-blue-800 via-blue-600 to-primary text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-label="Login to your account"
               >
                 Login
+              </Link> */}
+              <Link
+                href="/agency"
+                className="btn-brand-gradient px-5 py-2 rounded-xl text-sm font-semibold"
+                aria-label="Login to your account"
+              >
+                Login
               </Link>
+
               <UserButton />
-              <ModeToggle />
+              <ModeButton />
             </div>
           </div>
         </LiquidGlass>

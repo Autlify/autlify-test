@@ -93,26 +93,33 @@ const config: Config = withUt({
             strong: colors.gray[50],
             inverted: colors.gray[950],
           },
-        },
-        boxShadow: {
-          // light
-          'tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-          'tremor-card':
-            '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-          'tremor-dropdown':
-            '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-          // dark
-          'dark-tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-          'dark-tremor-card':
-            '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-          'dark-tremor-dropdown':
-            '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-        },
+      },
+      boxShadow: {
+        // Tremor shadows
+        'tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'tremor-card':
+          '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'tremor-dropdown':
+          '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'dark-tremor-input': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'dark-tremor-card':
+          '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'dark-tremor-dropdown':
+          '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+          
+        // Linear Design System shadows
+        'linear-tiny': 'var(--shadow-tiny)',
+        'linear-sm': 'var(--shadow-sm)',
+        'linear-md': 'var(--shadow-md)',
+        'linear-lg': 'var(--shadow-lg)',
+        'linear-xl': 'var(--shadow-xl)',
+      },
         borderRadius: {
           'tremor-small': '0.375rem',
           'tremor-default': '0.5rem',
           'tremor-full': '9999px',
         },
+        /* Shadcn/UI tokens - maintain compatibility */
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -145,6 +152,76 @@ const config: Config = withUt({
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        
+        /* Linear Design System - Clean semantic tokens */
+        // These map to Linear's internal token structure but expose clean utilities
+        // Usage: bg-surface-primary, text-content-primary, border-line-primary
+        
+        // Surface/Background colors (use with bg-, not standalone)
+        surface: {
+          primary: 'var(--color-bg-primary)',
+          secondary: 'var(--color-bg-secondary)',
+          tertiary: 'var(--color-bg-tertiary)',
+          quaternary: 'var(--color-bg-quaternary)',
+          quinary: 'var(--color-bg-quinary)',
+          translucent: 'var(--color-bg-translucent)',
+          tint: 'var(--color-bg-tint)',
+          0: 'var(--color-bg-level-0)',
+          1: 'var(--color-bg-level-1)',
+          2: 'var(--color-bg-level-2)',
+          3: 'var(--color-bg-level-3)',
+        },
+        
+        // Text/Content colors (use with text-, not standalone)
+        content: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          tertiary: 'var(--color-text-tertiary)',
+          quaternary: 'var(--color-text-quaternary)',
+        },
+        
+        // Line/Border colors (use with border-, not standalone)  
+        line: {
+          primary: 'var(--color-line-primary)',
+          secondary: 'var(--color-line-secondary)',
+          tertiary: 'var(--color-line-tertiary)',
+          quaternary: 'var(--color-line-quaternary)',
+          tint: 'var(--color-line-tint)',
+        },
+        
+        // Border colors (explicit border tokens)
+        'border-primary': 'var(--color-border-primary)',
+        'border-secondary': 'var(--color-border-secondary)',
+        'border-tertiary': 'var(--color-border-tertiary)',
+        'border-translucent': 'var(--color-border-translucent)',
+        
+        // Brand/Accent colors
+        brand: {
+          DEFAULT: 'var(--color-accent)',
+          hover: 'var(--color-accent-hover)',
+          tint: 'var(--color-accent-tint)',
+          bg: 'var(--color-brand-bg)',
+          text: 'var(--color-brand-text)',
+        },
+        
+        // Link colors
+        link: {
+          DEFAULT: 'var(--color-link-primary)',
+          hover: 'var(--color-link-hover)',
+        },
+        
+        // Status colors (using Shadcn naming)
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning-text))',
+          foreground: 'hsl(var(--warning-text))',
+          background: 'hsl(var(--warning-bg))',
+          'background-hover': 'hsl(var(--warning-bg-hover))',
+          border: 'hsl(var(--warning-border))',
         },
       },
       borderRadius: {

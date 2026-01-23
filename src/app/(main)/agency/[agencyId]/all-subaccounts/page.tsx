@@ -90,7 +90,7 @@ const AllSubaccountsPage = async ({ params }: Props) => {
                       <Button
                         size={'sm'}
                         variant={'destructive'}
-                        className="w-20 hover:bg-red-600 hover:text-white !text-white"
+                        className="w-20 !text-white"
                       >
                         Delete
                       </Button>

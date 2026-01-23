@@ -196,7 +196,7 @@ const FunnelEditorNavigation = ({
           <Button
             variant={'ghost'}
             size={'icon'}
-            className="hover:bg-slate-800"
+            className="hover:bg-muted"
             onClick={handlePreviewClick}
           >
             <EyeIcon />
@@ -206,7 +206,7 @@ const FunnelEditorNavigation = ({
             onClick={handleUndo}
             variant={'ghost'}
             size={'icon'}
-            className="hover:bg-slate-800"
+            className="hover:bg-muted"
           >
             <Undo2 />
           </Button>
@@ -217,7 +217,7 @@ const FunnelEditorNavigation = ({
             onClick={handleRedo}
             variant={'ghost'}
             size={'icon'}
-            className="hover:bg-slate-800 mr-4"
+            className="hover:bg-muted mr-4"
           >
             <Redo2 />
           </Button>

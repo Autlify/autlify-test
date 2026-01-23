@@ -121,7 +121,7 @@ const SubscriptionFormWrapper = ({ customerId, planExists, currentPriceId }: Pro
                     <div className="flex items-center gap-2">
                       <span>RM {price.unit_amount ? price.unit_amount / 100 : '0'}</span>
                       {isCurrent && (
-                        <span className="text-xs font-normal px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">
+                        <span className="text-xs font-normal px-2 py-1 rounded-full bg-emerald-bg-subtle text-emerald-fg-primary">
                           Current Plan
                         </span>
                       )}
@@ -167,8 +167,8 @@ const SubscriptionFormWrapper = ({ customerId, planExists, currentPriceId }: Pro
         )}
 
         {subscription.message && (
-          <div className="flex flex-col items-center justify-center w-full p-6 bg-emerald-50 dark:bg-emerald-950 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <div className="text-emerald-600 dark:text-emerald-400 text-center">
+          <div className="flex flex-col items-center justify-center w-full p-6 bg-emerald-bg-subtle rounded-lg border border-emerald-line-primary">
+            <div className="text-emerald-fg-primary text-center">
               <p className="font-semibold">{subscription.message}</p>
               <p className="text-sm mt-2">Subscription ID: {subscription.subscriptionId}</p>
               {subscription.trialEnd && (

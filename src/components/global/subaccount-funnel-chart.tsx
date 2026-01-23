@@ -35,7 +35,7 @@ const customTooltip = ({
   const categoryPayload = payload?.[0]
   if (!categoryPayload) return null
   return (
-    <div className="ml-[100px] dark:text-white text-black w-fit dark:bg-muted/60 backdrop-blur-md bg-background/60 !rounded-lg p-2 shadow-2xl">
+    <div className="ml-[100px] text-fg-primary w-fit surface-translucent !rounded-lg p-2 shadow-2xl">
       <div className="flex items-center flex-1 space-x-2.5">
         <div
           className={`w-5 h-5 rounded-full  bg-${categoryPayload?.color} rounded`}
@@ -54,7 +54,7 @@ const customTooltip = ({
       {categoryPayload.payload.FunnelPages?.map((page: any) => (
         <div
           key={page.id}
-          className="dark:text-white/70 text-black flex justify-between items-center"
+          className="text-fg-secondary flex justify-between items-center"
         >
           <small>{page.name}</small>
           <small>{page.visits}</small>

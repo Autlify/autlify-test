@@ -50,55 +50,67 @@ interface BankCardProps {
   expiryYear?: string
   cvv?: string
   isFlipped?: boolean
+  /** Card visual variant - determines color scheme and styling */
   variant?: "default" | "premium" | "platinum" | "black"
+  /** Display chip icon on card front */
   showChip?: boolean
   cardImage?: string
+  /** Display contactless payment icon */
   showContactless?: boolean
+  /** Display holographic security feature */
   showHologram?: boolean
   isValid?: boolean
   validationErrors?: string[]
   className?: string
   onClick?: () => void
+  /** Visual indicator for selected card in galleries */
   isSelected?: boolean
   focusField?: string | null
-  isMasked?: boolean // For Stripe saved cards that are already masked
-  showValidationErrors?: boolean // Control whether to show validation errors
-  brand?: string // Card brand from Stripe (visa, mastercard, etc.)
-  compact?: boolean // For smaller display in galleries
+  /** For Stripe saved cards that come pre-masked */
+  isMasked?: boolean
+  /** Control whether to display validation error badges */
+  showValidationErrors?: boolean
+  /** Card brand from payment provider (visa, mastercard, amex, etc.) */
+  brand?: string
+  /** Compact mode for gallery/list displays */
+  compact?: boolean
 }
 
+/** 
+ * Card Visual Variants
+ * Defines appearance for different card tiers while maintaining consistent behavior
+ */
 const cardVariants = {
   default: {
     background: "bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900",
-    accent: "from-blue-500 to-purple-600",
     text: "text-white",
     chip: "bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-300",
     chipText: "bg-black/60",
   },
   premium: {
     background: "bg-gradient-to-br from-amber-600 via-yellow-500 to-amber-700",
-    accent: "from-amber-400 to-yellow-300",
     text: "text-black",
     chip: "bg-gradient-to-br from-gray-800 to-black border-gray-700",
     chipText: "bg-white/80",
   },
   platinum: {
     background: "bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400",
-    accent: "from-gray-100 to-white",
     text: "text-black",
     chip: "bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-300",
     chipText: "bg-black/60",
   },
   black: {
     background: "bg-gradient-to-br from-black via-gray-900 to-black",
-    accent: "from-gray-600 to-gray-400",
     text: "text-white",
     chip: "bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-300",
     chipText: "bg-black/60",
   },
-}
+} as const;
 
-// Centralized sizing configuration
+/** 
+ * Centralized sizing configuration for regular and compact card displays
+ * Maintains visual consistency across different use cases (full display vs gallery)
+ */
 const cardSizing = {
   regular: {
     padding: "p-6",
@@ -132,9 +144,10 @@ const cardSizing = {
     hologramPosition: "bottom-10 right-4",
     spacing: "my-2",
   },
-}
+} as const;
 
-const getSize = (compact: boolean) => compact ? cardSizing.compact : cardSizing.regular
+/** Helper to get size configuration based on compact mode */
+const getSize = (compact: boolean) => compact ? cardSizing.compact : cardSizing.regular;
 
 /**
  * Detects if a card number is already masked (Stripe format)
@@ -441,7 +454,7 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
                 className="relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full blur-md opacity-60" />
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 shadow-lg shadow-blue-500/50 border-2 border-white dark:border-slate-900">
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 shadow-lg shadow-blue-500/50 border-2 border-white">
                   <Check className="w-5 h-5 text-white" strokeWidth={3} />
                 </div>
               </motion.div>
@@ -452,7 +465,7 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
         <motion.div
           className={cn(
             "relative w-full h-full transition-transform duration-700 preserve-3d",
-            isSelected && "shadow-[0_20px_60px_rgba(59,130,246,0.4)] dark:shadow-[0_25px_70px_rgba(59,130,246,0.6)]"
+            isSelected && "shadow-[0_20px_60px_rgba(59,130,246,0.4)]"
           )}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           style={{ transformStyle: "preserve-3d" }}
@@ -624,11 +637,11 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
     return (
       <div ref={ref} className={cn("space-y-4", className)} {...props}>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold dark:text-white text-black">Saved Payment Methods</h3>
+          <h3 className="text-lg font-semibold text-fg-primary">Saved Payment Methods</h3>
           <button
             type="button"
             onClick={onAddCard}
-            className="text-sm text-blue-500 hover:text-blue-600 font-medium transition-colors"
+            className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
           >
             + Add New Card
           </button>
@@ -666,7 +679,7 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                       className="relative"
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-500 rounded-full blur-md opacity-60" />
-                      <div className="relative flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-br from-emerald-500 via-emerald-600/90 to-emerald-600/90 shadow-lg shadow-emerald-500/50 border-2 border-white dark:border-slate-900">
+                      <div className="relative flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-br from-emerald-500 via-emerald-600/90 to-emerald-600/90 shadow-lg shadow-emerald-500/50 border-2 border-white">
                         {/* <Check className="w-3 h-3 text-white" strokeWidth={3} /> */}
                         <span className="text-[10px] font-bold text-white leading-none">Default</span>
                       </div>
@@ -681,9 +694,9 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                       <button
                         type="button"
                         onClick={(e) => e.stopPropagation()}
-                        className="h-8 w-8 rounded-full bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 shadow-lg flex items-center justify-center transition-colors"
+                        className="h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-colors"
                       >
-                        <MoreVertical className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                        <MoreVertical className="h-4 w-4 text-fg-secondary" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
@@ -713,7 +726,7 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                           e.stopPropagation()
                           onRemoveCard?.(card.id)
                         }}
-                        className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                        className="cursor-pointer text-red-fg-primary focus:text-red-fg-primary"
                       >
                         <X className="mr-2 h-4 w-4" />
                         Remove Card

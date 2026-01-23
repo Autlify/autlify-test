@@ -1,10 +1,10 @@
 import { resolveLandingTarget, CONTEXT_COOKIE } from '@/lib/iam/authz/resolver'
 import { verifyAndAcceptInvitation } from '@/lib/queries'
 import { Plan } from '@/generated/prisma/client'
-import { redirect } from 'next/navigation'
-import React from 'react'
+import { redirect } from 'next/navigation' 
+import { cookies } from 'next/headers'  
 import { auth } from '@/auth'
-import { cookies } from 'next/headers'
+
 
 const Page = async ({
   searchParams,
@@ -12,13 +12,15 @@ const Page = async ({
   searchParams: Promise<{ plan?: Plan; state?: string; code?: string }>
 }) => {
   const session = await auth()
+  const cookieStore = await cookies() 
   if (!session?.user?.id) return redirect('/agency/sign-in')
 
   const { plan, state, code } = await searchParams
 
   // Create memberships from pending invites (if any)
   await verifyAndAcceptInvitation()
-  const cookieValue = (await cookies()).get(CONTEXT_COOKIE)?.value ?? null
+
+  const cookieValue = cookieStore.get(CONTEXT_COOKIE)?.value ?? null
 
   const landingTarget = await resolveLandingTarget({
     cookieValue,

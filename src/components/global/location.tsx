@@ -146,7 +146,7 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
 
     if (isLoading) {
       return (
-        <Button variant="outline" disabled className="w-full justify-between h-11">
+        <Button variant="outline" disabled className="w-full justify-between h-10">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Loading countries...</span>
         </Button>
@@ -163,13 +163,12 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full justify-between h-11 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "billing-progress-neumorphic dark:billing-progress-glass",
-              "text-slate-900 dark:text-white",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20",
-              styleVariant === 'default' && !disabled && "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
+              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "text-fg-primary",
+              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
               disabled && "opacity-50 cursor-not-allowed",
-              !selectedCountry && "text-slate-500 dark:text-slate-400",
+              !selectedCountry && "text-fg-tertiary",
               className,
             )}
             {...props}
@@ -189,19 +188,20 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-surface-primary border-line-secondary"
           align="start"
           role="dialog"
           aria-label="Select country"
         >
-          <Command className="bg-transparent dark:text-slate-100">
-            <div className="flex items-center border-b border-slate-200 dark:border-slate-800 px-3">
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+          <Command>
+            <div className="flex items-center border-b border-line-secondary px-3">
+              {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
               <CommandInput
                 placeholder="Search countries..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+                
+               className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search countries"
               />
             </div>
@@ -214,7 +214,7 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
                 scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent'
               }}
             >
-              <CommandEmpty className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+              <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No country found.
               </CommandEmpty>
               <CommandGroup className="p-1">
@@ -227,7 +227,7 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === country.isoCode}
                   >
@@ -292,7 +292,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
     if (isLoading) {
       return (
         <div className="flex items-stretch">
-          <Button variant="outline" disabled className="h-11 px-3 rounded-r-none border-r-0">
+          <Button variant="outline" disabled className="h-10 px-3 rounded-r-none border-r-0">
             <Loader2 className="h-4 w-4 animate-spin" />
           </Button>
           <Input disabled className="rounded-l-none border-l-0" />
@@ -311,13 +311,13 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
               aria-expanded={open}
               disabled={disabled}
               className={cn(
-                "min-w-[155px] items-center justify-between left-4 h-11 px-4 text-sm transition-all duration-200 rounded-r-none border-r-0",
-                styleVariant === 'default' ? "billing-progress-neumorphic dark:billing-progress-glass" : "",
-                "text-slate-900 dark:text-white",
-                styleVariant === 'default' ? "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20" : "",
-                !disabled && "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+                "min-w-[155px] items-center justify-between left-4 h-10 px-4 text-sm transition-all duration-200 rounded-r-none border-r-0",
+                styleVariant === 'default' ? "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
+                "text-fg-primary",
+                styleVariant === 'default' ? "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base" : "",
+                !disabled && "hover:bg-surface-secondary hover:border-line-primary",
                 disabled && "opacity-50 cursor-not-allowed",
-                !selectedPhoneCode && "text-slate-500 dark:text-slate-400",
+                !selectedPhoneCode && "text-fg-tertiary",
               )}
               {...props}
             >
@@ -354,19 +354,19 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
           </PopoverTrigger>
 
           <PopoverContent
-            className="w-[260px] p-0 border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            className="w-[260px] p-0 border bg-surface-primary border-line-secondary"
             align="start"
             role="dialog"
             aria-label="Select country code"
           >
-            <Command className="bg-transparent">
-              <div className="flex items-center border-b border-white/10 dark:border-white/5 px-3">
+            <Command>
+              <div className="flex items-center border-b border-line-secondary px-3">
                 <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                 <CommandInput
                   placeholder="Search countries..."
                   value={searchValue}
                   onValueChange={setSearchValue}
-                  className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+                  className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                   aria-label="Search countries for phone code"
                 />
               </div>
@@ -378,7 +378,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
                   scrollbarWidth: 'thin'
                 }}
               >
-                <CommandEmpty className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                   No country found.
                 </CommandEmpty>
                 <CommandGroup className="p-1">
@@ -391,7 +391,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
                         setOpen(false);
                         setSearchValue("");
                       }}
-                      className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors hover:bg-white/10 dark:hover:bg-black/10 aria-selected:bg-white/15 dark:aria-selected:bg-black/15 focus:bg-white/15 dark:focus:bg-black/15 focus:outline-none"
+                      className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
                       role="option"
                       aria-selected={countryCode === phoneCode.isoCode}
                     >
@@ -399,7 +399,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
                         <span className="text-lg flex-shrink-0" aria-hidden="true">{phoneCode.flag}</span>
 
                         <span className="font-medium truncate">{phoneCode.name}</span>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                        <span className="text-xs text-fg-tertiary font-mono">
                           +{phoneCode.phonecode}
                         </span>
                       </div>
@@ -426,11 +426,11 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
             onChange={handlePhoneChange}
             disabled={disabled}
             className={cn(
-              "pl-2 rounded-l-none border-l-0 focus:border-l-0 h-11",
-              "billing-progress-neumorphic dark:billing-progress-glass",
-              "text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400",
-              "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20",
-              !disabled && "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+              "pl-2 rounded-l-none border-l-0 focus:border-l-0 h-10",
+              "bg-surface-primary border-line-secondary",
+              "text-fg-primary placeholder:text-fg-tertiary",
+              "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
+              !disabled && "hover:bg-surface-secondary hover:border-line-primary",
               disabled && "opacity-50 cursor-not-allowed",
             )}
           />
@@ -469,7 +469,7 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
 
     if (isLoading && countryCode) {
       return (
-        <Button variant="outline" disabled className="w-full justify-between h-11">
+        <Button variant="outline" disabled className="w-full justify-between h-10">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Loading states...</span>
         </Button>
@@ -486,15 +486,15 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
             aria-expanded={open}
             disabled={disabled || !countryCode}
             className={cn(
-              "w-full justify-between h-11 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "billing-progress-neumorphic dark:billing-progress-glass",
-              "text-slate-900 dark:text-white",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20",
+              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
+              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "text-fg-primary",
+              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
               styleVariant === 'default' && !disabled &&
               countryCode &&
-              "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+              "hover:bg-surface-secondary hover:border-line-primary",
               (disabled || !countryCode) && "opacity-50 cursor-not-allowed",
-              !selectedState && "text-slate-500 dark:text-slate-400",
+              !selectedState && "text-fg-tertiary",
               className,
             )}
           >
@@ -508,19 +508,19 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-surface-primary border-line-secondary"
           align="start"
           role="dialog"
           aria-label="Select state"
         >
-          <Command className="bg-transparent dark:text-slate-100">
-            <div className="flex items-center border-b border-slate-200 dark:border-slate-800 px-3">
+          <Command className="text-fg-primary">
+            <div className="flex items-center border-b border-line-secondary px-3">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
               <CommandInput
                 placeholder="Search states..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search states"
               />
             </div>
@@ -532,7 +532,7 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
                 scrollbarWidth: 'thin'
               }}
             >
-              <CommandEmpty className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+              <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No state found.
               </CommandEmpty>
               <CommandGroup className="p-1">
@@ -545,13 +545,13 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === state.isoCode}
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{state.name}</span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">{state.isoCode}</span>
+                      <span className="text-xs text-fg-tertiary">{state.isoCode}</span>
                     </div>
                     <Check className={cn("h-4 w-4", value === state.isoCode ? "opacity-100" : "opacity-0")} aria-hidden="true" />
                   </CommandItem>
@@ -593,7 +593,7 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
 
     if (isLoading && countryCode && stateCode) {
       return (
-        <Button variant="outline" disabled className="w-full justify-between h-11">
+        <Button variant="outline" disabled className="w-full justify-between h-10">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span>Loading cities...</span>
         </Button>
@@ -610,16 +610,16 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
             aria-expanded={open}
             disabled={disabled || !countryCode || !stateCode}
             className={cn(
-              "w-full justify-between h-11 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "billing-progress-neumorphic dark:billing-progress-glass",
-              "text-slate-900 dark:text-white",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20",
+              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
+              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "text-fg-primary",
+              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
               styleVariant === 'default' && !disabled &&
               countryCode &&
               stateCode &&
-              "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+              "hover:bg-surface-secondary hover:border-line-primary",
               (disabled || !countryCode || !stateCode) && "opacity-50 cursor-not-allowed",
-              !selectedCity && "text-slate-500 dark:text-slate-400",
+              !selectedCity && "text-fg-tertiary",
               className,
             )}
           >
@@ -633,19 +633,19 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+          className="w-[var(--radix-popover-trigger-width)] p-0 border bg-surface-primary border-line-secondary"
           align="start"
           role="dialog"
           aria-label="Select city"
         >
-          <Command className="bg-transparent dark:text-slate-100">
-            <div className="flex items-center border-b border-slate-200 dark:border-slate-800 px-3">
+          <Command className="text-fg-primary">
+            <div className="flex items-center border-b border-line-secondary px-3">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
               <CommandInput
                 placeholder="Search cities..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search cities"
               />
             </div>
@@ -657,7 +657,7 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
                 scrollbarWidth: 'thin'
               }}
             >
-              <CommandEmpty className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
+              <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No city found.
               </CommandEmpty>
               <CommandGroup className="p-1">
@@ -670,14 +670,14 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 aria-selected:bg-slate-100 dark:aria-selected:bg-slate-800 focus:bg-slate-100 dark:focus:bg-slate-800 focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === city.name}
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{city.name}</span>
                       {city.latitude && city.longitude && (
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-xs text-fg-tertiary">
                           {city.latitude}, {city.longitude}
                         </span>
                       )}
@@ -765,19 +765,19 @@ const PostalCodeInput = React.forwardRef<HTMLInputElement, PostalCodeInputProps>
           aria-label="Postal code"
           aria-description="Enter your postal code"
           className={cn(
-            "flex items-center justify-between h-11 px-3 text-sm transition-all duration-200 rounded-r-none border-r-0",
-            styleVariant === 'default' ? "billing-progress-neumorphic dark:billing-progress-glass" : "",
-            "text-slate-900 dark:text-white",
-            styleVariant === 'default' ? "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20" : "",
-            !disabled && "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+            "flex items-center justify-between h-10 px-3 text-sm transition-all duration-200 rounded-r-none border-r-0",
+            styleVariant === 'default' ? "bg-surface-primary border-line-secondary" : "",
+            "text-fg-primary",
+            styleVariant === 'default' ? "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base" : "",
+            !disabled && "hover:bg-surface-secondary hover:border-line-primary",
             disabled && "opacity-50 cursor-not-allowed",
-            !isValid && "text-slate-500 dark:text-slate-400",
+            !isValid && "text-fg-tertiary",
             className,
           )}
           {...props}
         />
         {showError && !isValid && (
-          <p id="postal-code-error" className="mt-1 text-xs text-red-500 dark:text-red-400" role="alert">
+          <p id="postal-code-error" className="mt-1 text-xs text-destructive" role="alert">
             Please enter a valid postal code for the selected country
           </p>
         )}
@@ -943,22 +943,22 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            styleVariant === 'default' && "billing-progress-neumorphic dark:billing-progress-glass",
-            "text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400",
-            styleVariant === 'default' && "focus:ring-2 focus:ring-blue-500/20 dark:focus:border-white/20",
-            !disabled && "hover:brightness-95 dark:hover:bg-black/15 dark:hover:border-white/15",
+            styleVariant === 'default' && "bg-surface-primary border-line-secondary",
+            "text-fg-primary placeholder:text-fg-tertiary",
+            styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
+            !disabled && "hover:bg-surface-secondary hover:border-line-primary",
             disabled && "opacity-50 cursor-not-allowed",
             className,
           )}
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-fg-tertiary" />
           </div>
         )}
         {open && suggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 p-0 border rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-lg">
-            <Command className="bg-transparent">
+          <div className="absolute z-50 w-full mt-1 p-0 border rounded-lg bg-surface-primary border-line-secondary shadow-lg">
+            <Command>
               <CommandList className="max-h-[200px] overflow-y-auto">
                 <CommandGroup>
                   {suggestions.map((suggestion, index) => {
@@ -989,11 +989,11 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
                         key={`${suggestion.place_id}-${index}`}
                         value={suggestion.display_name}
                         onSelect={() => handleSelectAddress(suggestion)}
-                        className="flex flex-col items-start px-3 py-2 text-sm cursor-pointer transition-colors text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        className="flex flex-col items-start px-3 py-2 text-sm cursor-pointer transition-colors text-fg-primary hover:bg-surface-secondary"
                       >
                         <span className="font-medium">{displayText}</span>
                         {buildingName && (
-                          <span className="text-xs text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-fg-tertiary">
                             {buildingName}
                           </span>
                         )}

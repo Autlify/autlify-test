@@ -17,6 +17,7 @@ import {
   Ticket,
   User,
 } from '@/generated/prisma/client'
+import type { AdapterAuthenticator } from '@auth/core/adapters'
 import { v4 } from 'uuid'
 import {
   CreateFunnelFormSchema,
@@ -1235,8 +1236,14 @@ export const getPipelines = async (subaccountId: string) => {
   return response
 }
 
-export const createVerificationToken = async (email: string, scope: 'verify' | 'authN', milliseconds: number) => {
-  const identifier = `${scope}:${email}`
+export const createVerificationToken = async (
+  email: string,
+  scope: 'verify' | 'authN' | 'passkey' | 'email' | 'webauthN',
+  milliseconds: number
+) => {
+  // Normalize friendly scope aliases to persisted identifiers
+  const normalizedScope = scope === 'email' ? 'verify' : scope === 'webauthN' ? 'passkey' : scope
+  const identifier = `${normalizedScope}:${email}`
   const existingToken = await db.verificationToken.findFirst({
     where: {
       identifier
@@ -1309,11 +1316,50 @@ export const validateVerificationToken = async (token: string) => {
     // For authentication tokens, return email for auto-login
     // Token will be deleted by auth.ts after successful login
     return { success: true, email, scope }
+  } else if (scope === 'passkey') {
+    // Passkey flows validate scope only; specific WebAuthn verification happens in passkey endpoints
+    // Do not delete token here; passkey endpoints will delete upon successful verification
+    return { success: true, email, scope }
   }
 
   return { success: false, error: 'unknown-scope', message: 'Unknown token scope' }
 
 }
+
+export const getAuthenticator = async (credentialID: string) => {
+  const response = await db.authenticator.findUnique({
+    where: { credentialID },
+  })
+  return response
+}
+
+export const createAuthenticator = async (authenticator: string) => {
+  const response = await db.authenticator.create({
+    data: { ...JSON.parse(authenticator) },
+  })
+  return response
+}
+
+export const deleteAuthenticator = async (credentialID: string) => {
+  const response = await db.authenticator.delete({
+    where: { credentialID },
+  })
+  return response
+}
+
+export const updateAuthenticatorCounter = async (
+  credentialID: string,
+  counter: number
+) => {
+  const response = await db.authenticator.update({
+    where: { credentialID },
+    data: { counter },
+  })
+  return response
+}
+
+
+
 
 // =============================================================================
 // HELPER FUNCTIONS - RBAC & Context Management

@@ -11,10 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoonIcon, SunIcon } from 'lucide-react'
+import { MoonIcon, SunIcon, SparkleIcon } from 'lucide-react'
+import { useEffect } from 'react'
 
 export function ModeToggle() {
-  const { setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+  const theme = resolvedTheme
 
   return (
     <DropdownMenu>
@@ -22,23 +24,74 @@ export function ModeToggle() {
         <Button
           variant="outline"
           size="icon"
+          className="shadow-none"
         >
-          <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-foreground" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
+          <SunIcon className={`h-[1.2rem] w-[1.2rem] transition-all  ${theme === 'light' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} />
+          <MoonIcon className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${theme === 'dark' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} />
+          <SparkleIcon className={`absolute h-[1.2rem] w-[1.2rem] transition-all  ${theme === 'premium' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} />
+
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>
+      <DropdownMenuContent align="end" sideOffset={8} className="shadow-none">
+        <DropdownMenuItem onClick={() => setTheme('light')} className="focus:bg-muted/50 focus:text-foreground cursor-pointer shadow-none">
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>
+        {/* <DropdownMenuItem onClick={() => setTheme('dark')} className="focus:bg-muted/50 focus:text-foreground cursor-pointer shadow-none">
           Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>
-          System
+        </DropdownMenuItem> */}
+        <DropdownMenuItem onClick={() => setTheme('premium')} className="focus:bg-muted/50 focus:text-foreground cursor-pointer shadow-none">
+          Premium
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
+
+
+const ModeButton = () => {
+  const { resolvedTheme, setTheme } = useTheme()
+  const theme = resolvedTheme
+  const [mounted, setMounted] = React.useState(false)
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-1">
+        <div className="h-8 w-8 rounded-md bg-muted animate-pulse" />
+        <div className="h-8 w-8 rounded-md bg-muted animate-pulse" />
+      </div>
+    );
+  }
+
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="relative bg-secondary hover:bg-muted/70 transition-colors text-muted-foreground"
+      onClick={() => {
+        if (theme === 'light') {
+          setTheme('premium')
+        } else if (theme === 'premium') {
+          setTheme('light')
+        } else {
+          setTheme('light')
+        }
+      }}
+    >
+      <SunIcon className={`h-[1.2rem] w-[1.2rem] transition-all text-muted-foreground ${theme === 'light' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} />
+      <MoonIcon className={`absolute h-[1.2rem] w-[1.2rem] transition-all text-muted-foreground ${theme === 'premium' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} />
+      {/* <SparkleIcon className={`absolute h-[1.2rem] w-[1.2rem] transition-all  ${theme === 'premium' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}`} /> */}
+
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  )
+}
+
+ModeButton.displayName = 'ModeButton'
+
+export { ModeButton }

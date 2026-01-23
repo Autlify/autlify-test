@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
-import { subscriptionCreated } from '@/lib/stripe/stripe-actions'
+import { creditTopUpCreated, subscriptionCreated } from '@/lib/stripe/stripe-actions'
 import { db } from '@/lib/db'
 
 const stripeWebhookEvents = new Set([
@@ -17,6 +17,7 @@ const stripeWebhookEvents = new Set([
   'customer.subscription.trial_will_end',
   'invoice.payment_succeeded',
   'setup_intent.succeeded',
+  'checkout.session.completed',
 ])
 
 export async function POST(req: NextRequest) {
@@ -97,6 +98,23 @@ export async function POST(req: NextRequest) {
             trialEnd: subscription.trial_end,
           })
           // Send email notification (implement later)
+          break
+        }
+
+        case 'checkout.session.completed': {
+          const session = stripeEvent.data.object as Stripe.Checkout.Session
+          // Handle checkout session completion (implement later)
+          if (session.mode === 'payment' && session.payment_status === 'paid') {
+            await creditTopUpCreated(
+              session,
+              session.customer as string
+            )
+            console.log('✅ Checkout Session completed and paid 💳', {
+              id: session.id,
+              customer: session.customer,
+              payment_intent: session.payment_intent,
+            })
+          }
           break
         }
 

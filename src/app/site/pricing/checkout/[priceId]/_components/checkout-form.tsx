@@ -610,13 +610,13 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
   const total = basePrice - discount
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden bg-bg-primary text-fg-primary">
       {/* Background (premium: blobs + subtle grid mask) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-300/25 to-purple-300/25 blur-3xl dark:from-blue-600/15 dark:to-purple-600/15" />
-        <div className="absolute bottom-[-180px] right-[-180px] h-[520px] w-[520px] rounded-full bg-gradient-to-br from-cyan-300/20 to-pink-300/20 blur-3xl dark:from-cyan-600/15 dark:to-pink-600/15" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.15] dark:opacity-[0.08] [mask-image:radial-gradient(ellipse_55%_45%_at_50%_0%,#000_55%,transparent_78%)]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-background to-purple-50/30 dark:from-slate-900/60 dark:via-background dark:to-purple-950/40" />
+        <div className="absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-br from-blue-300/25 to-purple-300/25 blur-3xl" />
+        <div className="absolute bottom-[-180px] right-[-180px] h-[520px] w-[520px] rounded-full bg-gradient-to-br from-cyan-300/20 to-pink-300/20 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.15] [mask-image:radial-gradient(ellipse_55%_45%_at_50%_0%,#000_55%,transparent_78%)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-background to-purple-50/30" />
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12 relative z-10">
@@ -624,24 +624,24 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-br from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 text-transparent bg-clip-text pb-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-brand-gradient pb-1">
               Complete Your Subscription
             </h1>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-3 font-medium">
-              Home / Pricing / <span className="text-neutral-900 dark:text-neutral-200 font-semibold">Checkout</span>
+            <p className="text-sm text-fg-tertiary mt-3 font-medium">
+              Home / Pricing / <span className="text-fg-primary font-semibold">Checkout</span>
             </p>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push('/site/pricing')}
-            className="hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors"
+            className="hover:bg-accent transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Pricing
           </Button>
         </div>
-        <Separator className="my-8 bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
+        <Separator className="my-8 bg-gradient-to-r from-transparent via-border to-transparent" />
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-6">
@@ -651,11 +651,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
 
             {/* Step Indicator */}
-            <div className="relative bg-gradient-to-b from-white via-neutral-50/50 to-white dark:from-neutral-900/95 dark:via-neutral-900/80 dark:to-black/95 backdrop-blur-sm rounded-2xl p-2 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-neutral-300/60 dark:border-neutral-700/60">
+            <div className="relative bg-card backdrop-blur-sm rounded-2xl p-2 sm:p-4 shadow-[0_8px_30px_hsl(var(--shadow-lg))] border border-border">
               {/* Progress Lines Background */}
               <div className="absolute top-[calc(1.5rem+16px)] left-[8%] right-[8%] flex items-center z-0">
                 {steps.slice(0, -1).map((step, index) => (
-                  <div key={`line-${index}`} className={`h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full ${index === 0 ? 'flex-1' : 'flex-1'}`}>
+                  <div key={`line-${index}`} className={`h-1 bg-border rounded-full ${index === 0 ? 'flex-1' : 'flex-1'}`}>
                     <div
                       className={`h-1 rounded-full transition-all duration-500 ${completedSteps.has(step.id) ? 'bg-gradient-to-r from-blue-500 to-blue-600 w-full' : 'w-0'
                         }`}
@@ -680,12 +680,12 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                       >
                         <div
                           className={`
-                         w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-1 transition-all duration-500 bg-white dark:bg-slate-900
+                         w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-1 transition-all duration-500 bg-card
                         ${isCompleted
-                              ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-[0_8px_20px_rgba(59,130,246,0.3)] dark:shadow-[0_12px_30px_rgba(59,130,246,0.4)]'
+                              ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-[0_8px_20px_rgba(59,130,246,0.3)]'
                               : isCurrent
-                                ? 'bg-gradient-to-br from-primary via-blue-500 to-cyan-500 text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.5)] scale-110'
-                                : 'bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 text-neutral-400 dark:text-neutral-500 shadow-sm'
+                                ? 'bg-gradient-to-br from-primary via-blue-500 to-cyan-500 text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)] scale-110'
+                                : 'bg-gradient-to-br from-muted to-muted-foreground/10 text-muted-foreground shadow-sm'
                             }
                       `}
                         >
@@ -698,11 +698,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         <div className="text-center">
                           <div className={cn(
                             'text-sm font-medium transition-colors',
-                            isCurrent ? 'text-blue-600 dark:text-blue-400' : isCompleted ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                            isCurrent ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-muted-foreground'
                           )}>
                             {step.label}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block mt-0.5">
+                          <div className="text-xs text-muted-foreground hidden sm:block mt-0.5">
                             {step.description}
                           </div>
                         </div>
@@ -714,18 +714,18 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
             </div>
 
             {/* Main Form */}
-            <div className="group relative rounded-2xl p-[1.5px] bg-gradient-to-br from-neutral-300/70 via-neutral-200/50 to-neutral-300/70 dark:from-neutral-700/60 dark:via-neutral-800/40 dark:to-neutral-700/60 transition-all duration-500 shadow-sm dark:shadow-[0_0_20px_rgba(0,0,0,0.2)]">
-              <Card className="border-0 bg-gradient-to-b from-white via-neutral-50/50 to-white dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800/90 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.02)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.5)] rounded-2xl">
+            <div className="group relative rounded-2xl p-[1.5px] bg-gradient-to-br from-border/70 via-border/50 to-border/70 transition-all duration-500 shadow-sm">
+              <Card className="border-0  card rounded-2xl">
                 <CardContent className="pt-6 pb-7 px-6 sm:px-7">
                   <form>
                     {/* Billing Information */}
                     {currentStep === 'billing' && (
                       <div className="space-y-6">
-                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
-                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-1 tracking-tight">
+                        <div className="border-l-4 border-primary pl-5">
+                          <h2 className="text-2xl font-black text-brand-gradient mb-1 tracking-tight">
                             Account
                           </h2>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                          <p className="text-sm text-muted-foreground">
                             Your contact information
                           </p>
                         </div>
@@ -733,7 +733,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                         <div className="grid md:grid-cols-2 gap-5">
                           <div>
-                            <Label className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Full Name *</Label>
+                            <Label className="mb-2 block">Full Name *</Label>
                             <div className="grid grid-cols-2 gap-2">
                               <Input
                                 id="firstName"
@@ -758,7 +758,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           </div>
 
                           <div>
-                            <Label htmlFor="agencyEmail" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Email Address *</Label>
+                            <Label htmlFor="agencyEmail" className="mb-2 block">Email Address *</Label>
                             <Input
                               id="agencyEmail"
                               type="email"
@@ -777,7 +777,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                         <div className="grid md:grid-cols-2 gap-5">
                           <div>
-                            <Label htmlFor="agencyName" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">
+                            <Label htmlFor="agencyName" className="mb-2 block">
                               Tenant Name *
                             </Label>
                             <Input
@@ -794,7 +794,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           </div>
 
                           <div>
-                            <Label htmlFor="companyPhone" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Phone Number*</Label>
+                            <Label htmlFor="companyPhone" className="mb-2 block">Phone Number*</Label>
                             <PhoneCodeSelector
                               value={phoneNumber}
                               onValueChange={(value, phoneCodeData) => {
@@ -826,11 +826,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         <Separator className="my-6" />
 
 
-                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
-                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-1 tracking-tight">
+                        <div className="border-l-4 border-primary pl-5">
+                          <h2 className="text-2xl font-black text-brand-gradient mb-1 tracking-tight">
                             Billing
                           </h2>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                          <p className="text-sm text-fg-tertiary">
                             Billing address and tax information
                           </p>
                         </div>
@@ -839,7 +839,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         <div className="space-y-5 mt-2">
                           <div className="grid md:grid-cols-2 gap-5">
                             <div>
-                              <Label htmlFor="companyName" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Company Name <span className="text-xs text-muted-foreground ml-1 font-normal">(Optional)</span></Label>
+                              <Label htmlFor="companyName" className="mb-2 block">Company Name <span className="text-xs text-fg-tertiary ml-1 font-normal">(Optional)</span></Label>
                               <Input
                                 id="companyName"
                                 {...form.register('companyName')}
@@ -854,7 +854,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                             </div>
 
                             <div>
-                              <Label htmlFor="tinNumber" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Tax ID <span className="text-xs text-muted-foreground ml-1 font-normal">(Optional)</span></Label>
+                              <Label htmlFor="tinNumber" className="mb-2 block">Tax ID <span className="text-xs text-fg-tertiary ml-1 font-normal">(Optional)</span></Label>
                               <Input
                                 id="tinNumber"
                                 {...form.register('tinNumber')}
@@ -873,7 +873,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                           {/* Address */}
                           <div>
-                            <Label className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Address *</Label>
+                            <Label className="mb-2 block">Address *</Label>
                             <div className="grid md:grid-cols-4 gap-2">
                               <Input
                                 id="line2"
@@ -891,6 +891,8 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                 value={form.watch('postalCode')}
                                 onValueChange={(value: string) => form.setValue('postalCode', value)}
                                 placeholder="Postal Code"
+                                countryCode={countryCode}
+                                styleVariant="plain"
                               />
                             </div>
                             {(form.formState.errors.line1 || form.formState.errors.postalCode) && (
@@ -904,7 +906,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           <div className="grid md:grid-cols-3 gap-5">
 
                             <div>
-                              <Label htmlFor="country" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">Country *</Label>
+                              <Label htmlFor="country" className="mb-2 block">Country *</Label>
                               <CountrySelector
                                 value={countryCode}
                                 onValueChange={(code, countryData) => {
@@ -931,7 +933,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
 
                             <div>
-                              <Label htmlFor="state" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">State/Province *</Label>
+                              <Label htmlFor="state" className="mb-2 block">State/Province *</Label>
                               <StateSelector
                                 countryCode={countryCode}
                                 value={stateCode}
@@ -940,6 +942,9 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                   form.setValue('state', stateData.name)
                                   form.setValue('stateCode', isoCode)
                                 }}
+                                placeholder="Select state"
+                                disabled={isLoading}
+                                styleVariant="plain"
                               />
                               {form.formState.errors.state && (
                                 <p className="text-sm text-destructive mt-1">
@@ -949,7 +954,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                             </div>
 
                             <div>
-                              <Label htmlFor="city" className="mb-2 block font-semibold text-neutral-700 dark:text-neutral-300">City *</Label>
+                              <Label htmlFor="city" className="mb-2 block">City *</Label>
                               <CitySelector
                                 countryCode={countryCode}
                                 stateCode={stateCode}
@@ -958,6 +963,9 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                   setCity(cityData.name)
                                   form.setValue('city', cityData.name)
                                 }}
+                                placeholder="Select city"
+                                disabled={isLoading}
+                                styleVariant="plain"
                               />
                               {form.formState.errors.city && (
                                 <p className="text-sm text-destructive mt-1">
@@ -977,11 +985,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                     {/* Payment Step */}
                     {currentStep === 'payment' && (
                       <div className="space-y-6">
-                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
-                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-2 tracking-tight">
+                        <div className="border-l-4 border-primary pl-5">
+                          <h2 className="text-2xl font-black text-brand-gradient mb-2 tracking-tight">
                             Payment Method
                           </h2>
-                          <p className="text-gray-600 dark:text-gray-400">
+                          <p className="text-fg-tertiary">
                             {existingPaymentMethods.length > 0
                               ? 'Choose a payment method or add a new card'
                               : 'Securely add your payment information'
@@ -1043,10 +1051,10 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                             <div className="relative">
                               <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-gray-200 dark:border-gray-700" />
+                                <span className="w-full border-t border-border" />
                               </div>
                               <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">
+                                <span className="bg-background px-2 text-muted-foreground">
                                   {useExistingPayment ? 'Or add new card' : 'Adding new card'}
                                 </span>
                               </div>
@@ -1062,15 +1070,15 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                 setCardModalMode('add')
                                 setCardModalOpen(true)
                               }}
-                              className="p-6 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
+                              className="p-6 border-2 border-dashed border-primary/30 rounded-xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
                             >
                               <div className="flex flex-col items-center gap-3 text-center">
-                                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                  <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <CreditCard className="h-6 w-6 text-primary" />
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-gray-900 dark:text-gray-100">Add New Payment Method</p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Click to securely add your card details</p>
+                                  <p className="font-semibold text-fg-primary">Add New Payment Method</p>
+                                  <p className="text-sm text-fg-tertiary mt-1">Click to securely add your card details</p>
                                 </div>
                               </div>
                             </div>
@@ -1081,36 +1089,36 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         {cardModalOpen && (
                           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setCardModalOpen(false)}>
                             <div
-                              className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+                              className="relative bg-card rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
                               onClick={(e) => e.stopPropagation()}
                             >
                               {/* Modal Header */}
                               <div className="flex items-start justify-between mb-6">
                                 <div>
-                                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                  <h2 className="text-2xl font-bold text-fg-primary">
                                     {cardModalMode === 'add' ? 'Add New Card' : 'Replace Card'}
                                   </h2>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                  <p className="text-sm text-fg-tertiary mt-1">
                                     Your payment information is securely processed by Stripe
                                   </p>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => setCardModalOpen(false)}
-                                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                   <X className="h-6 w-6" />
                                 </button>
                               </div>
 
                               {/* Visual Card Preview */}
-                              <div className="mb-6">
+                              {/* <div className="mb-6">
                                 <div className="flex items-center justify-between mb-3">
-                                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                  <h3 className="text-sm font-semibold text-fg-secondary">
                                     Card Preview
                                   </h3>
                                   {cardPreview.complete && (
-                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                                    <span className="text-xs text-green-600 font-medium flex items-center gap-1">
                                       <Check className="h-3 w-3" />
                                       Validated
                                     </span>
@@ -1131,16 +1139,16 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                     showInputValidationErrors={false}
                                   />
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                                <p className="text-xs text-muted-foreground text-center mt-2">
                                   Card details will appear after validation for security
                                 </p>
-                              </div>
+                              </div> */}
 
                               {/* Stripe Elements */}
-                              <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-br from-neutral-300/70 via-neutral-200/50 to-neutral-300/70 dark:from-neutral-700/60 dark:via-neutral-800/40 dark:to-neutral-700/60 overflow-hidden shadow-lg">
-                                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-neutral-50 to-white dark:from-neutral-900 dark:via-neutral-800/90 dark:to-neutral-900 p-6">
-                                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent dark:via-white/10" />
-                                  <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_0%,rgba(59,130,246,0.03),transparent_60%)] dark:bg-[radial-gradient(600px_circle_at_50%_0%,rgba(59,130,246,0.08),transparent_60%)]" />
+                              <div className="relative rounded-2xl p-[1.5px] bg-gradient-to-br from-border/60 via-border/40 to-border/60 overflow-hidden shadow-md">
+                                <div className="relative overflow-hidden rounded-2xl bg-card p-6">
+                                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+                                  <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_0%,rgba(59,130,246,0.03),transparent_60%)]" />
 
                                   <div className="relative z-10">
                                     <Elements
@@ -1150,11 +1158,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                         currency: 'usd',
                                         paymentMethodCreation: 'manual',
                                         appearance: {
-                                          theme: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'stripe',
+                                          theme: 'stripe',
                                           variables: {
                                             colorPrimary: '#3b82f6',
                                             colorBackground: 'transparent',
-                                            colorText: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? '#f1f5f9' : '#0f172a',
+                                            colorText: '#0f172a',
                                             colorDanger: '#ef4444',
                                             fontFamily: 'system-ui, sans-serif',
                                             borderRadius: '0.75rem',
@@ -1213,22 +1221,22 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                         {/* Show success message if payment method already validated */}
                         {!useExistingPayment && savedPaymentMethodId && (
-                          <div className="mt-4 relative rounded-2xl p-[1.5px] bg-gradient-to-br from-green-400/60 via-green-300/40 to-green-400/60 dark:from-green-600/60 dark:via-green-700/40 dark:to-green-600/60 overflow-hidden shadow-lg dark:shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 dark:from-green-950/40 dark:via-emerald-950/30 dark:to-green-950/40 p-5">
+                          <div className="mt-4 relative rounded-2xl p-[1.5px] bg-gradient-to-br from-green-400/60 via-green-300/40 to-green-400/60 overflow-hidden shadow-lg">
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 p-5">
                               {/* Subtle top glow */}
-                              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-300/60 to-transparent dark:via-green-500/30" />
+                              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-300/60 to-transparent" />
                               {/* Success glow */}
-                              <div className="absolute inset-0 bg-[radial-gradient(400px_circle_at_50%_0%,rgba(34,197,94,0.08),transparent_60%)] dark:bg-[radial-gradient(400px_circle_at_50%_0%,rgba(34,197,94,0.12),transparent_60%)]" />
+                              <div className="absolute inset-0 bg-[radial-gradient(400px_circle_at_50%_0%,rgba(34,197,94,0.08),transparent_60%)]" />
 
                               <div className="relative z-10 flex items-center gap-4">
-                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-500 dark:from-green-500 dark:to-green-600 flex items-center justify-center shadow-lg shadow-green-500/20 dark:shadow-green-500/30">
+                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-lg shadow-green-500/20">
                                   <Check className="h-7 w-7 text-white" strokeWidth={3} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-bold text-lg text-green-900 dark:text-green-100">
+                                  <p className="font-bold text-lg text-green-900">
                                     Payment Method Validated
                                   </p>
-                                  <p className="text-sm text-green-700 dark:text-green-300 mt-0.5">
+                                  <p className="text-sm text-green-700 mt-0.5">
                                     Your new card has been successfully validated and is ready to use
                                   </p>
                                 </div>
@@ -1240,7 +1248,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                     setSavedPaymentMethodId(null)
                                     console.log('🔄 Resetting payment method')
                                   }}
-                                  className="flex-shrink-0 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                                  className="flex-shrink-0 border-success text-success-foreground hover:bg-success/10 transition-colors"
                                 >
                                   Change Card
                                 </Button>
@@ -1254,11 +1262,11 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                     {/* Review Step */}
                     {currentStep === 'review' && (
                       <div className="space-y-6">
-                        <div className="border-l-4 border-primary dark:border-primary/80 pl-5">
-                          <h2 className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-primary dark:via-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-2 tracking-tight">
+                        <div className="border-l-4 border-primary pl-5">
+                          <h2 className="text-2xl font-black text-brand-gradient mb-2 tracking-tight">
                             Review & Confirm
                           </h2>
-                          <p className="text-gray-600 dark:text-gray-400">
+                          <p className="text-fg-tertiary">
                             Please review your information before confirming your subscription
                           </p>
                         </div>
@@ -1270,36 +1278,36 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                               <Check className="h-5 w-5 text-green-500" />
                               Billing Information
                             </h3>
-                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-2">
+                            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                                  <p className="text-sm text-muted-foreground">Name</p>
                                   <p className="font-medium">
                                     {savedBillingData?.firstName} {savedBillingData?.lastName}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                                  <p className="text-sm text-muted-foreground">Email</p>
                                   <p className="font-medium">{savedBillingData?.agencyEmail}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                                  <p className="text-sm text-muted-foreground">Phone</p>
                                   <p className="font-medium">{savedBillingData?.phoneCode} {savedBillingData?.companyPhone}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Tenant Name</p>
+                                  <p className="text-sm text-muted-foreground">Tenant Name</p>
                                   <p className="font-medium">{savedBillingData?.agencyName}</p>
                                 </div>
                               </div>
                               {savedBillingData?.companyName && (
                                 <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Company</p>
+                                  <p className="text-sm text-muted-foreground">Company</p>
                                   <p className="font-medium">{savedBillingData.companyName}</p>
                                 </div>
                               )}
                               <Separator className="my-2" />
                               <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                                <p className="text-sm text-muted-foreground">Address</p>
                                 <p className="font-medium">
                                   {savedBillingData?.line1}
                                   {savedBillingData?.line2 && `, ${savedBillingData.line2}`}
@@ -1318,15 +1326,15 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                               <Check className="h-5 w-5 text-green-500" />
                               Payment Method
                             </h3>
-                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4">
+                            <div className="bg-muted/50 rounded-lg p-4">
                               {useExistingPayment && selectedPaymentMethodId ? (
                                 <div>
                                   {(() => {
                                     const pm = existingPaymentMethods.find(m => m.id === selectedPaymentMethodId)
                                     return pm ? (
                                       <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                          <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                          <span className="text-blue-600 font-semibold">
                                             {pm.card?.brand?.charAt(0).toUpperCase()}
                                           </span>
                                         </div>
@@ -1334,7 +1342,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                           <p className="font-medium capitalize">
                                             {pm.card?.brand} •••• {pm.card?.last4}
                                           </p>
-                                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                                          <p className="text-sm text-muted-foreground">
                                             Expires {pm.card?.exp_month}/{pm.card?.exp_year}
                                           </p>
                                         </div>
@@ -1345,7 +1353,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                               ) : savedPaymentMethodId ? (
                                 <p className="font-medium">New card ending in ••••</p>
                               ) : (
-                                <p className="text-amber-600 dark:text-amber-400">No payment method selected</p>
+                                <p className="text-amber-600">No payment method selected</p>
                               )}
                             </div>
                           </div>
@@ -1356,17 +1364,17 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                               <Check className="h-5 w-5 text-green-500" />
                               Subscription
                             </h3>
-                            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-3">
+                            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
                               <div className="flex justify-between items-start">
                                 <div>
                                   <p className="font-semibold text-lg">{planConfig.title}</p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  <p className="text-sm text-muted-foreground">
                                     {planConfig.duration === 'month' ? 'Monthly' : 'Yearly'} subscription
                                   </p>
                                 </div>
                                 <div className="text-right">
                                   <p className="font-bold text-xl">{planConfig.price}</p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">per {planConfig.duration}</p>
+                                  <p className="text-sm text-muted-foreground">per {planConfig.duration}</p>
                                 </div>
                               </div>
 
@@ -1374,21 +1382,21 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                               <div className="flex justify-between items-center">
                                 <p className="font-semibold">Total Due Today</p>
-                                <p className="font-bold text-xl text-blue-600 dark:text-blue-400">
+                                <p className="font-bold text-xl text-blue-600">
                                   {isTrialAccepted ? 'RM 0.00' : `$${planConfig.price}`}
                                 </p>
                               </div>
 
                               {isTrialAccepted ? (
-                                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
-                                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                                <div className="bg-blue-50 rounded-lg p-3 mt-3">
+                                  <p className="text-sm text-blue-700">
                                     💡 Your {planConfig.trialPeriodDays}-day free trial starts today. You'll be charged RM {planConfig.price} after your trial ends on the same day each {planConfig.duration}.
                                     You can cancel anytime from your account settings.
                                   </p>
                                 </div>
                               ) : (
-                                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 mt-3">
-                                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                                <div className="bg-blue-50 rounded-lg p-3 mt-3">
+                                  <p className="text-sm text-blue-700">
                                     💡 Your subscription will automatically renew on the same day each {planConfig.duration}.
                                     You can cancel anytime from your account settings.
                                   </p>
@@ -1399,19 +1407,19 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         </div>
 
                         {/* Confirm & Pay Button */}
-                        <div className="flex gap-3 mt-7 pt-5 border-t border-neutral-200 dark:border-neutral-800">
+                        <div className="flex gap-3 mt-7 pt-5 border-t border-border">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={prevStep}
-                            className="border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:border-neutral-400 dark:hover:border-neutral-600 h-11 transition-all duration-300"
+                            className="border-border hover:bg-muted/50 h-11 transition-all duration-300"
                           >
                             <ChevronLeft className="h-4 w-4 mr-1" />
                             Back
                           </Button>
                           <Button
                             type="button"
-                            className="bg-gradient-to-br from-primary via-blue-600 to-blue-700 hover:from-primary hover:via-blue-500 hover:to-blue-600 dark:from-primary dark:via-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:via-primary dark:hover:to-blue-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_12px_40px_rgba(var(--primary-rgb,59,130,246),0.35),0_0_0_1px_rgba(255,255,255,0.15)_inset] dark:shadow-[0_10px_40px_rgba(var(--primary-rgb,59,130,246),0.3),0_0_0_1px_rgba(255,255,255,0.1)_inset] dark:hover:shadow-[0_15px_50px_rgba(var(--primary-rgb,59,130,246),0.45),0_0_0_1px_rgba(255,255,255,0.15)_inset] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] h-11"
+                            className="btn-brand-gradient shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] h-11"
                             onClick={processCheckout}
                             disabled={showLoader || (!useExistingPayment && !savedPaymentMethodId) || (useExistingPayment && !selectedPaymentMethodId)}
                           >
@@ -1423,13 +1431,13 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
                     {/* Navigation Buttons */}
                     {currentStep !== 'review' && (
-                      <div className="flex gap-3 mt-7 pt-5 border-t border-neutral-200 dark:border-neutral-800">
+                      <div className="flex gap-3 mt-7 pt-5 border-t border-border">
                         {currentStepIndex > 0 && (
                           <Button
                             type="button"
                             variant="outline"
                             onClick={prevStep}
-                            className="border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 hover:border-neutral-400 dark:hover:border-neutral-600 h-11 transition-all duration-300"
+                            className="border-border hover:bg-muted/50 h-11 transition-all duration-300"
                           >
                             <ChevronLeft className="h-4 w-4 mr-1" />
                             Back
@@ -1437,7 +1445,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         )}
                         <Button
                           type="button"
-                          className="bg-gradient-to-br from-primary via-blue-600 to-blue-700 hover:from-primary hover:via-blue-500 hover:to-blue-600 dark:from-primary dark:via-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:via-primary dark:hover:to-blue-600 text-white shadow-[0_8px_30px_rgba(0,0,0,0.12),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_12px_40px_rgba(var(--primary-rgb,59,130,246),0.35),0_0_0_1px_rgba(255,255,255,0.15)_inset] dark:shadow-[0_10px_40px_rgba(var(--primary-rgb,59,130,246),0.3),0_0_0_1px_rgba(255,255,255,0.1)_inset] dark:hover:shadow-[0_15px_50px_rgba(var(--primary-rgb,59,130,246),0.45),0_0_0_1px_rgba(255,255,255,0.15)_inset] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] h-11"
+                          className="btn-brand-gradient h-11"
                           onClick={nextStep}
                           disabled={isLoading || (currentStep === 'payment' && !useExistingPayment && !savedPaymentMethodId) || (currentStep === 'payment' && useExistingPayment && !selectedPaymentMethodId)}
                         >
@@ -1453,63 +1461,62 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
 
           {/* Right Column - Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-6 rounded-2xl p-[2px] bg-gradient-to-br from-blue-400/40 via-primary/30 to-purple-400/40 dark:from-blue-500/50 dark:via-primary/40 dark:to-purple-500/50 shadow-[0_8px_32px_rgba(59,130,246,0.12)] dark:shadow-[0_12px_48px_rgba(59,130,246,0.25)] transition-all duration-500 hover:shadow-[0_12px_40px_rgba(59,130,246,0.18)] dark:hover:shadow-[0_16px_56px_rgba(59,130,246,0.35)]">
-              <Card className="border-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.03)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden relative">
+            <div className="lg:sticky lg:top-6 rounded-2xl p-[2px] bg-gradient-to-br from-border/50 via-border/30 to-border/50 shadow-md transition-all duration-500 hover:shadow-lg">
+              <Card className="border-0 bg-card/95 backdrop-blur-xl backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(0,0,0,0.03)] rounded-2xl overflow-hidden relative">
                 {/* Premium glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 dark:from-blue-400/10 dark:via-transparent dark:to-purple-400/10 pointer-events-none" />
-                <CardHeader className="relative bg-gradient-to-br from-primary/8 via-blue-500/8 to-transparent dark:from-primary/15 dark:via-blue-500/12 dark:to-transparent border-b border-neutral-200/80 dark:border-neutral-700/80 pb-5">
-                  <CardTitle className="text-2xl font-black bg-gradient-to-r from-primary via-blue-600 to-primary dark:from-blue-400 dark:via-primary dark:to-blue-500 bg-clip-text text-transparent tracking-tight">Order Summary</CardTitle>
-                  <CardDescription className="text-neutral-600 dark:text-neutral-400 font-medium mt-1.5">Review your subscription details</CardDescription>
+                <div className="absolute inset-0 bg-gradient-to-br from-muted/5 via-transparent to-muted/5 pointer-events-none" />
+                <CardHeader className="relative bg-gradient-to-br from-accent-base/8 via-accent-base/5 to-transparent border-b border-line-secondary pb-5">
+                  <CardTitle className="text-2xl font-black text-brand-gradient tracking-tight">Order Summary</CardTitle>
+                  <CardDescription className="text-fg-tertiary font-medium mt-1.5">Review your subscription details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6 relative">
                   {/* Plan Details */}
-                  <div className="relative bg-gradient-to-br from-white to-neutral-50/50 dark:from-slate-800/60 dark:to-slate-800/40 backdrop-blur-sm border border-neutral-200/60 dark:border-blue-900/40 rounded-xl p-4 shadow-sm dark:shadow-blue-900/10 transition-all duration-300 hover:shadow-md dark:hover:shadow-blue-900/20 hover:border-neutral-300/80 dark:hover:border-blue-800/60">
+                  <div className="relative bg-card backdrop-blur-sm border border-border rounded-xl p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:border-border">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h3 className="font-bold text-blue-900 dark:text-blue-50">{planConfig.title} Plan</h3>
-                        <p className="text-sm text-blue-600 dark:text-blue-200">Monthly subscription</p>
+                        <h3 className="font-bold text-fg-primary">{planConfig.title} Plan</h3>
+                        <p className="text-sm text-fg-secondary">Monthly subscription</p>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-blue-900 dark:text-blue-50 text-lg">
+                        <div className="font-bold text-fg-primary text-lg">
                           {planConfig.price}
-                          <span className="text-xs text-blue-600 dark:text-blue-200 ml-1">/ {planConfig.duration}</span>
+                          <span className="text-xs text-fg-secondary ml-1">/ {planConfig.duration}</span>
                         </div>
                       </div>
                     </div>
-
-                    {isTrialAccepted && (
-                      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-[0_4px_20px_rgba(59,130,246,0.4)] dark:shadow-[0_6px_28px_rgba(59,130,246,0.5)] group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                        <div className="relative flex items-center gap-2">
-                          <span className='text-xl'>🎁</span>
-                          <span className="tracking-wide">{planConfig.trialPeriodDays}-day free trial included</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <Separator className="dark:bg-neutral-700/60" />
+                  {isTrialAccepted && (
+                    <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 text-white px-4 py-3 rounded-xl text-sm font-bold shadow-[0_4px_20px_rgba(59,130,246,0.4)] group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                      <div className="relative flex items-center gap-2">
+                        <span className='text-xl'>🎁</span>
+                        <span className="tracking-wide">{planConfig.trialPeriodDays}-day free trial included</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Separator />
 
                   {/* Features */}
                   <div>
-                    <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-neutral-900 dark:text-neutral-100">What's included</h4>
+                    <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-fg-primary">What's included</h4>
                     <ul className="space-y-3">
                       {planConfig.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3 text-sm group">
-                          <div className="flex-shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/10 dark:from-primary/25 dark:to-primary/15 border border-primary/30 dark:border-primary/40 mt-0.5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm group-hover:shadow-primary/20">
-                            <Check className="h-3.5 w-3.5 text-primary dark:text-primary" strokeWidth={2.5} />
+                          <div className="flex-shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/10 border border-primary/30 mt-0.5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-sm group-hover:shadow-primary/20">
+                            <Check className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
                           </div>
-                          <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">{feature}</span>
+                          <span className="text-fg-secondary leading-relaxed font-medium">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-
-                  <Separator className="bg-blue-100 dark:bg-blue-900/50" />
+                  <Separator className="bg-blue-100" />
 
                   {/* Coupon Code */}
                   <div>
-                    <Label htmlFor="coupon" className="text-sm font-bold mb-3 block text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">
+                    <Label htmlFor="coupon" className="text-sm font-bold mb-3 block text-fg-primary uppercase tracking-wider">
                       Promo Code
                     </Label>
                     {!appliedCoupon ? (
@@ -1520,7 +1527,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           value={couponCode}
                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                           disabled={couponLoading}
-                          className="border-blue-200/60 dark:border-blue-800/60 focus:border-blue-400 dark:focus:border-blue-600 focus:ring-blue-400/30 dark:focus:ring-blue-600/30 transition-all duration-300 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] dark:focus:shadow-[0_0_0_3px_rgba(59,130,246,0.2)]"
+                          className="focus:ring-primary/30"
                         />
                         <Button
                           type="button"
@@ -1528,7 +1535,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           size="sm"
                           onClick={applyCoupon}
                           disabled={!couponCode.trim() || couponLoading}
-                          className="border-blue-200/60 dark:border-blue-800/60 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 text-blue-600 dark:text-blue-300 transition-all duration-300 hover:shadow-sm"
+                          className="hover:bg-accent"
                         >
                           {couponLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -1538,12 +1545,12 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-green-950/40 dark:via-emerald-950/30 dark:to-green-950/40 border border-green-300/60 dark:border-green-700/60 rounded-xl px-4 py-3.5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-400/70 dark:hover:border-green-600/70">
+                      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-success/30 rounded-xl px-4 py-3.5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-success/50">
                         <div className="flex items-center gap-2.5">
-                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/60 dark:to-emerald-900/50 rounded-full p-1.5 shadow-sm">
-                            <Tag className="h-3.5 w-3.5 text-green-600 dark:text-green-300" />
+                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-full p-1.5 shadow-sm">
+                            <Tag className="h-3.5 w-3.5 text-green-600" />
                           </div>
-                          <span className="text-sm font-bold text-green-700 dark:text-green-200 tracking-wide">
+                          <span className="text-sm font-bold text-green-700 tracking-wide">
                             {appliedCoupon.id}
                           </span>
                         </div>
@@ -1552,7 +1559,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                           variant="ghost"
                           size="sm"
                           onClick={removeCoupon}
-                          className="h-8 text-xs font-semibold text-green-700 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/50 transition-all duration-300 hover:scale-105"
+                          className="h-8 text-xs font-semibold text-success-foreground hover:bg-success/10 transition-all duration-300 hover:scale-105"
                         >
                           Remove
                         </Button>
@@ -1560,39 +1567,39 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                     )}
                   </div>
 
-                  <Separator className="bg-blue-100 dark:bg-blue-900/30" />
+                  <Separator className="bg-blue-100" />
 
                   {/* Price Breakdown */}
-                  <div className="space-y-3 bg-gradient-to-br from-neutral-100/80 to-neutral-50/50 dark:from-neutral-800/60 dark:to-neutral-900/40 rounded-lg p-4 border border-neutral-200/50 dark:border-neutral-700/40">
+                  <div className="space-y-3 bg-muted/50 rounded-lg p-4 border border-border">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">RM {subtotal.toFixed(2)}</span>
+                      <span className="text-fg-tertiary">Subtotal</span>
+                      <span className="font-medium text-fg-primary">RM {subtotal.toFixed(2)}</span>
                     </div>
 
                     {appliedCoupon && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-green-600 dark:text-green-300 font-medium">Discount ({appliedCoupon.percent_off || ''}%)</span>
-                        <span className="text-green-600 dark:text-green-300 font-semibold">- RM {discount.toFixed(2)}</span>
+                        <span className="text-green-600 font-medium">Discount ({appliedCoupon.percent_off || ''}%)</span>
+                        <span className="text-green-600 font-semibold">- RM {discount.toFixed(2)}</span>
                       </div>
                     )}
 
                     <div className="flex justify-between text-md font-bold pt-1">
-                      <span className="text-blue-900 dark:text-blue-50">Total</span>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">RM {total.toFixed(2)}</span>
+                      <span className="text-fg-primary">Total</span>
+                      <span className="font-medium text-fg-primary">RM {total.toFixed(2)}</span>
                     </div>
 
-                    <Separator className="bg-blue-100 dark:bg-blue-900/30" />
+                    <Separator className="bg-border" />
 
                     {isTrialAccepted && (
                       <div className="flex justify-between text-lg font-bold pt-1">
-                        <span className="text-blue-600 dark:text-blue-300">Pay Now</span>
-                        <span className="text-blue-600 dark:text-blue-300">RM 0.00</span>
+                        <span className="text-primary">Pay Now</span>
+                        <span className="text-primary">RM 0.00</span>
                       </div>
 
                     )}
 
                     {isTrialAccepted && (
-                      <p className="text-xs text-neutral-700 dark:text-neutral-300 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/30 font-medium">
+                      <p className="text-xs text-fg-secondary bg-primary/5 rounded-lg p-3 border border-primary/20 font-medium">
                         💡 You'll be charged RM {total.toFixed(2)} after your {planConfig.trialPeriodDays}
                         -day trial ends
                       </p>
@@ -1600,9 +1607,9 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                   </div>
 
                   {/* Security Badge */}
-                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-300 pt-4 border-t border-blue-100 dark:border-blue-900/30 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-slate-800/20 dark:to-slate-800/20 -mx-6 px-6 pb-6 -mb-6 rounded-b-lg">
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-4 border-t border-border bg-muted/30 -mx-6 px-6 pb-6 -mb-6 rounded-b-lg">
                     <svg
-                      className="h-5 w-5 text-blue-600 dark:text-blue-300"
+                      className="h-5 w-5 text-primary"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

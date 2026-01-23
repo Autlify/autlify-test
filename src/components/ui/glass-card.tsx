@@ -485,8 +485,8 @@ export const SavedCardsGallery = React.forwardRef<HTMLDivElement, SavedCardsGall
     return (
       <div ref={ref} className={cn("space-y-4", className)} {...props}>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold dark:text-white text-black">Saved Payment Methods</h3>
-          <button onClick={onAddCard} className="text-sm text-blue-500 hover:text-blue-600 font-medium">
+          <h3 className="text-lg font-semibold text-fg-primary">Saved Payment Methods</h3>
+          <button onClick={onAddCard} className="text-sm text-primary hover:text-primary/80 font-medium">
             + Add New Card
           </button>
         </div>

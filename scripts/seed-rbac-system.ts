@@ -14,43 +14,67 @@ async function main() {
   // Step 1: Create Permissions
   console.log('Creating permissions...')
   
-  const permissionDefinitions = [
+  const permissionDefinitions = [ 
     // Agency permissions
-    { key: 'agency.account.read', name: 'View Agency Account', description: 'Can view agency account and access agency dashboard', category: 'agency' },
-    { key: 'agency.settings.read', name: 'View Agency Settings', description: 'Can view agency settings', category: 'agency' },
-    { key: 'agency.settings.update', name: 'Update Agency Settings', description: 'Can modify agency settings', category: 'agency' },
-    { key: 'agency.billing.read', name: 'View Billing', description: 'Can view billing information', category: 'billing' },
-    { key: 'agency.billing.update', name: 'Manage Billing', description: 'Can manage billing and subscriptions', category: 'billing' },
-    { key: 'agency.members.invite', name: 'Invite Members', description: 'Can invite new team members', category: 'agency' },
-    { key: 'agency.members.remove', name: 'Remove Members', description: 'Can remove team members', category: 'agency' },
-    { key: 'agency.users.create', name: 'Create Agency Users', description: 'Can create and add users to the agency', category: 'agency' },
-    { key: 'agency.account.delete', name: 'Delete Agency', description: 'Can delete the agency', category: 'agency' },
-    
-    // SubAccount permissions
-    { key: 'subaccount.account.create', name: 'Create SubAccount', description: 'Can create new subaccounts', category: 'subaccount' },
-    { key: 'subaccount.account.read', name: 'View SubAccount', description: 'Can view subaccount details', category: 'subaccount' },
-    { key: 'subaccount.account.update', name: 'Update SubAccount', description: 'Can modify subaccount settings', category: 'subaccount' },
-    { key: 'subaccount.account.delete', name: 'Delete SubAccount', description: 'Can delete subaccounts', category: 'subaccount' },
-    { key: 'subaccount.users.create', name: 'Create SubAccount Users', description: 'Can create and add users to the subaccount', category: 'subaccount' },
-    
-    // Funnel permissions
-    { key: 'funnel.content.create', name: 'Create Funnels', description: 'Can create new funnels', category: 'funnel' },
-    { key: 'funnel.content.read', name: 'View Funnels', description: 'Can view funnels', category: 'funnel' },
-    { key: 'funnel.content.update', name: 'Edit Funnels', description: 'Can edit funnel content', category: 'funnel' },
-    { key: 'funnel.content.delete', name: 'Delete Funnels', description: 'Can delete funnels', category: 'funnel' },
-    { key: 'funnel.content.publish', name: 'Publish Funnels', description: 'Can publish funnels to production', category: 'funnel' },
-    
-    // Contact permissions
-    { key: 'contact.data.create', name: 'Create Contacts', description: 'Can create new contacts', category: 'contact' },
-    { key: 'contact.data.read', name: 'View Contacts', description: 'Can view contact information', category: 'contact' },
-    { key: 'contact.data.update', name: 'Edit Contacts', description: 'Can edit contact details', category: 'contact' },
-    { key: 'contact.data.delete', name: 'Delete Contacts', description: 'Can delete contacts', category: 'contact' },
-    
-    // Pipeline permissions
-    { key: 'pipeline.data.create', name: 'Create Pipelines', description: 'Can create new pipelines', category: 'pipeline' },
-    { key: 'pipeline.data.read', name: 'View Pipelines', description: 'Can view pipelines', category: 'pipeline' },
-    { key: 'pipeline.data.update', name: 'Edit Pipelines', description: 'Can modify pipeline stages', category: 'pipeline' },
-    { key: 'pipeline.data.delete', name: 'Delete Pipelines', description: 'Can delete pipelines', category: 'pipeline' },
+      { key: 'core.agency.account.update', name: 'Create Agency', description: 'Can update existing agencies', category: 'agency' },
+      { key: 'core.agency.account.read', name: 'View Agency Account', description: 'Can view agency account and access agency dashboard', category: 'agency' },
+      { key: 'core.agency.account.delete', name: 'Delete Agency', description: 'Can delete the agency', category: 'agency' },
+      { key: 'core.agency.settings.read', name: 'View Agency Settings', description: 'Can view agency settings', category: 'agency' },
+      { key: 'core.agency.settings.update', name: 'Update Agency Settings', description: 'Can modify agency settings', category: 'agency' },
+      { key: 'core.agency.team_members.invite', name: 'Invite Members', description: 'Can invite new team members', category: 'agency' },
+      { key: 'core.agency.team_members.remove', name: 'Remove Members', description: 'Can remove team members', category: 'agency' },
+      { key: 'core.agency.users.create', name: 'Create Agency Users', description: 'Can create and add users to the agency', category: 'agency' },
+      // Team Member permissions
+      { key: 'core.agency.team_members.invite', name: 'View Team Members', description: 'Can view team members', category: 'agency' },
+      { key: 'core.agency.team_members.remove', name: 'Update Team Members', description: 'Can update team member roles and permissions', category: 'agency' },
+      // Billing permissions
+      { key: 'core.billing.subscription.read', name: 'View Billing', description: 'Can view billing information', category: 'billing' },
+      { key: 'core.billing.subscription.update', name: 'Manage Billing', description: 'Can manage billing and subscriptions', category: 'billing' },
+      { key: 'core.billing.payment_methods.view', name: 'View Payment Methods', description: 'Can view payment methods', category: 'billing' },
+      { key: 'core.billing.payment_methods.add', name: 'Add Payment Methods', description: 'Can add new payment methods', category: 'billing' },
+      { key: 'core.billing.payment_methods.remove', name: 'Delete Payment Methods', description: 'Can delete payment methods', category: 'billing' },
+      { key: 'core.billing.usage.read', name: 'View Usage', description: 'Can view usage details', category: 'billing' },
+    // All-SubAccounts permissions
+      { key: 'core.agency.subaccounts.create', name: 'Create SubAccount', description: 'Can create new subaccounts', category: 'subaccount' },
+      { key: 'core.agency.subaccounts.read', name: 'View SubAccount', description: 'Can view subaccount details', category: 'subaccount' },
+      { key: 'core.agency.subaccounts.update', name: 'Update SubAccount', description: 'Can modify subaccount settings', category: 'subaccount' },
+      { key: 'core.agency.subaccounts.delete', name: 'Delete SubAccount', description: 'Can delete subaccounts', category: 'subaccount' },
+      // SubAccount permissions
+      { key: 'core.subaccount.account.update', name: 'Update SubAccount', description: 'Can update existing subaccounts', category: 'subaccount' },
+      { key: 'core.subaccount.account.read', name: 'View SubAccount Account', description: 'Can view subaccount account and access subaccount dashboard', category: 'subaccount' },
+      { key: 'core.subaccount.account.delete', name: 'Delete SubAccount', description: 'Can delete the subaccount', category: 'subaccount' },
+      // Team Member permissions
+      { key: 'core.subaccount.team_members.invite', name: 'Invite SubAccount Members', description: 'Can invite new subaccount team members', category: 'subaccount' },
+      { key: 'core.subaccount.team_members.remove', name: 'Remove SubAccount Members', description: 'Can remove subaccount team members', category: 'subaccount' },
+
+    // CRM - Funnel permissions
+      { key: 'crm.funnels.content.create', name: 'Create Funnels', description: 'Can create new funnels', category: 'funnel' },
+      { key: 'crm.funnels.content.read', name: 'View Funnels', description: 'Can view funnels', category: 'funnel' },
+      { key: 'crm.funnels.content.update', name: 'Edit Funnels', description: 'Can edit funnel content', category: 'funnel' },
+      { key: 'crm.funnels.content.delete', name: 'Delete Funnels', description: 'Can delete funnels', category: 'funnel' },
+      { key: 'crm.funnels.content.publish', name: 'Publish Funnels', description: 'Can publish funnels to production', category: 'funnel' },
+    // CRM - Contact permissions
+      { key: 'crm.customers.contact.create', name: 'Create Contacts', description: 'Can create new contacts', category: 'contact' },
+      { key: 'crm.customers.contact.read', name: 'View Contacts', description: 'Can view contact information', category: 'contact' },
+      { key: 'crm.customers.contact.update', name: 'Edit Contacts', description: 'Can edit contact details', category: 'contact' },
+      { key: 'crm.customers.contact.delete', name: 'Delete Contacts', description: 'Can delete contacts', category: 'contact' },
+    // CRM - Pipeline permissions
+      { key: 'crm.pipelines.lane.create', name: 'Create Pipelines', description: 'Can create new pipelines', category: 'pipeline' },
+      { key: 'crm.pipelines.lane.read', name: 'View Pipelines', description: 'Can view pipelines', category: 'pipeline' },
+      { key: 'crm.pipelines.lane.update', name: 'Edit Pipelines', description: 'Can modify pipeline stages', category: 'pipeline' },
+      { key: 'crm.pipelines.lane.delete', name: 'Delete Pipelines', description: 'Can delete pipelines', category: 'pipeline' },
+     // CRM - Ticket permissions
+      { key: 'crm.pipelines.ticket.create', name: 'Create Tickets', description: 'Can create new support tickets', category: 'ticket' },
+      { key: 'crm.pipelines.ticket.read', name: 'View Tickets', description: 'Can view support tickets', category: 'ticket' },
+      { key: 'crm.pipelines.ticket.update', name: 'Edit Tickets', description: 'Can modify support tickets', category: 'ticket' },
+      { key: 'crm.pipelines.ticket.delete', name: 'Delete Tickets', description: 'Can delete support tickets', category: 'ticket' },
+    // CRM - Tag permissions
+      { key: 'crm.pipelines.tag.create', name: 'Create Tags', description: 'Can create new tags', category: 'tag' },
+      { key: 'crm.pipelines.tag.read', name: 'View Tags', description: 'Can view tags', category: 'tag' },
+      { key: 'crm.pipelines.tag.update', name: 'Edit Tags', description: 'Can modify tags', category: 'tag' },
+
+
+
   ]
 
   const permissions: Permission[] = []
@@ -285,23 +309,42 @@ async function main() {
   }
 
   const adminPermCount = await syncRolePermissions(agencyAdminRole.id, [
-    'agency.account.read',      // ✅ Correctly included
-    'agency.settings.read',
-    'agency.members.invite',
-    'agency.users.create',
-    'subaccount.account.create',
-    'subaccount.account.read',
-    'subaccount.account.update',
-    'funnel.content.create',
-    'funnel.content.read',
-    'funnel.content.update',
-    'funnel.content.publish',
-    'contact.data.create',
-    'contact.data.read',
-    'contact.data.update',
-    'pipeline.data.create',
-    'pipeline.data.read',
-    'pipeline.data.update',
+    // Core agency permissions
+    'core.agency.account.read',
+    'core.agency.account.update',
+    'core.agency.settings.read',
+    'core.agency.settings.update',
+    'core.agency.team_members.invite',
+    'core.agency.team_members.remove',
+    'core.agency.users.create',
+    // Billing permissions
+    'core.billing.subscription.read',
+    'core.billing.payment_methods.view',
+    'core.billing.usage.read',
+    // SubAccount permissions
+    'core.agency.subaccounts.create',
+    'core.agency.subaccounts.read',
+    'core.agency.subaccounts.update',
+    'core.subaccount.account.read',
+    'core.subaccount.account.update',
+    'core.subaccount.team_members.invite',
+    // CRM permissions
+    'crm.funnels.content.create',
+    'crm.funnels.content.read',
+    'crm.funnels.content.update',
+    'crm.funnels.content.publish',
+    'crm.customers.contact.create',
+    'crm.customers.contact.read',
+    'crm.customers.contact.update',
+    'crm.pipelines.lane.create',
+    'crm.pipelines.lane.read',
+    'crm.pipelines.lane.update',
+    'crm.pipelines.ticket.create',
+    'crm.pipelines.ticket.read',
+    'crm.pipelines.ticket.update',
+    'crm.pipelines.tag.create',
+    'crm.pipelines.tag.read',
+    'crm.pipelines.tag.update',
   ], 'AGENCY_ADMIN')
   console.log(`  ✓ AGENCY_ADMIN: ${adminPermCount} permissions`)
 
@@ -359,12 +402,14 @@ async function main() {
   }
 
   const userPermCount = await syncRolePermissions(agencyUserRole.id, [
-    'agency.account.read',
-    'agency.settings.read',
-    'subaccount.account.read',
-    'funnel.content.read',
-    'contact.data.read',
-    'pipeline.data.read',
+    'core.agency.account.read',
+    'core.agency.settings.read',
+    'core.subaccount.account.read',
+    'crm.funnels.content.read',
+    'crm.customers.contact.read',
+    'crm.pipelines.lane.read',
+    'crm.pipelines.ticket.read',
+    'crm.pipelines.tag.read',
   ], 'AGENCY_USER')
   console.log(`  ✓ AGENCY_USER: ${userPermCount} permissions`)
 

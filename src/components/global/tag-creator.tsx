@@ -185,7 +185,7 @@ const TagCreator = ({ getSelectedTags, subAccountId, defaultTags }: Props) => {
           <PlusCircleIcon
             onClick={handleAddTag}
             size={20}
-            className="absolute top-1/2 transform -translate-y-1/2 right-2 hover:text-primary transition-all cursor-pointer text-muted-foreground"
+            className="absolute top-1/2 transform -translate-y-1/2 right-2 icon-interactive"
           />
         </div>
         <CommandList>
@@ -194,7 +194,7 @@ const TagCreator = ({ getSelectedTags, subAccountId, defaultTags }: Props) => {
             {tags.map((tag) => (
               <CommandItem
                 key={tag.id}
-                className="hover:!bg-secondary !bg-transparent flex items-center justify-between !font-light cursor-pointer"
+                className="command-item flex items-center justify-between !font-light"
               >
                 <div onClick={() => handleAddSelections(tag)}>
                   <TagComponent
@@ -206,7 +206,7 @@ const TagCreator = ({ getSelectedTags, subAccountId, defaultTags }: Props) => {
                 <AlertDialogTrigger>
                   <TrashIcon
                     size={16}
-                    className="cursor-pointer text-muted-foreground hover:text-rose-400  transition-all"
+                    className="icon-destructive"
                   />
                 </AlertDialogTrigger>
                 <AlertDialogContent>

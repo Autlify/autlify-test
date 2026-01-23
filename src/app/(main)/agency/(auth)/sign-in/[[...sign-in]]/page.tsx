@@ -11,7 +11,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
-import { Tooltip } from '@/components/ui/tooltip' 
+import { Tooltip } from '@/components/ui/tooltip'
+import { PasskeyButton } from '@/components/auth/passkey-button'
+
+import { TermsAgreement } from '@/components/auth/terms-agreement'
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -26,6 +29,7 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [termsAgreed, setTermsAgreed] = useState(false)
 
   useEffect(() => {
     if (verified === 'true') {
@@ -37,6 +41,7 @@ export default function SignInPage() {
       setError('Email verification failed. Please try again.')
     }
   }, [verified, urlError])
+
 
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -99,9 +104,9 @@ export default function SignInPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {success && (
-            <Alert className="border-emerald-500 bg-emerald-50 dark:bg-emerald-950">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-              <AlertDescription className="text-emerald-600 dark:text-emerald-400">
+            <Alert className="border-success/30 bg-success/10">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <AlertDescription className="text-success-foreground">
                 {success}
               </AlertDescription>
             </Alert>
@@ -118,7 +123,9 @@ export default function SignInPage() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -131,6 +138,9 @@ export default function SignInPage() {
               <Input
                 id="password"
                 type="password"
+                name="password"
+                autoComplete="current-password"
+                placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -154,12 +164,23 @@ export default function SignInPage() {
             </div>
           </div>
 
+          <PasskeyButton
+            email={email}
+            variant="signin"
+            onSuccess={(result) => {
+              // NextAuth's Passkey provider handles session creation automatically
+              router.push(callbackUrl)
+              router.refresh()
+            }}
+            onError={(err) => setError(err)}
+            disabled={isLoading}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <Button
               variant="outline"
               onClick={() => handleOAuthSignIn('github')}
               disabled={isLoading}
-              tooltip="Sign in with GitHub"
             >
               <Image src="/logos/github.svg" alt="GitHub" width={32} height={32} className="mr-2 brightness-0 invert" />
             </Button>
@@ -167,13 +188,17 @@ export default function SignInPage() {
               variant="outline"
               onClick={() => handleOAuthSignIn('azure-ad')}
               disabled={isLoading}
-              tooltip="Sign in with Microsoft"
             >
               <Image src="/logos/microsoft.svg" alt="Microsoft" width={32} height={32} className="mr-2" />
             </Button>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
+          <TermsAgreement
+            agreed={termsAgreed}
+            onChange={setTermsAgreed}
+            variant="signin"
+          />
           <div className="text-sm text-center text-muted-foreground">
             Don&apos;t have an account?{' '}
             <Link href="/agency/sign-up" className="text-primary hover:underline">

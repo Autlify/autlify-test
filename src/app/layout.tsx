@@ -25,12 +25,13 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={`${font.className } bg-background text-foreground`}>
+      <body className={`${font.className }`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            themes={['light', 'premium']}
+            defaultTheme="premium"
+            enableSystem={false}
             disableTransitionOnChange
           >
             <TooltipProvider>

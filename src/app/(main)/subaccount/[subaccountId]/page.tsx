@@ -274,7 +274,7 @@ const SubaccountPageId = async ({ params, searchParams }: Props) => {
                             {session.customer_details?.email || '-'}
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-emerald-500 dark:text-black">
+                            <Badge className="bg-success text-success-foreground">
                               Paid
                             </Badge>
                           </TableCell>

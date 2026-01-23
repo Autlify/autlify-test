@@ -91,11 +91,31 @@ model User {
 
   AgencyMemberships     AgencyMembership[]
   SubAccountMemberships SubAccountMembership[]
+  Authenticators    Authenticator[]
 
-  Ticket       Ticket[]
-  Notification Notification[]
-  accounts     Account[]
-  sessions     Session[]
+  Ticket          Ticket[]
+  Notification    Notification[]
+  accounts        Account[]
+  sessions        Session[]
+  Passkeys        Passkey[]
+  MFAChallenges   MFAChallenge[]
+  MFAMethods      MFAMethod[]
+  SSOUserMappings SSOUserMapping[]
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
 }
 
 model Account {
@@ -243,6 +263,7 @@ model Agency {
   UsageTracking         UsageTracking[]
   EntitlementOverrides  EntitlementOverride[]
   FeatureCreditBalances FeatureCreditBalance[]
+  ssoconnection         SSOConnection?
 
   @@index([taxIdentityId])
 }
@@ -976,4 +997,214 @@ model FeatureCreditLedger {
 
   @@index([agencyId, subAccountId, featureKey, createdAt])
   @@index([scope])
+}
+
+// ========================================
+// PASSKEY & MFA MODELS
+// ========================================
+
+model Passkey {
+  id                String    @id @default(uuid())
+  userId            String
+  credentialId      String    @unique @db.Text
+  publicKey         String    @db.Text
+  counter           Int       @default(0)
+  name              String    @default("Passkey")
+  deviceName        String? // e.g., "iPhone 15", "MacBook Pro"
+  authenticatorType String? // e.g., "platform" (Face ID, Touch ID), "cross-platform" (hardware keys)
+  // Backup eligibility / status
+  backupEligible    Boolean   @default(false)
+  backupState       Boolean   @default(false)
+  // Timestamp tracking
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastUsedAt        DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// MFA Challenge (one-time codes sent during auth)
+model MFAChallenge {
+  id     String @id @default(uuid())
+  userId String
+
+  // The code being challenged
+  code     String        @db.Text // Hashed or encrypted
+  codeType MFAMethodType
+
+  // Challenge validity
+  expiresAt DateTime
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+
+  // Tracking attempts
+  attempts     Int     @default(0)
+  sessionToken String? // Link to session if needed
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([code])
+}
+
+// Enum for MFA methods
+enum MFAMethodType {
+  TOTP // Google Authenticator, Authy
+  SMS // Text message OTP
+  EMAIL // Email OTP
+  BACKUP_CODES // One-time recovery codes
+  PASSKEY // Already have this
+}
+
+model MFAMethod {
+  id        String        @id @default(uuid())
+  userId    String
+  type      MFAMethodType
+  isEnabled Boolean       @default(true)
+  isPrimary Boolean       @default(false)
+
+  // TOTP: Google Authenticator
+  secret String? @db.Text // Base32 encoded, encrypted
+
+  // SMS/EMAIL: Phone or email (may already be in User)
+  phoneNumber String?
+
+  // Backup codes: Hashed recovery codes
+  backupCodes     String? @db.Text // JSON: ["hash1", "hash2", ...]
+  backupCodesUsed String? @db.Text // JSON: [0, 2] (used indexes)
+
+  // Trust/Remember
+  trustedDevices String? @db.Text // JSON: device fingerprints
+
+  // Tracking
+  verifiedAt DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+}
+
+// SSO Configuration (per Agency/Organization)
+model SSOConnection {
+  id       String @id @default(uuid())
+  agencyId String @unique // One SSO per agency
+  provider SSOProvider // OIDC, SAML, GOOGLE_WORKSPACE, MICROSOFT_ENTRA
+  clientId           String           @db.Text
+  clientSecret       String           @db.Text // Encrypted in production
+  authorizationUrl   String?
+  tokenUrl           String?
+  userinfoUrl        String?
+  jwksUrl            String?
+  entityId           String? // Service provider entity ID
+  acsUrl             String? // Assertion Consumer Service URL
+  ssoUrl             String? // IdP Single Sign-On URL
+  sloUrl             String? // Single Logout URL
+  x509Certificate    String?          @db.Text // IdP certificate for validation
+  allowedDomains     String           @db.Text // JSON: ["company.com", "subsidiary.com"]
+  autoProvisionUsers Boolean          @default(true) // Auto-create users on first login
+  autoProvisionRole  String? // Default role for auto-provisioned users
+  requireSSO         Boolean          @default(false) // Force all users to use SSO
+  isEnabled          Boolean          @default(true)
+  testedAt           DateTime? // Last successful test
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  Agency             Agency           @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  ssoAuditLogs       SSOAuditLog[]
+  ssouserMappings    SSOUserMapping[]
+
+  @@index([provider])
+}
+
+// SSO User Mapping (link user to their SSO identity)
+model SSOUserMapping {
+  id              String @id @default(uuid())
+  userId          String
+  ssoConnectionId String
+
+  // Provider-specific user identifier
+  providerUserId String @db.Text // e.g., email from IdP
+
+  // User attributes from IdP (cached)
+  providerEmail   String
+  providerName    String?
+  providerPicture String?
+
+  // Sync status
+  lastSyncedAt DateTime?
+  syncStatus   SyncStatus @default(ACTIVE) // ACTIVE, SUSPENDED, PENDING
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SsoConnection SSOConnection @relation(fields: [ssoConnectionId], references: [id], onDelete: Cascade)
+
+  @@unique([ssoConnectionId, providerUserId])
+  @@index([userId])
+  @@index([ssoConnectionId])
+}
+
+// SSO Audit Log (for compliance/debugging)
+model SSOAuditLog {
+  id              String @id @default(uuid())
+  ssoConnectionId String
+
+  eventType SSOEventType // LOGIN_SUCCESS, LOGIN_FAILED, USER_CREATED, etc.
+
+  // User details
+  email  String
+  userId String?
+
+  // Status
+  status       String // success, failure
+  errorMessage String? @db.Text
+
+  // Request details
+  ipAddress String?
+  userAgent String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  SsoConnection SSOConnection @relation(fields: [ssoConnectionId], references: [id], onDelete: Cascade)
+
+  @@index([ssoConnectionId, createdAt])
+  @@index([email])
+}
+
+// Enums
+enum SSOProvider {
+  OIDC // Generic OpenID Connect
+  SAML // Generic SAML 2.0
+  GOOGLE_WORKSPACE
+  MICROSOFT_ENTRA // Azure AD
+  OKTA
+  PING_IDENTITY
+  AUTH0
+}
+
+enum SyncStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+  FAILED
+}
+
+enum SSOEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  USER_SUSPENDED
+  TOKEN_REFRESH
+  CONNECTION_TESTED
+  CONNECTION_UPDATED
 }

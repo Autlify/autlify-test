@@ -220,9 +220,9 @@ export default function VerifyEmailPage() {
           )}
 
           {resendMessage && (
-            <Alert className="border-emerald-500 bg-emerald-50 dark:bg-emerald-950">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-              <AlertDescription className="text-emerald-600 dark:text-emerald-400">
+            <Alert className="border-success/30 bg-success/10">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <AlertDescription className="text-success-foreground">
                 {resendMessage}
               </AlertDescription>
             </Alert>

@@ -153,13 +153,13 @@ const SubscriptionHelper = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Trial Information */}
           {isTrialing && trialEndDate && (
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
-              <CalendarDays className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-accent-base bg-accent-tint">
+              <CalendarDays className="w-5 h-5 text-accent-base mt-0.5" />
               <div className="flex-1">
-                <p className="font-semibold text-blue-900 dark:text-blue-100">
+                <p className="font-semibold text-fg-primary">
                   Trial Period
                 </p>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                <p className="text-sm text-fg-secondary mt-1">
                   {trialDaysRemaining > 0 ? (
                     <>
                       <span className="font-medium">{trialDaysRemaining} days</span> remaining
@@ -168,7 +168,7 @@ const SubscriptionHelper = ({
                     'Trial ending today'
                   )}
                 </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                <p className="text-xs text-accent-base mt-0.5">
                   Ends on {formatDate(trialEndDate)}
                 </p>
               </div>
@@ -190,19 +190,19 @@ const SubscriptionHelper = ({
 
           {/* Past Due Alert */}
           {subscriptionStatus === 'PAST_DUE' && (
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-orange-200 bg-orange-50 dark:bg-orange-950 dark:border-orange-900 md:col-span-2">
-              <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-[hsl(var(--warning-border))] bg-[hsl(var(--warning-bg))] md:col-span-2">
+              <AlertCircle className="w-5 h-5 text-[hsl(var(--warning-text))] mt-0.5" />
               <div className="flex-1">
-                <p className="font-semibold text-orange-900 dark:text-orange-100">
+                <p className="font-semibold text-fg-primary">
                   Payment Required
                 </p>
-                <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
+                <p className="text-sm text-fg-secondary mt-1">
                   Your payment is past due. Please update your payment method to continue using our services.
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-3 border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-300"
+                  className="mt-3 border-[hsl(var(--warning-border))] text-[hsl(var(--warning-text))] hover:bg-[hsl(var(--warning-bg-hover))]"
                   onClick={() => {
                     // TODO: Implement payment method update
                     window.location.href = `/agency/${customerId}/billing?updatePayment=true`
@@ -216,13 +216,13 @@ const SubscriptionHelper = ({
 
           {/* Unpaid Alert */}
           {subscriptionStatus === 'UNPAID' && (
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-900 md:col-span-2">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 rounded-lg border border-destructive bg-destructive/10 md:col-span-2">
+              <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
               <div className="flex-1">
-                <p className="font-semibold text-red-900 dark:text-red-100">
+                <p className="font-semibold text-fg-primary">
                   Subscription Suspended
                 </p>
-                <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                <p className="text-sm text-fg-secondary mt-1">
                   Your subscription has been suspended due to non-payment. Please contact support or update your payment method.
                 </p>
                 <Button

@@ -3,7 +3,7 @@ import { auth } from './auth'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const CONTEXT_COOKIE = 'app.last_context.v1'
+const CONTEXT_COOKIE = 'autlify.context-token'
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 60 // 60 days
 
 const isAssetOrNext = (pathname: string) =>
@@ -81,8 +81,10 @@ export default auth((req) => {
   }
 
   // Protected routes require authentication
+  // Note: /agency root is a public sorting center that handles both auth/anon users
   const isProtected =
-    pathname.startsWith('/agency') || pathname.startsWith('/subaccount')
+    (pathname.startsWith('/agency/') && pathname !== '/agency') ||
+    pathname.startsWith('/subaccount')
 
   const isAuthPage =
     pathname.startsWith('/agency/sign-in') ||

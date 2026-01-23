@@ -14,7 +14,7 @@ export default async function CheckoutPage({ params }: Props) {
     const { priceId } = await params
     const session = await auth()
     const priceDetails = pricingCards.find((card) => card.priceId === priceId)
-    const user = await getUser(session?.user.id!)
+    const user = await getUser(session?.user?.id || '')
 
     if (!priceDetails) {
         notFound()

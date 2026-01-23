@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { signIn } from 'next-auth/react'
+import { PasskeyButton } from '@/components/auth/passkey-button'
+import { TermsAgreement } from '@/components/auth/terms-agreement'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -23,6 +25,8 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [termsAgreed, setTermsAgreed] = useState(false)
+  const [usePasskeyOnly, setUsePasskeyOnly] = useState(false)
 
   useEffect(() => {
     setName(`${firstName} ${lastName}`)
@@ -33,23 +37,38 @@ export default function SignUpPage() {
     setIsLoading(true)
     setError('')
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
+    if (!termsAgreed) {
+      setError('You must agree to the terms of service')
       setIsLoading(false)
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      setIsLoading(false)
-      return
+    if (!usePasskeyOnly) {
+      if (password !== confirmPassword) {
+        setError('Passwords do not match')
+        setIsLoading(false)
+        return
+      }
+
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters')
+        setIsLoading(false)
+        return
+      }
     }
 
     try {
+      // Create account (works for both passkey and password auth)
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, name, email, password }),
+        body: JSON.stringify({ 
+          firstName, 
+          lastName, 
+          name, 
+          email, 
+          password: usePasskeyOnly ? null : password 
+        }),
       })
 
       if (!response.ok) {
@@ -57,8 +76,13 @@ export default function SignUpPage() {
         throw new Error(data.error || 'Failed to create account')
       }
 
-      // Redirect to verify page after successful registration
-      router.push(`/agency/verify?email=${encodeURIComponent(email)}`)
+      if (usePasskeyOnly) {
+        // Skip email verification for passkey-only accounts
+        router.push(`/agency/sign-in?email=${encodeURIComponent(email)}`)
+      } else {
+        // Redirect to verify page for password accounts
+        router.push(`/agency/verify?email=${encodeURIComponent(email)}`)
+      }
       router.refresh()
     } catch (error: any) {
       setError(error.message || 'An error occurred. Please try again.')
@@ -106,6 +130,8 @@ export default function SignUpPage() {
                 <Input
                   id="firstName"
                   type="text"
+                  name="firstName"
+                  autoComplete="given-name"
                   placeholder="John"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -118,6 +144,8 @@ export default function SignUpPage() {
                 <Input
                   id="lastName"
                   type="text"
+                  name="lastName"
+                  autoComplete="family-name"
                   placeholder="Doe"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -131,6 +159,8 @@ export default function SignUpPage() {
               <Input
                 id="email"
                 type="email"
+                name="email"
+                autoComplete="email"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -143,10 +173,13 @@ export default function SignUpPage() {
               <Input
                 id="password"
                 type="password"
+                name="password"
+                autoComplete="new-password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
+                required={!usePasskeyOnly}
+                disabled={isLoading || usePasskeyOnly}
               />
             </div>
             <div className="space-y-2">
@@ -154,13 +187,16 @@ export default function SignUpPage() {
               <Input
                 id="confirmPassword"
                 type="password"
+                name="confirmPassword"
+                autoComplete="new-password"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={isLoading}
+                required={!usePasskeyOnly}
+                disabled={isLoading || usePasskeyOnly}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !termsAgreed}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create account
             </Button>
@@ -172,10 +208,24 @@ export default function SignUpPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                Or register with
               </span>
             </div>
           </div>
+
+          <PasskeyButton
+            email={email}
+            variant="signup"
+            onSuccess={(result) => {
+              setError('')
+              // User successfully registered with passkey
+              // Redirect to sign-in or auto-signin
+              router.push(`/agency/sign-in?email=${encodeURIComponent(email)}&passkey=true`)
+              router.refresh()
+            }}
+            onError={(err) => setError(err)}
+            disabled={isLoading || !email || !termsAgreed}
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <Button
@@ -207,6 +257,11 @@ export default function SignUpPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
+          <TermsAgreement 
+            agreed={termsAgreed} 
+            onChange={setTermsAgreed}
+            variant="signup"
+          />
           <div className="text-sm text-center text-muted-foreground">
             Already have an account?{' '}
             <Link href="/agency/sign-in" className="text-primary hover:underline">

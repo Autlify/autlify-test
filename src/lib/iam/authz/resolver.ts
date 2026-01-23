@@ -3,9 +3,9 @@ import 'server-only'
 import { auth } from '@/auth'
 import { db } from '@/lib/db'
 
-export const CONTEXT_COOKIE = 'app.last_context.v1'
+export const CONTEXT_COOKIE = 'autlify.context-token'
 
-export type SubscriptionState = 'ACTIVE' | 'INACTIVE' | 'MISSING'
+export type SubscriptionState = 'ACTIVE' | 'INACTIVE' | 'MISSING' | 'TRIAL'
 
 export type SavedContext =
   | { kind: 'agency'; agencyId: string }
