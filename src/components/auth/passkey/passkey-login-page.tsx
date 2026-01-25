@@ -12,6 +12,7 @@ import { Fingerprint, Mail, Lock } from 'lucide-react';
 
 export function PasskeyLoginPage() {
   const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+  const [email, setEmail] = useState('');
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,10 +60,26 @@ export function PasskeyLoginPage() {
 
             {/* Passkey Tab */}
             <TabsContent value="passkey" className="space-y-4 mt-6">
+              <div className="space-y-2">
+                <Label htmlFor="passkey-email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-secondary" />
+                  <Input
+                    id="passkey-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
               <p className="text-sm text-fg-secondary">
                 Use your device's biometric authentication for a faster, more secure login.
               </p>
               <PasskeyAuthentication
+                email={email}
                 onSuccess={() => {
                   console.log('Passkey login successful');
                 }}

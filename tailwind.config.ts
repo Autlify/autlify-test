@@ -45,6 +45,10 @@ const config: Config = withUt({
             emphasis: colors.blue[700],
             inverted: colors.white,
           },
+          header: {
+            DEFAULT: colors.neutral[900],
+            gradient: 'linear-gradient(90deg, var(--blue-900), var(--blue-500))',
+          },
           background: {
             muted: colors.gray[50],
             subtle: colors.gray[100],
@@ -73,6 +77,10 @@ const config: Config = withUt({
             DEFAULT: colors.blue[500],
             emphasis: colors.blue[400],
             inverted: colors.blue[950],
+          },
+          header: {
+            DEFAULT: colors.neutral[200],
+            gradient: 'linear-gradient(90deg, var(--blue-200), var(--blue-600))',
           },
           background: {
             muted: '#131A2B',
@@ -125,6 +133,13 @@ const config: Config = withUt({
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        header: {
+          DEFAULT: 'hsl(var(--header))',
+          gradient: 'hsl(var(--header-gradient))',
+        },
+        subheader: {
+          DEFAULT: 'hsl(var(--subheader))',
+        },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
@@ -160,6 +175,10 @@ const config: Config = withUt({
         
         // Surface/Background colors (use with bg-, not standalone)
         surface: {
+          header: {
+            DEFAULT: 'hsl(var(--color-header))',
+            gradient: 'hsl(var(--color-header-gradient))',
+          },
           primary: 'var(--color-bg-primary)',
           secondary: 'var(--color-bg-secondary)',
           tertiary: 'var(--color-bg-tertiary)',
@@ -175,6 +194,8 @@ const config: Config = withUt({
         
         // Text/Content colors (use with text-, not standalone)
         content: {
+          header: 'var(--color-text-header)',
+          subheader: 'var(--color-text-subheader)',
           primary: 'var(--color-text-primary)',
           secondary: 'var(--color-text-secondary)',
           tertiary: 'var(--color-text-tertiary)',
@@ -202,7 +223,11 @@ const config: Config = withUt({
           hover: 'var(--color-accent-hover)',
           tint: 'var(--color-accent-tint)',
           bg: 'var(--color-brand-bg)',
+          'bg-hover': 'var(--color-brand-bg-hover)',
+          'bg-active': 'var(--color-brand-bg-active)',
           text: 'var(--color-brand-text)',
+          border: 'var(--color-brand-border)',
+          'border-hover': 'var(--color-brand-border-hover)',
         },
         
         // Link colors
@@ -247,6 +272,33 @@ const config: Config = withUt({
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'automation-zoom-in': 'automation-zoom-in 0.5s',
+      },
+      backgroundImage: {
+        // Header gradients
+        'header-gradient': 'var(--gradient-header)',
+        
+        // Brand gradients
+        'brand-gradient': 'var(--brand-gradient)',
+        'brand-gradient-hover': 'var(--brand-gradient-hover)',
+        'brand-gradient-active': 'var(--brand-gradient-active)',
+        'brand-gradient-border': 'var(--brand-gradient-border)',
+        
+        // Background gradients
+        'primary-gradient': 'var(--bg-primary-gradient)',
+        'secondary-gradient': 'var(--bg-secondary-gradient)',
+        'tertiary-gradient': 'var(--bg-tertiary-gradient)',
+        
+        // Button gradients
+        'button-primary-gradient': 'var(--button-primary-bg-gradient)',
+        'button-primary-gradient-hover': 'var(--button-primary-bg-gradient-hover)',
+        'button-secondary-gradient': 'var(--button-secondary-bg-gradient)',
+        'button-secondary-gradient-hover': 'var(--button-secondary-bg-gradient-hover)',
+        
+        // Mask gradients for fade effects
+        'mask-bottom': 'var(--mask-bottom)',
+        'mask-top': 'var(--mask-top)',
+        'mask-left': 'var(--mask-left)',
+        'mask-right': 'var(--mask-right)',
       },
     },
   },

@@ -110,26 +110,28 @@ export async function registerPasskey(
 ): Promise<RegistrationResponseJSON> {
   try {
     // Get registration options from server
-    const optionsResponse = await fetch('/api/auth/passkey/register-options', {
+    const optionsResponse = await fetch('/api/auth/passkey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, userName, userEmail }),
+      body: JSON.stringify({ mode: 'register', email: userEmail, userName }),
     });
 
     if (!optionsResponse.ok) throw new Error('Failed to get registration options');
-    const options = await optionsResponse.json();
+    const { options, token } = await optionsResponse.json();
 
     // Start registration with device
     const attResp = await startRegistration(options);
 
     // Verify with server
-    const verifyResponse = await fetch('/api/auth/passkey/register-verify', {
+    const verifyResponse = await fetch('/api/auth/passkey/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId,
-        passkeyName,
+        mode: 'register',
+        email: userEmail,
+        token,
         credential: attResp,
+        deviceName: passkeyName,
       }),
     });
 
@@ -146,24 +148,26 @@ export async function registerPasskey(
 /**
  * Start passkey authentication
  */
-export async function authenticateWithPasskey(): Promise<AuthenticationResponseJSON> {
+export async function authenticateWithPasskey(email: string): Promise<AuthenticationResponseJSON> {
   try {
     // Get authentication options from server
-    const optionsResponse = await fetch('/api/auth/passkey/authenticate-options', {
-      method: 'GET',
+    const optionsResponse = await fetch('/api/auth/passkey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'signin', email }),
     });
 
     if (!optionsResponse.ok) throw new Error('Failed to get authentication options');
-    const options = await optionsResponse.json();
+    const { options } = await optionsResponse.json();
 
     // Start authentication with device
     const assertionResp = await startAuthentication(options);
 
     // Verify with server
-    const verifyResponse = await fetch('/api/auth/passkey/authenticate-verify', {
+    const verifyResponse = await fetch('/api/auth/passkey/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential: assertionResp }),
+      body: JSON.stringify({ mode: 'signin', email, credential: assertionResp }),
     });
 
     if (!verifyResponse.ok) throw new Error('Authentication failed');

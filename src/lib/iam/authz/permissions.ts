@@ -76,6 +76,7 @@ export const hasPermission = async (permissionKey: string): Promise<boolean> => 
   return keys.includes(key)
 }
 
+
 /**
  * Scoped helpers (recommended for authz decisions).
  */

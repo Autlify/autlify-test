@@ -7,12 +7,14 @@ import { Loader2, AlertCircle, Fingerprint } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface PasskeyAuthenticationProps {
+  email: string;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
   className?: string;
 }
 
 export function PasskeyAuthentication({
+  email,
   onSuccess,
   onError,
   className,
@@ -26,7 +28,7 @@ export function PasskeyAuthentication({
     setError(null);
 
     try {
-      await authenticateWithPasskey();
+      await authenticateWithPasskey(email);
 
       onSuccess?.();
       // Redirect to dashboard or home

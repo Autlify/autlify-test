@@ -41,3 +41,46 @@ export function getUsageWindow(period: UsagePeriod, now: Date = new Date()): Usa
     }
   }
 }
+
+/**
+ * Returns a usage window for the selected period, shifted back by `periodsBack`.
+ * Example: periodsBack=1 => previous period, periodsBack=2 => two periods ago.
+ */
+export function getUsageWindowWithOffset(
+  period: UsagePeriod,
+  periodsBack: number,
+  now: Date = new Date()
+): UsageWindow {
+  const back = Math.max(0, Math.floor(Number(periodsBack) || 0))
+  if (back === 0) return getUsageWindow(period, now)
+
+  // Compute the current window and then shift deterministically in UTC.
+  const cur = getUsageWindow(period, now)
+
+  switch (period) {
+    case 'DAILY': {
+      const periodStart = addDays(cur.periodStart, -back)
+      const periodEnd = addDays(cur.periodEnd, -back)
+      return { periodStart, periodEnd }
+    }
+    case 'WEEKLY': {
+      const shiftDays = back * 7
+      const periodStart = addDays(cur.periodStart, -shiftDays)
+      const periodEnd = addDays(cur.periodEnd, -shiftDays)
+      return { periodStart, periodEnd }
+    }
+    case 'YEARLY': {
+      const start = new Date(Date.UTC(cur.periodStart.getUTCFullYear() - back, 0, 1))
+      const end = new Date(Date.UTC(cur.periodEnd.getUTCFullYear() - back, 0, 1))
+      return { periodStart: start, periodEnd: end }
+    }
+    case 'MONTHLY':
+    default: {
+      const y = cur.periodStart.getUTCFullYear()
+      const m = cur.periodStart.getUTCMonth()
+      const periodStart = new Date(Date.UTC(y, m - back, 1))
+      const periodEnd = new Date(Date.UTC(y, m - back + 1, 1))
+      return { periodStart, periodEnd }
+    }
+  }
+}

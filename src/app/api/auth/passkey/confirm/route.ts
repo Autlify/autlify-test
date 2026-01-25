@@ -12,7 +12,7 @@ import { signIn } from '@/auth'
 import { deleteVerificationToken } from '@/lib/queries'
 
 const rpID = process.env.NEXT_PUBLIC_DOMAIN || 'localhost'
-const origin = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+const origin = process.env.NEXT_PUBLIC_URL?.replace(/\/$/, '') || 'http://localhost:3000'
 
 /**
  * @file src/app/api/auth/passkey/confirm/route.ts
@@ -34,11 +34,11 @@ export async function POST(req: Request) {
 
     // SIGNIN MODE: Verify signin authentication
     if (mode === 'signin') {
-      return await handleSigninConfirmation(credential)
+      return await handleSigninConfirmation()
     }
 
     // REGISTER MODE: Complete passkey registration
-    if (mode === 'register') {
+    if (mode === 'signup') {
       if (!email || !token) {
         return NextResponse.json(
           { error: 'Email and token are required for registration' },
@@ -64,9 +64,9 @@ export async function POST(req: Request) {
 /**
  * Handle signin authentication confirmation
  */
-async function handleSigninConfirmation(credential: AuthenticationResponseJSON) {
+async function handleSigninConfirmation() {
   // Find passkey by credential ID (convert base64url to base64)
-  const credentialIdBase64 = Buffer.from(credential.id, 'base64url').toString('base64')
+  const credentialIdBase64 = (Credential as any).id.replace(/_/g, '/').replace(/-/g, '+')
     
     const passkey = await db.passkey.findUnique({
       where: { credentialId: credentialIdBase64 },
@@ -95,7 +95,7 @@ async function handleSigninConfirmation(credential: AuthenticationResponseJSON) 
 
     // Verify the authentication
     const verification = await verifyAuthenticationResponse({
-      response: credential as AuthenticationResponseJSON,
+      response: credentialIdBase64 as AuthenticationResponseJSON,
       expectedChallenge: challengeRecord.token,
       expectedOrigin: origin,
       expectedRPID: rpID,

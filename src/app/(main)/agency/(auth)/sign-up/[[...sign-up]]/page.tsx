@@ -123,7 +123,7 @@ export default function SignUpPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSignUp} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4" autoComplete="on">
             <div className="grid md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4">
               <div>
                 <Label htmlFor="firstName">First Name</Label>
@@ -208,24 +208,10 @@ export default function SignUpPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or register with
+                Or sign up with
               </span>
             </div>
           </div>
-
-          <PasskeyButton
-            email={email}
-            variant="signup"
-            onSuccess={(result) => {
-              setError('')
-              // User successfully registered with passkey
-              // Redirect to sign-in or auto-signin
-              router.push(`/agency/sign-in?email=${encodeURIComponent(email)}&passkey=true`)
-              router.refresh()
-            }}
-            onError={(err) => setError(err)}
-            disabled={isLoading || !email || !termsAgreed}
-          />
 
           <div className="grid grid-cols-2 gap-4">
             <Button

@@ -165,3 +165,42 @@ export async function applyTopUpCreditsFromCheckout(args: {
     })
   })
 }
+
+/**
+ * Manual top-up path (non-Stripe) – intended for internal/admin flows.
+ * Use Stripe checkout in production for paid top-ups.
+ */
+export async function topupCredits(args: {
+  scope: MeteringScope
+  agencyId: string
+  subAccountId: string | null
+  featureKey: string
+  credits: number
+  idempotencyKey: string
+  reason?: string
+}): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const ef = await tx.entitlementFeature.findUnique({
+      where: { key: args.featureKey },
+      select: { period: true, creditExpires: true },
+    })
+
+    const period = (ef?.period as UsagePeriod | null) ?? 'MONTHLY'
+    const { periodStart, periodEnd } = getUsageWindow(period, new Date())
+    const expiresAt = ef?.creditExpires ? periodEnd : null
+
+    await applyCreditDelta(tx, {
+      scope: args.scope,
+      agencyId: args.agencyId,
+      subAccountId: args.subAccountId,
+      featureKey: args.featureKey,
+      amount: args.credits,
+      type: 'TOPUP',
+      reason: args.reason ?? 'Manual credit top-up',
+      periodStart,
+      periodEnd,
+      expiresAt,
+      idempotencyKey: args.idempotencyKey,
+    })
+  })
+}

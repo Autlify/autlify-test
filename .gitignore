@@ -17,6 +17,7 @@
 
 # misc
 .DS_Store
+/.DS_Store
 *.pem
 
 # debug
@@ -44,4 +45,9 @@ src/generated/prisma/
 /_app
 _entitlement_system/
 /_entitlement_system/
+_entitlement_system/    
 _entitlement_to_patch/
+
+docs/
+scripts/
+public/sample/

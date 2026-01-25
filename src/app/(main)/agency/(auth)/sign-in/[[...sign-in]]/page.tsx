@@ -61,7 +61,7 @@ export default function SignInPage() {
         if (result.error.includes('verify')) {
           setError('Your email is not verified. Redirecting to verification page...')
           setTimeout(() => {
-            router.push(`/agency/verify?email=${encodeURIComponent(email)}`)
+            router.push(`/agency/verify?email`)
           }, 2000)
         } else {
           setError('Invalid email or password')
@@ -118,14 +118,14 @@ export default function SignInPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+          <form onSubmit={handleCredentialsSignIn} className="space-y-4" autoComplete="on">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
+                autoComplete="email username" 
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -139,7 +139,7 @@ export default function SignInPage() {
                 id="password"
                 type="password"
                 name="password"
-                autoComplete="current-password"
+                autoComplete="current-password" 
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -164,17 +164,22 @@ export default function SignInPage() {
             </div>
           </div>
 
-          <PasskeyButton
-            email={email}
-            variant="signin"
-            onSuccess={(result) => {
-              // NextAuth's Passkey provider handles session creation automatically
-              router.push(callbackUrl)
-              router.refresh()
-            }}
-            onError={(err) => setError(err)}
-            disabled={isLoading}
-          />
+          <div className="space-y-1">
+            <PasskeyButton
+              email={email}
+              variant="signin"
+              onSuccess={(result) => {
+                // NextAuth's Passkey provider handles session creation automatically
+                router.push(callbackUrl)
+                router.refresh()
+              }}
+              onError={(err) => setError(err)}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-center text-muted-foreground">
+              Don&apos;t have a passkey? Sign in first, then add one from Settings.
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Button

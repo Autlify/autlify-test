@@ -1,0 +1,35 @@
+# Generated files
+src/generated/**
+node_modules/**
+.next/**
+out/**
+dist/**
+build/**
+
+# Prisma
+prisma/migrations/**
+
+# Dependencies
+bun.lockb
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+*.tsbuildinfo
+
+# Large binary files
+public/assets/**
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Documentation (optional - remove if you want Copilot to read docs)
+# docs/**

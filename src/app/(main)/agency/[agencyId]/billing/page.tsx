@@ -2,6 +2,8 @@ import React from 'react'
 import { stripe } from '@/lib/stripe'
 import { addOnProducts, pricingCards } from '@/lib/constants'
 import { db } from '@/lib/db'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import PricingCard from './_components/pricing-card'
 import {
@@ -89,7 +91,7 @@ const page = async ({ params }: Props) => {
   })
 
   return (
-    <>
+    <div className="space-y-6">
       <SubscriptionHelper
         prices={prices.data}
         customerId={agencySubscription?.customerId || ''}
@@ -100,10 +102,32 @@ const page = async ({ params }: Props) => {
         planTitle={currentPlanDetails?.title}
         currentPriceId={agencySubscription?.Subscription?.priceId}
       />
-      <h1 className="text-4xl mb-2">Billing</h1>
-      <Separator className="mb-8" />
-      <h2 className="text-2xl mb-6">Current Plan</h2>
-      <div className="flex flex-col lg:!flex-row justify-between gap-8 mb-12">
+
+      <Card className="p-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">Current plan</h2>
+              <Badge variant={isSubscriptionActive ? 'default' : 'secondary'} className="font-mono text-xs">
+                {isSubscriptionActive ? (agencySubscription?.Subscription?.status || 'ACTIVE') : 'FREE'}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Upgrade, change plan, or add-ons. Trial subscriptions are treated as active.
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-card/50 p-3">
+            <div className="text-xs text-muted-foreground">Customer</div>
+            <div className="mt-1 font-mono text-xs text-muted-foreground">
+              {agencySubscription?.customerId || '—'}
+            </div>
+          </div>
+        </div>
+
+        <Separator className="my-4" />
+
+        <div className="flex flex-col lg:!flex-row justify-between gap-8">
         <PricingCard
           planExists={isSubscriptionActive}
           prices={prices.data}
@@ -163,44 +187,56 @@ const page = async ({ params }: Props) => {
             highlightDescription="Get priority support and skip the long long with the click of a button."
           />
         ))}
-      </div>
-      <h2 className="text-2xl mb-6 mt-8">Payment History</h2>
-      <Table className="bg-card border-[1px] border rounded-md">
-        <TableHeader className="rounded-md">
-          <TableRow>
-            <TableHead className="w-[200px]">Description</TableHead>
-            <TableHead className="w-[200px]">Invoice Id</TableHead>
-            <TableHead className="w-[300px]">Date</TableHead>
-            <TableHead className="w-[200px]">Paid</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="font-medium truncate">
-          {allCharges.map((charge) => (
-            <TableRow key={charge.id}>
-              <TableCell>{charge.description}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {charge.id}
-              </TableCell>
-              <TableCell>{charge.date}</TableCell>
-              <TableCell>
-                <p
-                  className={clsx('', {
-                    'text-emerald-500': charge.status.toLowerCase() === 'paid',
-                    'text-orange-600':
-                      charge.status.toLowerCase() === 'pending',
-                    'text-red-600': charge.status.toLowerCase() === 'failed',
-                  })}
-                >
-                  {charge.status.toUpperCase()}
-                </p>
-              </TableCell>
-              <TableCell className="text-right">{charge.amount}</TableCell>
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold">Payment history</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Charges and invoices (Stripe).</p>
+          </div>
+          <Badge variant="outline" className="font-mono text-xs">{allCharges.length} entries</Badge>
+        </div>
+
+        <Separator className="my-4" />
+
+        <Table className="bg-card border-[1px] border rounded-md">
+          <TableHeader className="rounded-md">
+            <TableRow>
+              <TableHead className="w-[200px]">Description</TableHead>
+              <TableHead className="w-[240px]">Reference</TableHead>
+              <TableHead className="w-[300px]">Date</TableHead>
+              <TableHead className="w-[200px]">Status</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </>
+          </TableHeader>
+          <TableBody className="font-medium truncate">
+            {allCharges.map((charge) => (
+              <TableRow key={charge.id}>
+                <TableCell className="max-w-[320px] truncate">{charge.description}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground max-w-[280px] truncate">
+                  {charge.id}
+                </TableCell>
+                <TableCell>{charge.date}</TableCell>
+                <TableCell>
+                  <p
+                    className={clsx('text-xs font-semibold tracking-wide', {
+                      'text-emerald-500': charge.status.toLowerCase() === 'paid',
+                      'text-orange-600': charge.status.toLowerCase() === 'pending',
+                      'text-red-600': charge.status.toLowerCase() === 'failed',
+                    })}
+                  >
+                    {charge.status.toUpperCase()}
+                  </p>
+                </TableCell>
+                <TableCell className="text-right">{charge.amount}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
   )
 }
 

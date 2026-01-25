@@ -13,30 +13,30 @@ export type SavedContext =
 
 export type LandingTarget =
   | {
-      kind: 'agency'
-      agencyId: string
-      href: string
-      permissionKeys: string[]
-      subscriptionState: SubscriptionState
-      hasInactiveSubscription: boolean
-    }
+    kind: 'agency'
+    agencyId: string
+    href: string
+    permissionKeys: string[]
+    subscriptionState: SubscriptionState
+    hasInactiveSubscription: boolean
+  }
   | {
-      kind: 'subaccount'
-      subAccountId: string
-      agencyId: string
-      href: string
-      permissionKeys: string[]
-    }
+    kind: 'subaccount'
+    subAccountId: string
+    agencyId: string
+    href: string
+    permissionKeys: string[]
+  }
 
 const computeSubscriptionState = (
   sub:
     | {
-        status: string
-        currentPeriodEndDate: Date
-        trialEndedAt: Date | null
-        active: boolean
-        cancelAtPeriodEnd: boolean
-      }
+      status: string
+      currentPeriodEndDate: Date
+      trialEndedAt: Date | null
+      active: boolean
+      cancelAtPeriodEnd: boolean
+    }
     | null
     | undefined
 ): SubscriptionState => {
@@ -254,8 +254,27 @@ export const resolveCurrentAgencyContext = async (args: {
   const userId = session?.user?.id
   if (!userId) return null
 
+  return resolveAgencyContextForUser({ userId, agencyId: args.agencyId })
+}
+
+
+
+/**
+ * User-id based resolver (does not call `auth()`).
+ *
+ * This is the canonical resolver to reuse for API-key / SDK contexts.
+ */
+export const resolveAgencyContextForUser = async (args: {
+  userId: string
+  agencyId: string
+}): Promise<{
+  userId: string
+  agencyId: string
+  permissionKeys: string[]
+  subscriptionState: SubscriptionState
+} | null> => {
   const membership = await db.agencyMembership.findFirst({
-    where: { userId, agencyId: args.agencyId, isActive: true },
+    where: { userId: args.userId, agencyId: args.agencyId, isActive: true },
     select: {
       userId: true,
       agencyId: true,
@@ -308,8 +327,25 @@ export const resolveCurrentSubAccountContext = async (args: {
   const userId = session?.user?.id
   if (!userId) return null
 
+  return resolveSubAccountContextForUser({ userId, subAccountId: args.subAccountId })
+}
+
+/**
+ * User-id based resolver (does not call `auth()`).
+ *
+ * This is the canonical resolver to reuse for API-key / SDK contexts.
+ */
+export const resolveSubAccountContextForUser = async (args: {
+  userId: string
+  subAccountId: string
+}): Promise<{
+  userId: string
+  agencyId: string
+  subAccountId: string
+  permissionKeys: string[]
+} | null> => {
   const membership = await db.subAccountMembership.findFirst({
-    where: { userId, subAccountId: args.subAccountId, isActive: true },
+    where: { userId: args.userId, subAccountId: args.subAccountId, isActive: true },
     select: {
       userId: true,
       subAccountId: true,

@@ -4,11 +4,11 @@ import { db } from '@/lib/db'
 import authConfig from '@/auth.config'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
+import type { Adapter } from 'next-auth/adapters'
 import type { Role } from '@/generated/prisma/client'
-import type { Adapter, VerificationToken } from 'next-auth/adapters'
 
 // Custom adapter to map 'image' to 'avatarUrl'
-const customAdapter = {
+const customAdapter: Adapter = {
   ...PrismaAdapter(db),
   createUser: async (data) => {
     const { image, ...rest } = data as any
@@ -57,28 +57,7 @@ const customAdapter = {
       image: account.user.avatarUrl,
     } as any
   },
-  createVerificationToken(verificationToken) {
-    return db.verificationToken.create({ data: verificationToken }) as Promise<VerificationToken>
-  },
-  useVerificationToken({ identifier, token }) {
-    return db.$transaction(async (tx) => {
-      const verificationToken = await tx.verificationToken.findUnique({
-        where: { identifier_token: { identifier, token } },
-      })
-      if (!verificationToken) {
-        return null
-      }
-      await tx.verificationToken.delete({
-        where: { identifier_token: { identifier, token } },
-      })
-      return verificationToken
-    }) as Promise<VerificationToken | null>
-  },
-  createSession: async (data) => {
-    return db.session.create({ data })
-  }
-} as Adapter
-
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: customAdapter,
@@ -87,7 +66,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/agency/sign-in',
     error: '/agency/sign-in',
   },
-  ...authConfig,
   providers: [
     ...authConfig.providers,
     Credentials({
@@ -161,7 +139,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           firstName: user.firstName,
           lastName: user.lastName,
           image: user.avatarUrl,
-          emailVerified: user.emailVerified,
         }
       },
     }),
@@ -186,41 +163,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (dbUser) {
-          token.id = dbUser.id
-          token.email = dbUser.email
-          token.name = dbUser.name
-          token.firstName = dbUser.firstName
-          token.lastName = dbUser.lastName
-          token.picture = dbUser.avatarUrl
-          token.emailVerified = dbUser.emailVerified
-
-          // If signing in via OAuth, update user avatar if not set
-          if (account && (account.provider === 'github' || account.provider === 'azure-ad')) {
-            // Update avatarUrl from OAuth provider if available
-            if (user?.image && !dbUser.avatarUrl) {
-              await db.user.update({
-                where: { id: dbUser.id },
-                data: { avatarUrl: user.image },
-              })
-              token.picture = user.image
-            }
-          }
-        }
-      } else if (trigger === 'signIn' && account) {
-        // Handle first-time sign in
-        const dbUser = await db.user.findUnique({
-          where: { email: user?.email || '' },
-        })
-
-        if (dbUser) {
-          // If signing in via OAuth, update user avatar if not set
-          if (account.provider === 'github' || account.provider === 'azure-ad') {
-            await db.user.update({
-              where: { id: dbUser.id },
-              data: { avatarUrl: user?.image || dbUser.avatarUrl },
-            })
-          }
-
           token.id = dbUser.id
           token.email = dbUser.email
           token.name = dbUser.name

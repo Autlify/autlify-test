@@ -18,7 +18,7 @@ interface UsePasskeysReturn {
   addPasskey: (name: string, userId: string, userName: string, userEmail: string) => Promise<void>;
   deletePasskey: (passkeyId: string) => Promise<void>;
   refreshPasskeys: () => Promise<void>;
-  authenticate: () => Promise<void>;
+  authenticate: (email: string) => Promise<void>;
 }
 
 export function usePasskeys(userId?: string): UsePasskeysReturn {
@@ -58,24 +58,24 @@ export function usePasskeys(userId?: string): UsePasskeysReturn {
       setError(null);
 
       try {
-        const response = await fetch('/api/auth/passkey/register-options', {
+        const response = await fetch('/api/auth/passkey', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, userName, userEmail }),
+          body: JSON.stringify({ mode: 'register', email: userEmail, userName }),
         });
 
         if (!response.ok) throw new Error('Failed to get registration options');
-        const options = await response.json();
+        const { options, token } = await response.json();
 
         // Will throw if user cancels
         const { startRegistration } = await import('@simplewebauthn/browser');
         const attResp = await startRegistration(options);
 
         // Verify
-        const verifyResponse = await fetch('/api/auth/passkey/register-verify', {
+        const verifyResponse = await fetch('/api/auth/passkey/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, passkeyName: name, credential: attResp }),
+          body: JSON.stringify({ mode: 'register', email: userEmail, token, credential: attResp, deviceName: name }),
         });
 
         if (!verifyResponse.ok) throw new Error('Failed to verify passkey');
@@ -118,22 +118,26 @@ export function usePasskeys(userId?: string): UsePasskeysReturn {
   );
 
   // Authenticate
-  const authenticate = useCallback(async () => {
+  const authenticate = useCallback(async (email: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/passkey/authenticate-options');
+      const response = await fetch('/api/auth/passkey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'signin', email }),
+      });
       if (!response.ok) throw new Error('Failed to get authentication options');
-      const options = await response.json();
+      const { options } = await response.json();
 
       const { startAuthentication } = await import('@simplewebauthn/browser');
       const assertionResp = await startAuthentication(options);
 
-      const verifyResponse = await fetch('/api/auth/passkey/authenticate-verify', {
+      const verifyResponse = await fetch('/api/auth/passkey/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: assertionResp }),
+        body: JSON.stringify({ mode: 'signin', email, credential: assertionResp }),
       });
 
       if (!verifyResponse.ok) throw new Error('Authentication failed');

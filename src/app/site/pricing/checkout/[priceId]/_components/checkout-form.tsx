@@ -1003,6 +1003,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                             {/* <Label className="text-base font-bold text-neutral-900 dark:text-neutral-100">Your Saved Cards</Label> */}
 
                             <SavedBankCardsGallery
+                              compact={true}
                               cards={existingPaymentMethods.map((pm) => ({
                                 id: pm.id,
                                 cardNumber: `**** **** **** ${pm.card?.last4}`,

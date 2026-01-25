@@ -7,8 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useRouter } from 'next/navigation'
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 import type {
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON
+    PublicKeyCredentialCreationOptionsJSON,
+    PublicKeyCredentialRequestOptionsJSON
 } from '@simplewebauthn/types'
 
 interface PasskeyButtonProps {
@@ -32,40 +32,50 @@ export function PasskeyButton({
 
     const handlePasskeySignup = async () => {
         try {
-            // Get registration options from server
-            const optionsRes = await fetch('/api/auth/passkey/options', {
+            // 1. Initiate passkey registration
+            const optionsRes = await fetch('/api/auth/passkey', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({
+                    mode: 'register',
+                    email,
+                    userName: email.split('@')[0]
+                }),
             })
 
             if (!optionsRes.ok) {
                 const error = await optionsRes.json()
-                throw new Error(error.message || 'Failed to get registration options')
+                console.log('Error response from passkey endpoint:', error)
+                throw new Error(error.error || 'Failed to get registration options')
             }
 
-            const options: PublicKeyCredentialCreationOptionsJSON = await optionsRes.json()
+            const { options, token } = await optionsRes.json()
 
-            // Start WebAuthn registration
+            // 2. Start WebAuthn registration
             const credential = await startRegistration(options)
 
-            // Verify registration with server
-            const verifyRes = await fetch('/api/auth/passkey/verify', {
+            // 3. Confirm registration with server
+            const confirmRes = await fetch('/api/auth/passkey/confirm', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, credential }),
+                body: JSON.stringify({
+                    mode: 'register',
+                    email,
+                    token,
+                    credential,
+                    deviceName: 'Browser Passkey'
+                }),
             })
 
-            if (!verifyRes.ok) {
-                const error = await verifyRes.json()
-                throw new Error(error.message || 'Failed to verify registration')
+            if (!confirmRes.ok) {
+                const error = await confirmRes.json()
+                throw new Error(error.error || 'Failed to verify registration')
             }
 
-            const { success } = await verifyRes.json()
+            const { success } = await confirmRes.json()
 
             if (success) {
                 onSuccess?.({ ok: true })
-                router.push('/agency')
             }
         } catch (err: any) {
             let errorMsg = err.message || 'Passkey registration failed'
@@ -78,40 +88,46 @@ export function PasskeyButton({
 
     const handlePasskeySignin = async () => {
         try {
-            // Get authentication options from server
-            const optionsRes = await fetch('/api/auth/passke/options', {
+            // 1. Initiate passkey authentication
+            const optionsRes = await fetch('/api/auth/passkey', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({
+                    mode: 'signin',
+                    email
+                })
             })
 
             if (!optionsRes.ok) {
                 const error = await optionsRes.json()
-                throw new Error(error.message || 'Failed to get authentication options')
+                throw new Error(error.error || 'Failed to get authentication options')
             }
 
-            const options: PublicKeyCredentialRequestOptionsJSON = await optionsRes.json()
+            const { options } = await optionsRes.json()
 
-            // Start WebAuthn authentication
+            // 2. Start WebAuthn authentication
             const credential = await startAuthentication(options)
 
-            // Verify authentication with server
-            const verifyRes = await fetch('/api/auth/passkey/signin/verify', {
+            // 3. Confirm authentication with server
+            const confirmRes = await fetch('/api/auth/passkey/confirm', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ credential }),
+                body: JSON.stringify({
+                    mode: 'signin',
+                    email,
+                    credential
+                }),
             })
 
-            if (!verifyRes.ok) {
-                const error = await verifyRes.json()
-                throw new Error(error.message || 'Failed to verify authentication')
+            if (!confirmRes.ok) {
+                const error = await confirmRes.json()
+                throw new Error(error.error || 'Failed to verify authentication')
             }
 
-            const { success } = await verifyRes.json()
+            const { success } = await confirmRes.json()
 
             if (success) {
                 onSuccess?.({ ok: true })
-                router.push('/agency')
             }
         } catch (err: any) {
             let errorMsg = err.message || 'Passkey signin failed'

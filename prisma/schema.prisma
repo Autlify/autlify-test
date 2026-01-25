@@ -38,6 +38,12 @@ enum SubscriptionStatus {
   UNPAID
 }
 
+enum ApiKeyKind {
+  USER
+  AGENCY
+  SUBACCOUNT
+}
+
 enum Icon {
   settings
   chart
@@ -87,20 +93,23 @@ model User {
   customerId String? @unique
 
   // Subscription info (false = already used trial)
-  trialEligibled Boolean @default(true)
+  trialEligible Boolean @default(true)
 
   AgencyMemberships     AgencyMembership[]
   SubAccountMemberships SubAccountMembership[]
-  Authenticators    Authenticator[]
+  Authenticators        Authenticator[]
 
-  Ticket          Ticket[]
-  Notification    Notification[]
-  accounts        Account[]
-  sessions        Session[]
-  Passkeys        Passkey[]
-  MFAChallenges   MFAChallenge[]
-  MFAMethods      MFAMethod[]
-  SSOUserMappings SSOUserMapping[]
+  Ticket             Ticket[]
+  Notification       Notification[]
+  accounts           Account[]
+  sessions           Session[]
+  Passkeys           Passkey[]
+  MFAChallenges      MFAChallenge[]
+  MFAMethods         MFAMethod[]
+  SSOUserMappings    SSOUserMapping[]
+  featurePreferences FeaturePreference[]
+
+  ApiKeys ApiKey[]
 }
 
 model Authenticator {
@@ -163,6 +172,42 @@ model Session {
   @@index([activeAgencyId])
   @@index([activeSubAccountId])
   @@index([sessionToken])
+}
+
+model ApiKey {
+  id        String     @id @default(uuid())
+  kind      ApiKeyKind @default(USER)
+  name      String
+
+  // Token format: autl_<prefix>_<secret>
+  prefix    String     @unique
+  secretHash String    @db.Text
+
+  // Ownership and scoping
+  ownerUserId String
+  ownerUser   User       @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  // Scope binding
+  agencyId     String?
+  subAccountId String?
+
+  Agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Authorization model (reuses registry permission keys)
+  permissionKeys       String[] @default([])
+  allowedSubAccountIds String[] @default([])
+
+  // Lifecycle
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+
+  @@index([ownerUserId])
+  @@index([agencyId])
+  @@index([subAccountId])
 }
 
 model VerificationToken {
@@ -265,6 +310,8 @@ model Agency {
   FeatureCreditBalances FeatureCreditBalance[]
   ssoconnection         SSOConnection?
 
+  ApiKeys ApiKey[]
+
   @@index([taxIdentityId])
 }
 
@@ -302,6 +349,8 @@ model SubAccount {
   // New RBAC relations
   Roles       Role[]
   Memberships SubAccountMembership[]
+
+  ApiKeys ApiKey[]
 
   @@index([agencyId])
   @@index([taxIdentityId])
@@ -783,11 +832,19 @@ model EntitlementFeature {
   valueType   FeatureValueType
   unit        String?
 
-  metering    MeteringType     @default(NONE) // √ MeteringType
-  aggregation MeterAggregation @default(COUNT) // √ MeterAggregation
-  scope       MeteringScope    @default(AGENCY) // √ MeteringScope
-  period      UsagePeriod? // √ UsagePeriod?
+  metering        MeteringType     @default(NONE) // √ MeteringType
+  aggregation     MeterAggregation @default(COUNT) // √ MeterAggregation
+  scope           MeteringScope    @default(AGENCY) // √ MeteringScope
+  period          UsagePeriod? // √ UsagePeriod?
+  isToggleable    Boolean          @default(false) // Can users toggle this feature?
+  defaultEnabled  Boolean          @default(true) // Default state when first enabled
+  requiresRestart Boolean          @default(false) // UI hint: needs page refresh
+  displayOrder    Int              @default(0) // Sort order in UI
 
+  // UI metadata
+  displayName    String? // User-friendly name (if different from 'name')
+  icon           String? // Icon identifier for UI
+  helpText       String? @db.Text // Tooltip/help text
   // Credits/top-up capability for this feature (optional)
   creditEnabled  Boolean @default(false) // √ Boolean
   creditUnit     String? // √ String?
@@ -891,6 +948,27 @@ model PlanFeature {
   @@index([planId])
   @@index([featureKey])
   @@index([overageMode])
+}
+
+model FeaturePreference {
+  id           String        @id @default(uuid())
+  userId       String
+  featureKey   String
+  // Scope context
+  scope        MeteringScope @default(AGENCY)
+  agencyId     String?
+  subAccountId String?
+  // User's preference (only matters if feature is enabled at plan/admin level)
+  isEnabled    Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scope, agencyId, subAccountId, featureKey])
+  @@index([userId])
+  @@index([featureKey])
+  @@index([agencyId])
+  @@index([subAccountId])
 }
 
 // --------------------
@@ -1094,9 +1172,9 @@ model MFAMethod {
 
 // SSO Configuration (per Agency/Organization)
 model SSOConnection {
-  id       String @id @default(uuid())
-  agencyId String @unique // One SSO per agency
-  provider SSOProvider // OIDC, SAML, GOOGLE_WORKSPACE, MICROSOFT_ENTRA
+  id                 String           @id @default(uuid())
+  agencyId           String           @unique // One SSO per agency
+  provider           SSOProvider // OIDC, SAML, GOOGLE_WORKSPACE, MICROSOFT_ENTRA
   clientId           String           @db.Text
   clientSecret       String           @db.Text // Encrypted in production
   authorizationUrl   String?

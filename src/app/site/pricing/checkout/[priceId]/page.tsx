@@ -89,7 +89,7 @@ export default async function CheckoutPage({ params }: Props) {
                     name: user.name || '',
                     firstName: user.firstName || '',
                     lastName: user.lastName || '',
-                    trialEligible: user.trialEligibled,
+                    trialEligible: user.trialEligible,
                 }}
                 existingCustomer={customerData}
                 existingPaymentMethods={paymentMethodsData}

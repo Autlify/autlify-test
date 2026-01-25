@@ -103,18 +103,32 @@ export const KEYS = {
 } as const;
 
 
-type LeafValues<T> = T extends string
-    ? T
-    : T extends Record<string, any>
-    ? { [K in keyof T]: LeafValues<T[K]> }[keyof T]
-    : never;
+export type ModuleCode = keyof typeof KEYS;
+export type ModuleKey = ModuleCode;
+export type ModuleType = Uppercase<ModuleCode>;
 
+export type SubModuleOf<M extends ModuleCode> = M extends keyof typeof KEYS
+  ? Extract<keyof (typeof KEYS)[M], string>
+  : never;
 
-export type ModuleKey = keyof typeof KEYS;
-export type SubModuleKey = { [M in ModuleKey]: keyof (typeof KEYS)[M] }[ModuleKey];
-export type FeatureKey = {
-  [M in ModuleKey]: {
-    [SM in keyof (typeof KEYS)[M]]: `${M}.${Extract<SM, string>}.${Extract<keyof (typeof KEYS)[M][SM], string>}`
-  }[keyof (typeof KEYS)[M]]
-}[ModuleKey]; 
-export type PermissionKey = LeafValues<typeof KEYS>;
+export type ResourceOf<M extends ModuleCode, S extends SubModuleOf<M>> = Extract<
+  keyof (typeof KEYS)[M][S],
+  string
+>;
+
+export type ActionOf<
+  M extends ModuleCode,
+  S extends SubModuleOf<M>,
+  R extends ResourceOf<M, S>
+> = Extract<keyof (typeof KEYS)[M][S][R], string>;
+
+// Union types for all levels
+export type SubModuleCode = {
+  [M in ModuleCode]: Extract<keyof (typeof KEYS)[M], string>
+}[ModuleCode];
+
+export type SubModuleKey = { 
+  [M in ModuleCode]: `${M}.${SubModuleOf<M>}` 
+}[ModuleCode];
+
+export type SubModuleType = Uppercase<SubModuleCode>;

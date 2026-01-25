@@ -46,10 +46,11 @@ const maybeSetContextCookie = (req: NextRequest, res: NextResponse) => {
   }
 }
 
-export default auth((req) => {
+export default async function proxy(req: NextRequest) {
+  const session = await auth()
   const url = req.nextUrl
   const pathname = url.pathname
-  const isLoggedIn = !!req.auth
+  const isLoggedIn = !!session
 
   // Let static assets through
   if (isAssetOrNext(pathname)) return NextResponse.next()
@@ -97,7 +98,7 @@ export default auth((req) => {
 
   // Redirect unverified (credential) users to verify page
   if (isLoggedIn && isProtected && !isAuthPage) {
-    const user = req.auth?.user as any
+    const user = session?.user as any
     const verified = url.searchParams.get('verified')
 
     if (user && verified !== 'true' && !user.emailVerified) {
@@ -112,12 +113,12 @@ export default auth((req) => {
     const search = url.searchParams.toString()
     const withSearch = `${pathname}${search ? `?${search}` : ''}`
     const res = NextResponse.rewrite(new URL(withSearch, req.url))
-    maybeSetContextCookie(req as unknown as NextRequest, res)
+    maybeSetContextCookie(req, res)
     return res
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],

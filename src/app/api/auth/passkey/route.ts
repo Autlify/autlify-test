@@ -69,18 +69,19 @@ export async function POST(req: Request) {
       })
 
       // Store challenge for verification (15 minutes)
-      const token = await createVerificationToken(
-        email,
-        'passkey',
-        15 * 60 * 1000
-      )
+      await db.verificationToken.create({
+        data: {
+          identifier: email,
+          token: options.challenge,
+          expires: new Date(Date.now() + 15 * 60 * 1000),
+        },
+      })
 
       return NextResponse.json(
         {
           mode: 'register',
-          token: token.token,
+          token: options.challenge,
           options,
-          expiresAt: token.expires,
         },
         { status: 201 }
       )
@@ -88,13 +89,6 @@ export async function POST(req: Request) {
 
     // SIGNIN MODE: Generate authentication options
     if (mode === 'signin') {
-      if (user.Passkeys.length === 0) {
-        return NextResponse.json(
-          { error: 'No passkeys found for this user' },
-          { status: 404 }
-        )
-      }
-
       const options: PublicKeyCredentialRequestOptionsJSON = await generateAuthenticationOptions({
         rpID,
         allowCredentials: user.Passkeys.map((pk) => ({
