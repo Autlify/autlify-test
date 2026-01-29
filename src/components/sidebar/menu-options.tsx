@@ -186,8 +186,29 @@ const MenuOptions = ({
                   <CommandGroup heading="Accounts">
                     {!!subAccounts
                       ? subAccounts.map((subaccount) => (
-                          <CommandItem key={subaccount.id}>
-                            {defaultOpen ? (
+                        <CommandItem key={subaccount.id}>
+                          {defaultOpen ? (
+                            <Link
+                              href={`/subaccount/${subaccount.id}`}
+                              className="flex gap-4 w-full h-full"
+                            >
+                              <div className="relative w-16">
+                                <Image
+                                  src={subaccount.subAccountLogo}
+                                  alt="subaccount Logo"
+                                  fill
+                                  className="rounded-md object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                {subaccount.name}
+                                <span className="text-muted-foreground">
+                                  {subaccount.line1}
+                                </span>
+                              </div>
+                            </Link>
+                          ) : (
+                            <SheetClose asChild>
                               <Link
                                 href={`/subaccount/${subaccount.id}`}
                                 className="flex gap-4 w-full h-full"
@@ -207,60 +228,39 @@ const MenuOptions = ({
                                   </span>
                                 </div>
                               </Link>
-                            ) : (
-                              <SheetClose asChild>
-                                <Link
-                                  href={`/subaccount/${subaccount.id}`}
-                                  className="flex gap-4 w-full h-full"
-                                >
-                                  <div className="relative w-16">
-                                    <Image
-                                      src={subaccount.subAccountLogo}
-                                      alt="subaccount Logo"
-                                      fill
-                                      className="rounded-md object-contain"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    {subaccount.name}
-                                    <span className="text-muted-foreground">
-                                      {subaccount.line1}
-                                    </span>
-                                  </div>
-                                </Link>
-                              </SheetClose>
-                            )}
-                          </CommandItem>
-                        ))
+                            </SheetClose>
+                          )}
+                        </CommandItem>
+                      ))
                       : 'No Accounts'}
                   </CommandGroup>
                 </CommandList>
                 {user?.AgencyMemberships?.some(
                   (m: any) => m.isActive && (m.Role?.name === 'AGENCY_OWNER' || m.Role?.name === 'AGENCY_ADMIN')
                 ) && (
-                  <SheetClose asChild>
-                    <Button
-                      className="w-full flex gap-2"
-                      onClick={() => {
-                        setOpen(
-                          <CustomModal
-                            title="Create A Subaccount"
-                            subheading="You can switch between your agency account and the subaccount from the sidebar"
-                          >
-                            <SubAccountDetails
-                              agencyDetails={user?.AgencyMemberships?.[0]?.Agency as Agency}
-                              userId={user?.id as string}
-                              userName={user?.name}
-                            />
-                          </CustomModal>
-                        )
-                      }}
-                    >
-                      <PlusCircleIcon size={15} />
-                      Create Sub Account
-                    </Button>
-                  </SheetClose>
-                )}
+                    <SheetClose asChild>
+                      <Button
+                        className="w-full flex gap-2"
+                        onClick={() => {
+                          setOpen(
+                            <CustomModal
+                              title="Create A Subaccount"
+                              subheading="You can switch between your agency account and the subaccount from the sidebar"
+                            >
+                              <SubAccountDetails
+                                agencyDetails={user?.AgencyMemberships?.[0]?.Agency as Agency}
+                                userId={user?.id as string}
+                                userName={user?.name}
+                              />
+                            </CustomModal>
+                          )
+                        }}
+                      >
+                        <PlusCircleIcon size={15} />
+                        Create Sub Account
+                      </Button>
+                    </SheetClose>
+                  )}
               </Command>
             </PopoverContent>
           </Popover>

@@ -7,7 +7,8 @@ import { ButtonsSection } from './sections/buttons'
 import { FormsSection } from './sections/forms'
 import { CardsSection } from './sections/cards'
 import { AlertsSection } from './sections/alerts'
-import { TablesSection } from './sections/tables'
+import { TablesSection } from './sections/tables' 
+import { BillingSDKSection } from './sections/billing-sdk'
 
 export function DesignShowcase() {
   return (
@@ -18,7 +19,8 @@ export function DesignShowcase() {
       <FormsSection />
       <CardsSection />
       <AlertsSection />
-      <TablesSection />
+      <TablesSection /> 
+      <BillingSDKSection />
     </div>
   )
 }

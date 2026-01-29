@@ -3,7 +3,9 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus, Download, Trash2, AlertCircle } from 'lucide-react'
-
+import { SegmentedTabs} from '@/components/ui/segmented-tabs'
+import MercuryButton from '@/components/ui/liquid-glass'
+ 
 export function ButtonsSection() {
   return (
     <section className="space-y-6">
@@ -71,6 +73,25 @@ export function ButtonsSection() {
             <Button className="opacity-70">Loading...</Button>
           </div>
         </div>
+
+        {/* Segmented Tabs as Button Group */}
+        <div className="space-y-4">
+          <p className="text-xs text-fg-tertiary uppercase tracking-wide font-semibold">Segmented Tabs</p>
+          <SegmentedTabs
+            tabs={[
+              { label: 'Option 1', id: 'option1' },
+              { label: 'Option 2', id: 'option2' },
+              { label: 'Option 3', id: 'option3' },
+            ]}
+            defaultTab="option1"
+          />
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs text-fg-tertiary uppercase tracking-wide font-semibold">Mercury Button</p>
+          <MercuryButton>Click Me</MercuryButton>
+          </div>
+
       </div>
     </section>
   )

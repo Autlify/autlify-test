@@ -1,29 +1,68 @@
 import React from 'react'
+import { redirect } from 'next/navigation'
 import { stripe } from '@/lib/stripe'
 import { addOnProducts, pricingCards } from '@/lib/constants'
 import { db } from '@/lib/db'
-import { Badge } from '@/components/ui/badge'
+import { SubscriptionManagement } from '@autlify/billing-sdk/components'
+import type { CurrentPlan, Plan } from '@/lib/features/core/billing/billingsdk-config'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import PricingCard from './_components/pricing-card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import clsx from 'clsx'
-import SubscriptionHelper from './_components/subscription-helper'
+import SubscriptionHelper from '../billing/_components/subscription-helper'
+import PricingCard from './_components/pricing-card'
 
 type Props = {
   params: Promise<{ agencyId: string }>
+  version?: 'new' | 'existing'
+}
+// Helper function to map pricingCards to SDK Plan format
+function mapPricingCardsToPlan(card: typeof pricingCards[0]): Plan {
+  return {
+    id: card.priceId,
+    title: card.title,
+    description: card.description,
+    currency: 'RM',
+    monthlyPrice: card.price.replace('RM ', ''),
+    yearlyPrice: card.price.replace('RM ', ''), // You can calculate yearly if needed
+    buttonText: 'Select Plan',
+    features: card.features.map((feature) => ({
+      name: feature,
+      icon: 'check',
+      iconColor: 'text-green-500',
+    })),
+  }
 }
 
-const page = async ({ params }: Props) => {
+// Helper function to format date
+function formatDate(date: Date | null): string {
+  if (!date) return 'Not set'
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(date))
+}
+
+// Helper function to get subscription status
+function getSubscriptionStatus(
+  status: string | null
+): CurrentPlan['status'] {
+  if (!status) return 'inactive'
+  const statusMap: Record<string, CurrentPlan['status']> = {
+    ACTIVE: 'active',
+    TRIALING: 'active',
+    PAST_DUE: 'past_due',
+    CANCELLED: 'cancelled',
+    CANCELED: 'cancelled',
+  }
+  return statusMap[status] || 'inactive'
+}
+
+const Page = async ({ params, version = 'new' }: Props) => {
   const { agencyId } = await params
-  
+
   //CHALLENGE : Create the add on  products
   const addOns = await stripe.products.list({
     ids: addOnProducts.map((product) => product.id),
@@ -31,9 +70,7 @@ const page = async ({ params }: Props) => {
   })
 
   const agencySubscription = await db.agency.findUnique({
-    where: {
-      id: agencyId,
-    },
+    where: { id: agencyId },
     select: {
       customerId: true,
       Subscription: true,
@@ -50,10 +87,10 @@ const page = async ({ params }: Props) => {
   )
 
   // Check if subscription is truly active (both ACTIVE and TRIALING are considered active)
-  const isSubscriptionActive = 
+  const isSubscriptionActive =
     agencySubscription?.Subscription?.active === true &&
-    (agencySubscription?.Subscription?.status === 'ACTIVE' || 
-     agencySubscription?.Subscription?.status === 'TRIALING')
+    (agencySubscription?.Subscription?.status === 'ACTIVE' ||
+      agencySubscription?.Subscription?.status === 'TRIALING')
 
   const charges = await stripe.charges.list({
     limit: 50,
@@ -75,6 +112,7 @@ const page = async ({ params }: Props) => {
       status: 'Paid',
       amount: `RM ${charge.amount / 100}`,
     })),
+
     ...invoices.data.map((invoice) => ({
       description: invoice.lines.data[0]?.description || 'Subscription Invoice',
       id: invoice.id,
@@ -90,8 +128,78 @@ const page = async ({ params }: Props) => {
     return dateB.getTime() - dateA.getTime()
   })
 
+  // If no subscription, redirect to onboarding or show free plan
+  if (!currentPlanDetails) {
+    // You can either redirect or show a default free plan
+    // For now, let's use the first plan (Starter) as default
+    const defaultPlan = pricingCards[0]
+    const currentPlan: CurrentPlan = {
+      plan: mapPricingCardsToPlan(defaultPlan),
+      type: 'monthly',
+      price: defaultPlan.price,
+      nextBillingDate: 'Not set',
+      paymentMethod: 'No payment method',
+      status: 'inactive',
+    }
+
+    return (
+      <div className="container mx-auto py-6">
+      <SubscriptionManagement
+             className="mx-auto max-w-2xl"
+             currentPlan={currentPlan}
+             updatePlan={{
+               currentPlan: currentPlan.plan,
+               plans: pricingCards.map(mapPricingCardsToPlan),
+               onPlanChange: (planId) => {
+                 console.log("update plan", planId);
+               },
+               triggerText: "Update Plan",
+             }}
+             cancelSubscription={{
+               title: "Cancel Subscription",
+               description: "Are you sure you want to cancel your subscription?",
+               leftPanelImageUrl:
+                 "https://img.freepik.com/free-vector/abstract-paper-cut-shape-wave-background_474888-4649.jpg?semt=ais_hybrid&w=740&q=80",
+               plan: currentPlan.plan,
+               warningTitle: "You will lose access to your account",
+               warningText:
+                 "If you cancel your subscription, you will lose access to your account and all your data will be deleted.",
+               onCancel: async (planId) => {
+                 console.log("cancel subscription", planId);
+                 return new Promise((resolve) => {
+                   setTimeout(() => {
+                     resolve(void 0);
+                   }, 1000);
+                 });
+               },
+               onKeepSubscription: async (planId) => {
+                 console.log("keep subscription", planId);
+               },
+             }}
+           />
+      </div>
+    )
+  }
+
+  // Build current plan object for SDK
+  const currentPlan: CurrentPlan = {
+    plan: mapPricingCardsToPlan(currentPlanDetails),
+    type: 'monthly', // You can determine this from your subscription data
+    price: currentPlanDetails.price,
+    nextBillingDate: formatDate(
+      agencySubscription?.Subscription?.currentPeriodEndDate || null
+    ),
+    paymentMethod: agencySubscription?.customerId
+      ? 'Credit Card ••••'
+      : 'Not set',
+    status: getSubscriptionStatus(
+      agencySubscription?.Subscription?.status || null
+    ),
+  }
+
   return (
-    <div className="space-y-6">
+    (version === 'existing') ? (
+        <div className="space-y-6">
       <SubscriptionHelper
         prices={prices.data}
         customerId={agencySubscription?.customerId || ''}
@@ -237,7 +345,59 @@ const page = async ({ params }: Props) => {
         </Table>
       </Card>
     </div>
+    ) : (
+      <div className="container mx-auto py-6">
+        <SubscriptionManagement
+          currentPlan={currentPlan}
+          updatePlan={{
+            currentPlan: currentPlan.plan,
+            plans: pricingCards.map(mapPricingCardsToPlan),
+            onPlanChange: async (planId) => {
+              'use server'
+              // TODO: Implement plan change logic
+              // 1. Create Stripe checkout session or update subscription
+              // 2. Update database
+              // 3. Redirect to confirmation page
+              console.log('Update plan to:', planId, 'for agency:', agencyId)
+
+              // Example redirect to Stripe
+              // const session = await stripe.checkout.sessions.create({...})
+              // redirect(session.url)
+            },
+            triggerText: 'Update Plan',
+          }}
+          cancelSubscription={{
+            title: 'Cancel Subscription',
+            description: 'Are you sure you want to cancel your subscription?',
+            leftPanelImageUrl: '/assets/preview.png',
+            plan: currentPlan.plan,
+            warningTitle: 'You will lose access to premium features',
+            warningText:
+              'If you cancel your subscription, you will lose access to all premium features at the end of your billing period. Your data will be retained for 30 days.',
+            onCancel: async (planId) => {
+              'use server'
+              // TODO: Implement subscription cancellation
+              // 1. Cancel Stripe subscription
+              // 2. Update database subscription status
+              // 3. Send confirmation email
+              console.log('Cancel subscription for plan:', planId, 'agency:', agencyId)
+
+              if (agencySubscription?.Subscription?.subscritiptionId) {
+                // await stripe.subscriptions.update(
+                //   agencySubscription.Subscription.subscritiptionId,
+                //   { cancel_at_period_end: true }
+                // )
+              }
+            },
+            onKeepSubscription: async (planId) => {
+              'use server'
+              console.log('Keep subscription for plan:', planId)
+            },
+          }}
+        />
+      </div>
+    )
   )
 }
 
-export default page
+export default Page

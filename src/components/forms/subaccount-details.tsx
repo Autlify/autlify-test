@@ -88,7 +88,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Use form.getValues() to get complete form data
     const formData = form.getValues()
-    
+
     try {
       const subaccountData = {
         id: details?.id ? details.id : v4(),
@@ -106,13 +106,13 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
         companyEmail: formData.companyEmail,
         agencyId: agencyDetails.id,
         connectAccountId: '',
-        goal: 5000,        
+        goal: 5000,
         taxProfileId: null,
         taxIdentityId: null,
       }
-      
+
       const response = await upsertSubAccount(subaccountData)
-      
+
       if (!response) throw new Error('No response from server')
       await saveActivityLogsNotification({
         agencyId: response.agencyId,
@@ -240,23 +240,23 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                       onAddressSelect={async (address) => {
                         // Only auto-fill street and location data
                         form.setValue('line1', address.street);
-                        
+
                         // Auto-fill city if available
                         if (address.city) {
                           form.setValue('city', address.city);
                         }
-                        
+
                         // Auto-fill postal code ONLY if not already filled
                         const currentPostalCode = form.getValues('postalCode');
                         if (address.postalCode && !currentPostalCode) {
                           form.setValue('postalCode', address.postalCode);
                         }
-                        
+
                         // Auto-fill state if available
                         if (address.state) {
                           form.setValue('state', address.state);
                         }
-                        
+
                         // Auto-fill country if available
                         if (address.country) {
                           form.setValue('country', address.country);
@@ -271,7 +271,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 </FormItem>
               )}
             />
-            
+
             <FormField
               disabled={isLoading}
               control={form.control}

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+packages/*/node_modules
 /.pnp
 .pnp.js
 
@@ -11,6 +12,11 @@
 # next.js
 /.next/
 /out/
+dist/
+packages/**/.next
+packages/**/out
+packages/**/dist
+
 
 # production
 /build
@@ -18,6 +24,7 @@
 # misc
 .DS_Store
 /.DS_Store
+__MACOSX
 *.pem
 
 # debug
@@ -48,6 +55,6 @@ _entitlement_system/
 _entitlement_system/    
 _entitlement_to_patch/
 
-docs/
+docs
 scripts/
 public/sample/

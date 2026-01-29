@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { UsageClient } from '@/components/billing/usage/usage-client'
+// import { UsageClient } from '@/components/billing/usage/usage-client'
+import { UsageClient  } from '@autlify/billing-sdk/components'
 
 type Props = { params: Promise<{ agencyId: string }> }
 

@@ -21,11 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DetailedUsageTable } from '@/components/billingsdk/detailed-usage-table'
+import { UsageDisplay } from '@/components/billing-sdk/usage-display'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { Download, RefreshCw } from 'lucide-react'
+import { DetailedUsageTable } from '../../billing-sdk/detailed-usage-table'
 
 type UsageRow = {
   featureKey: string
@@ -352,19 +353,19 @@ export function UsageClient(props: { agencyId: string; subAccountId?: string | n
         </div>
       </Card> */}
 
-      <DetailedUsageTable 
+      <DetailedUsageTable
         title='Feature usage summary'
-        description= 'Detailed breakdown of feature usage'
-        resources= {
+        description='Detailed breakdown of feature usage'
+        resources={
           filteredRows.map((r) => ({
-            name: r.featureKey || 'Unnamed feature', 
-            used:r.currentUsage ? Number(r.currentUsage) : 0,
+            name: r.featureKey || 'Unnamed feature',
+            used: r.currentUsage ? Number(r.currentUsage) : 0,
             limit: r.isUnlimited ? 0 : r.maxAllowed ? Number(r.maxAllowed) : 0,
             // percentage will be automatically calculated
             unit: 'units',
           }))
         }
-        
+
       />
 
       <Card className="p-5">
@@ -389,25 +390,25 @@ export function UsageClient(props: { agencyId: string; subAccountId?: string | n
             <TableBody>
               {loadingEvents
                 ? Array.from({ length: 6 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-5 w-[140px]" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-[220px]" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-5 w-[80px] ml-auto" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-[160px]" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-[260px]" /></TableCell>
-                    </TableRow>
-                  ))
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-5 w-[140px]" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-[220px]" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-5 w-[80px] ml-auto" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-[160px]" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-[260px]" /></TableCell>
+                  </TableRow>
+                ))
                 : filteredEvents.map((e) => (
-                    <TableRow key={e.id}>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(e.createdAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">{e.featureKey}</TableCell>
-                      <TableCell className="text-right font-medium">{e.quantity}</TableCell>
-                      <TableCell>{e.actionKey ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">{e.idempotencyKey}</TableCell>
-                    </TableRow>
-                  ))}
+                  <TableRow key={e.id}>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(e.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">{e.featureKey}</TableCell>
+                    <TableCell className="text-right font-medium">{e.quantity}</TableCell>
+                    <TableCell>{e.actionKey ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{e.idempotencyKey}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

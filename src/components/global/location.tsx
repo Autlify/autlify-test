@@ -831,7 +831,7 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
           `https://nominatim.openstreetmap.org/search?${params.toString()}`,
           {
             headers: {
-              'User-Agent': 'PluraApp/1.0',
+              'User-Agent': 'AutlifyApp/1.0',
             },
           }
         );

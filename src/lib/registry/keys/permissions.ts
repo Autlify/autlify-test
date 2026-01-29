@@ -27,16 +27,21 @@ export const KEYS = {
                 create: 'core.agency.subaccounts.create',
                 delete: 'core.agency.subaccounts.delete',
             },
-            team_members: {
-                invite: 'core.agency.team_members.invite',
-                remove: 'core.agency.team_members.remove',
+            team_member: {
+                invite: 'core.agency.team_member.invite',
+                remove: 'core.agency.team_member.remove',
+                manage: 'core.agency.team_member.manage',
             },
             settings: {
                 read: 'core.agency.settings.read',
                 update: 'core.agency.settings.update',
             },
         },
-        billings: {
+        billing: {
+            account: {
+                read: 'core.billing.account.read',
+                manage: 'core.billing.account.manage',
+            },
             payment_methods: {
                 view: 'core.billing.payment_methods.read',
                 add: 'core.billing.payment_methods.create',
@@ -46,9 +51,19 @@ export const KEYS = {
                 read: 'core.billing.subscription.read',
                 update: 'core.billing.subscription.update',
             },
+            features: {
+                manage: 'core.billing.features.manage',
+            },
             usage: {
-                read: 'core.billing.usage.read'
-            }
+                read: 'core.billing.usage.read',
+                consume: 'core.billing.usage.consume',
+            },
+            entitlements: {
+                read: 'core.billing.entitlements.read',
+            },
+            credits: {
+                read: 'core.billing.credits.read',
+            },
         },
         subaccount: {
             account: {
@@ -56,11 +71,30 @@ export const KEYS = {
                 update: 'core.subaccount.account.update',
                 delete: 'core.subaccount.account.delete',
             },
-            team_members: {
-                invite: 'core.subaccount.team_members.invite',
-                remove: 'core.subaccount.team_members.remove',
+            team_member: {
+                invite: 'core.subaccount.team_member.invite',
+                remove: 'core.subaccount.team_member.remove',
             },
-        }
+        },
+        features: {
+            experimental: {
+                manage: 'core.features.experimental.manage',
+            },
+        },
+        apps: {
+            app: {
+                read: 'core.apps.app.read',
+                manage: 'core.apps.app.manage',
+            },
+            integrations: {
+                read: 'core.apps.integrations.read',
+                manage: 'core.apps.integrations.manage',
+            },
+            webhooks: {
+                read: 'core.apps.webhooks.read',
+                manage: 'core.apps.webhooks.manage',
+            },
+        },
     },
     crm: {
         customers: {
@@ -108,27 +142,27 @@ export type ModuleKey = ModuleCode;
 export type ModuleType = Uppercase<ModuleCode>;
 
 export type SubModuleOf<M extends ModuleCode> = M extends keyof typeof KEYS
-  ? Extract<keyof (typeof KEYS)[M], string>
-  : never;
+    ? Extract<keyof (typeof KEYS)[M], string>
+    : never;
 
 export type ResourceOf<M extends ModuleCode, S extends SubModuleOf<M>> = Extract<
-  keyof (typeof KEYS)[M][S],
-  string
+    keyof (typeof KEYS)[M][S],
+    string
 >;
 
 export type ActionOf<
-  M extends ModuleCode,
-  S extends SubModuleOf<M>,
-  R extends ResourceOf<M, S>
+    M extends ModuleCode,
+    S extends SubModuleOf<M>,
+    R extends ResourceOf<M, S>
 > = Extract<keyof (typeof KEYS)[M][S][R], string>;
 
 // Union types for all levels
 export type SubModuleCode = {
-  [M in ModuleCode]: Extract<keyof (typeof KEYS)[M], string>
+    [M in ModuleCode]: Extract<keyof (typeof KEYS)[M], string>
 }[ModuleCode];
 
-export type SubModuleKey = { 
-  [M in ModuleCode]: `${M}.${SubModuleOf<M>}` 
+export type SubModuleKey = {
+    [M in ModuleCode]: `${M}.${SubModuleOf<M>}`
 }[ModuleCode];
 
 export type SubModuleType = Uppercase<SubModuleCode>;

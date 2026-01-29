@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -13,23 +13,32 @@ import { Loader2, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { Tooltip } from '@/components/ui/tooltip'
 import { PasskeyButton } from '@/components/auth/passkey-button'
+import { auth } from '@/auth'
 
 import { TermsAgreement } from '@/components/auth/terms-agreement'
 export default function SignInPage() {
   const router = useRouter()
+  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const redirectPath = searchParams?.get('redirect') || '/agency'
   const callbackUrl = searchParams?.get('callbackUrl') || redirectPath
   const verified = searchParams?.get('verified')
   const verifiedEmail = searchParams?.get('email')
   const urlError = searchParams?.get('error')
-
   const [email, setEmail] = useState(verifiedEmail || '')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [termsAgreed, setTermsAgreed] = useState(false)
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      router.push(redirectPath)
+      router.refresh()
+    }
+  }, [session, redirectPath, router])
+
 
   useEffect(() => {
     if (verified === 'true') {
@@ -125,7 +134,7 @@ export default function SignInPage() {
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email username" 
+                autoComplete="email username"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -139,7 +148,7 @@ export default function SignInPage() {
                 id="password"
                 type="password"
                 name="password"
-                autoComplete="current-password" 
+                autoComplete="current-password"
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -176,9 +185,7 @@ export default function SignInPage() {
               onError={(err) => setError(err)}
               disabled={isLoading}
             />
-            <p className="text-xs text-center text-muted-foreground">
-              Don&apos;t have a passkey? Sign in first, then add one from Settings.
-            </p>
+
           </div>
 
           <div className="grid grid-cols-2 gap-4">

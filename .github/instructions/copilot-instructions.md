@@ -76,3 +76,41 @@ To create a seamless platform for managing agencies, clients, and projects with 
 - **User Experience**: Prioritize intuitive navigation and user-friendly interfaces in all components.
 - **State Management**: Use React's built-in state management effectively; consider context or other libraries only when necessary.
 
+
+## Code Reuse and File Management
+
+### Before Creating New Files:
+1. **MUST search codebase first** using `semantic_search` or `grep_search`
+2. Check for existing similar functionality, utilities, or components
+3. Reuse existing code; only create new files if genuinely needed
+4. If similar code exists, refactor/extend it instead of duplicating
+
+### File Creation Rules:
+- ❌ **NEVER** create duplicate utilities (check `src/lib/` first)
+- ❌ **NEVER** create new components if similar exists (check `src/components/`)
+- ❌ **NEVER** create new API routes with duplicate logic
+- ✅ **ALWAYS** check existing patterns before creating new files
+- ✅ **ALWAYS** follow existing folder structure
+
+### Folder Structure Compliance:
+- API routes: `src/app/api/[module]/[resource]/route.ts`
+- Components: `src/components/[category]/[component-name].tsx`
+- Libraries: `src/lib/[module]/[functionality].ts`
+- Types: `src/types/[module].ts` (not scattered)
+- Hooks: `src/hooks/use-[functionality].ts`
+
+### Required Checks Before File Creation:
+1. Run `semantic_search` for similar functionality
+2. Check existing exports in target directory
+3. Verify no duplicate logic in `src/lib/utils` or `src/lib/helpers`
+4. If extending existing file, use `replace_string_in_file` instead
+
+### Examples:
+❌ Creating `src/lib/format-date.ts` when `src/lib/utils.ts` has `formatDate()`
+✅ Adding to existing `src/lib/utils.ts`
+
+❌ Creating `src/components/ui/custom-button.tsx` when `src/components/ui/button.tsx` exists
+✅ Extending existing button component
+
+❌ Creating new validation in `src/lib/validators/user.ts` when similar exists
+✅ Reusing existing validation logic

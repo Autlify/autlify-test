@@ -43,7 +43,7 @@ export default function Home() {
               <span className="block text-4xl md:text-5xl lg:text-6xl text-fg-primary">
                 Autlify is a{' '}
                 <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-accent-base via-blue-fg-primary to-accent-hover bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-accent-base via-accent-base to-accent-hover bg-clip-text text-transparent">
                     purpose-built tool
                   </span>
                   {/* Premium: Subtle glow effect */}

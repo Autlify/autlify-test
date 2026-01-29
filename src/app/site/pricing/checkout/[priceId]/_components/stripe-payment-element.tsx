@@ -122,7 +122,7 @@ export function StripePaymentElement({ billingData, onPaymentMethodCollected, on
           "w-full h-12 font-bold transition-all duration-300",
           isValidated
             ? "bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-[0_8px_30px_rgba(34,197,94,0.3)] hover:shadow-[0_12px_40px_rgba(34,197,94,0.4)]"
-            : "btn-brand hover:scale-[1.01] active:scale-[0.99]"
+            : "bg-brand-gradient hover:bg-brand-gradient-hover text-white border border-brand-border hover:scale-[1.01] active:scale-[0.99]"
         )}
       >
         {isValidating ? (

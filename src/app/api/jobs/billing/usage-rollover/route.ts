@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 import { Prisma } from '@/generated/prisma/client'
 import { db } from '@/lib/db'
-import { createCreditLedger } from '@/lib/core/billing/credits/ledger'
+import { createCreditLedger } from '@/lib/features/core/billing/credits/ledger'
 
 function assertJobSecret(req: NextRequest) {
   const configured = process.env.JOBS_SECRET

@@ -88,13 +88,14 @@ export function PasskeyButton({
 
     const handlePasskeySignin = async () => {
         try {
-            // 1. Initiate passkey authentication
+            // 1. Initiate passkey authentication (usernameless if no email)
             const optionsRes = await fetch('/api/auth/passkey', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mode: 'signin',
-                    email
+                    email: email || undefined, // Optional for discoverable credentials
+                    usernameless: !email // Flag for usernameless authentication
                 })
             })
 
@@ -139,10 +140,14 @@ export function PasskeyButton({
     }
 
     const handlePasskey = async () => {
-        if (!email) {
+        // For signup, email is still required to create account
+        if (variant === 'signup' && !email) {
             setError('Please enter your email first')
             return
         }
+
+        // For signin with discoverable credentials, email is optional
+        // The passkey itself contains the user identifier
 
         setIsLoading(true)
         setError('')
@@ -169,7 +174,7 @@ export function PasskeyButton({
                 variant="outline"
                 className="w-full"
                 onClick={handlePasskey}
-                disabled={isLoading || disabled || !email}
+                disabled={isLoading || disabled || (variant === 'signup' && !email)}
             >
                 <Fingerprint className="mr-2 h-4 w-4" />
                 {variant === 'signup' ? 'Sign up with Passkey' : 'Sign in with Passkey'}

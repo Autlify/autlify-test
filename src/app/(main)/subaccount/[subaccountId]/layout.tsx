@@ -30,7 +30,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
 
   // Check if user has subaccount access permission
   const hasSubaccountAccess = await hasPermission('subaccount.account.read')
-  
+
   if (!hasSubaccountAccess) {
     return <Unauthorized />
   }
@@ -38,7 +38,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
   const allNotifications = await getNotificationAndUser(agencyId)
 
   // Filter notifications based on permissions
-  const canViewAllNotifications = await hasPermission('agency.account.read')
+  const canViewAllNotifications = await hasPermission('core.agency.account.read')
 
   if (canViewAllNotifications) {
     notifications = allNotifications
@@ -51,10 +51,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <Sidebar
-        id={subaccountId}
-        type="subaccount"
-      />
+      <Sidebar id={subaccountId} type="subaccount" />
 
       <div className="md:pl-[300px]">
         <InfoBar

@@ -25,8 +25,297 @@ type BankCardTone = "default" | "premium" | "platinum" | "black"
 
 type BankCardSize = "regular" | "compact"
 
+type CardIssuer = 
+  // Malaysian Banks
+  | 'mayBank' | 'cimb' | 'publicBank' | 'rhbBank' | 'amBank' | 'hongLeongBank' 
+  | 'bankIslam' | 'affinBank' | 'allianceBank' | 'bsn' | 'ocbc' | 'uob'
+  | 'hsbc' | 'standardChartered' | 'citiBank' | 'mbsbBank'
+  // Foreign Banks
+  | 'dbs' | 'bankOfAmerica' | 'bankOfChina' | 'kasikornBank' | 'bangkokBank'
+  | 'jpMorganChase' | 'wellsFargo' | 'barclays' | 'bdo' | 'bca' | 'stripeBank'
+  // Generic fallbacks
+  | 'genericVisa' | 'genericMastercard' | 'genericAmex' | 'genericDiscover'
+
 const AMEX_GROUPS = [4, 6, 5] as const
 const OTHER_GROUPS = [4, 4, 4, 4] as const
+
+// Bank-specific style definitions (overrides tone when issuer is detected)
+interface IssuerStyles {
+  background: string
+  textColor: string
+  textMuted: string
+  bankLogoText?: string
+  bankLogoColor?: string
+}
+
+const issuerStyles: Record<CardIssuer, IssuerStyles> = {
+  // Malaysian Banks
+  mayBank: {
+    background: "bg-gradient-to-br from-yellow-400 to-yellow-300",
+    textColor: "text-black",
+    textMuted: "text-black/90",
+    bankLogoText: "Maybank",
+    bankLogoColor: "text-yellow-400",
+  },
+  cimb: {
+    background: "bg-gradient-to-r from-red-600 via-red-500 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "CIMB",
+    bankLogoColor: "text-red-600",
+  },
+  publicBank: {
+    background: "bg-gradient-to-r from-blue-800 via-blue-700 to-blue-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "PBB",
+    bankLogoColor: "text-blue-700",
+  },
+  rhbBank: {
+    background: "bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "RHB",
+    bankLogoColor: "text-blue-800",
+  },
+  amBank: {
+    background: "bg-gradient-to-r from-blue-900 to-blue-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "AmBank",
+    bankLogoColor: "text-blue-800",
+  },
+  hongLeongBank: {
+    background: "bg-gradient-to-r from-orange-600 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "HL Bank",
+    bankLogoColor: "text-red-600",
+  },
+  bankIslam: {
+    background: "bg-gradient-to-br from-green-700 via-green-600 to-green-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "B.Islam",
+    bankLogoColor: "text-green-700",
+  },
+  affinBank: {
+    background: "bg-gradient-to-r from-purple-800 to-purple-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Affin",
+    bankLogoColor: "text-purple-700",
+  },
+  allianceBank: {
+    background: "bg-gradient-to-br from-blue-700 to-cyan-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Alliance",
+    bankLogoColor: "text-blue-700",
+  },
+  bsn: {
+    background: "bg-gradient-to-r from-orange-600 to-amber-500",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BSN",
+    bankLogoColor: "text-orange-600",
+  },
+  ocbc: {
+    background: "bg-gradient-to-r from-red-700 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "OCBC",
+    bankLogoColor: "text-red-600",
+  },
+  uob: {
+    background: "bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "UOB",
+    bankLogoColor: "text-blue-700",
+  },
+  hsbc: {
+    background: "bg-gradient-to-br from-neutral-900 to-neutral-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "HSBC",
+    bankLogoColor: "text-red-600",
+  },
+  standardChartered: {
+    background: "bg-gradient-to-br from-blue-800 to-blue-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "SC",
+    bankLogoColor: "text-blue-800",
+  },
+  citiBank: {
+    background: "bg-gradient-to-r from-blue-500 to-blue-400",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Citi",
+    bankLogoColor: "text-blue-500",
+  },
+  mbsbBank: {
+    background: "bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "MBSB",
+    bankLogoColor: "text-blue-700",
+  },
+  
+  // Foreign Banks
+  dbs: {
+    background: "bg-gradient-to-br from-red-700 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "DBS",
+    bankLogoColor: "text-red-600",
+  },
+  bankOfAmerica: {
+    background: "bg-gradient-to-r from-red-700 via-red-600 to-red-500",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BoA",
+    bankLogoColor: "text-blue-700",
+  },
+  bankOfChina: {
+    background: "bg-gradient-to-r from-red-700 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BoC",
+    bankLogoColor: "text-red-600",
+  },
+  kasikornBank: {
+    background: "bg-gradient-to-br from-green-600 to-green-500",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "KBank",
+    bankLogoColor: "text-green-600",
+  },
+  bangkokBank: {
+    background: "bg-gradient-to-br from-blue-800 to-blue-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BBL",
+    bankLogoColor: "text-blue-900",
+  },
+  jpMorganChase: {
+    background: "bg-gradient-to-r from-blue-800 to-sky-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Chase",
+    bankLogoColor: "text-blue-900",
+  },
+  wellsFargo: {
+    background: "bg-gradient-to-r from-red-700 to-red-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "WF",
+    bankLogoColor: "text-red-700",
+  },
+  barclays: {
+    background: "bg-gradient-to-r from-blue-900 to-blue-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Barclays",
+    bankLogoColor: "text-blue-600",
+  },
+  bdo: {
+    background: "bg-gradient-to-br from-blue-600 to-blue-500",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BDO",
+    bankLogoColor: "text-blue-700",
+  },
+  bca: {
+    background: "bg-gradient-to-br from-blue-800 via-blue-700 to-blue-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "BCA",
+    bankLogoColor: "text-blue-800",
+  },
+  stripeBank: {
+    background: "bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+    bankLogoText: "Stripe",
+    bankLogoColor: "text-indigo-600",
+  },
+  
+  // Generic card brand fallbacks
+  genericVisa: {
+    background: "bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+  },
+  genericMastercard: {
+    background: "bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+  },
+  genericAmex: {
+    background: "bg-gradient-to-br from-slate-700 via-blue-800 to-slate-800",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+  },
+  genericDiscover: {
+    background: "bg-gradient-to-r from-orange-600 to-amber-600",
+    textColor: "text-white",
+    textMuted: "text-white/90",
+  },
+}
+
+// BIN ranges for Malaysian and foreign banks
+const binRanges: Record<string, CardIssuer> = {
+  // Malaysian Banks
+  "557382": "mayBank", "557383": "mayBank",
+  "552033": "cimb", "552034": "cimb",
+  "464896": "publicBank", "464897": "publicBank",
+  "552042": "rhbBank", "552043": "rhbBank",
+  "552065": "amBank", "552066": "amBank",
+  "554674": "hongLeongBank", "554675": "hongLeongBank",
+  "458412": "bankIslam", "458413": "bankIslam",
+  "452507": "affinBank",
+  "521893": "allianceBank",
+  "454867": "bsn",
+  "531289": "ocbc",
+  "472439": "uob",
+  "405525": "hsbc",
+  "522183": "standardChartered",
+  "541324": "citiBank",
+  "457116": "mbsbBank",
+  // Stripe test cards
+  "424242": "stripeBank", "400000": "stripeBank",
+}
+
+// Detect card issuer from BIN or fallback to generic brand
+function detectCardIssuer(cardNumber: string, cardBrand: string): CardIssuer | null {
+  if (!cardNumber || cardNumber.length < 6) return null
+  
+  // Try BIN detection first
+  const clean = cardNumber.replace(/\s/g, "")
+  const bin = clean.substring(0, 6)
+  
+  for (const [prefix, issuer] of Object.entries(binRanges)) {
+    if (bin.startsWith(prefix)) {
+      return issuer
+    }
+  }
+  
+  // Fallback to generic brand styling
+  switch (cardBrand) {
+    case 'visa':
+      return 'genericVisa'
+    case 'mastercard':
+      return 'genericMastercard'
+    case 'amex':
+      return 'genericAmex'
+    case 'discover':
+      return 'genericDiscover'
+    default:
+      return null
+  }
+}
 
 function getCardType(input: string) {
   const cardNumber = input.replace(/\s/g, "")
@@ -35,10 +324,12 @@ function getCardType(input: string) {
   if (/^5[1-5]/.test(cardNumber)) return "mastercard"
   if (/^(62|81)/.test(cardNumber)) return "unionpay"
   if (/^6011/.test(cardNumber)) return "discover"
-  if (/^(36|30[0-5]|38)/.test(cardNumber)) return "dinersclub"
-  if (/^9792/.test(cardNumber)) return "troy"
-  if (/^35(2[89]|[3-8][0-9])/.test(cardNumber)) return "jcb"
-  if (cardNumber === "4242424242424242") return "stripe"
+  if (/^(36|30[0-5]|38)/.test(cardNumber)) return "dinersclub" // Sample Numbers: 36148900000013, 30569309025904, 38520000023237
+  if (/^9792/.test(cardNumber)) return "troy" // Sample Number: 9792000000000000
+  if (/^35(2[89]|[3-8][0-9])/.test(cardNumber)) return "jcb" // Sample Numbers: 3528000000000007, 3566002020360505
+  if (/^400000/.test(cardNumber)) return "visa" // SampleNumbers: 4000000000000010 (3D Secure), 4000002500003155 (insufficient funds)
+  if (/^4242/.test(cardNumber)) return "visa" // Sample Numbers: 4242424242424242 (basic), 4242424242424241 (declined)
+  
   return "visa"
 }
 
@@ -105,6 +396,8 @@ interface BankCardProps extends React.HTMLAttributes<HTMLDivElement> {
   isFlipped?: boolean
   /** Card tone (tier) - determines color scheme */
   variant?: BankCardTone
+  /** Specific card issuer (bank) - overrides variant when detected */
+  issuer?: CardIssuer
   /** Compact / Regular sizing */
   size?: BankCardSize
   /** @deprecated Use `size` instead */
@@ -113,6 +406,7 @@ interface BankCardProps extends React.HTMLAttributes<HTMLDivElement> {
   showChip?: boolean
   showContactless?: boolean
   showHologram?: boolean
+  showBankLogo?: boolean
 
   isValid?: boolean
   validationErrors?: string[]
@@ -433,18 +727,18 @@ function SelectedGlow() {
     <>
       {/* Soft gradient glow */}
       <motion.div
-        className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-gradient-to-br from-brand via-brand-tint to-brand-hover opacity-70 blur-sm"
+        className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 opacity-70 blur-sm"
         animate={{ opacity: [0.5, 0.85, 0.5] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       />
       {/* Crisp border */}
-      <div className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-gradient-to-br from-brand via-brand-tint to-brand-hover" />
+      <div className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700" />
 
       {/* Selected badge */}
       <div className="absolute -top-3 -right-3 z-20">
         <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand to-brand-hover rounded-full blur-md opacity-60" />
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-brand via-brand-tint to-brand-hover shadow-linear-lg border-2 border-white/70">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full blur-md opacity-60" />
+          <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 shadow-lg border-2 border-white/80">
             <Check className="w-5 h-5 text-white" strokeWidth={3} />
           </div>
         </motion.div>
@@ -509,6 +803,26 @@ function CardLogo({ brand, tone, size }: { brand: string; tone: ToneStyles; size
   return <CreditCardIcon className={cn(logoIconVariants({ size }), tone.text)} />
 }
 
+function BankLogo({ issuer, size }: { issuer: CardIssuer; size: BankCardSize }) {
+  const styles = issuerStyles[issuer]
+  if (!styles.bankLogoText) return null
+  
+  return (
+    <div className={cn(
+      "absolute top-6 right-6 bg-white/90 rounded flex items-center justify-center backdrop-blur-sm shadow-md",
+      size === "compact" ? "w-14 h-7 px-2" : "w-16 h-8 px-2.5"
+    )}>
+      <span className={cn(
+        "font-bold leading-none",
+        styles.bankLogoColor,
+        size === "compact" ? "text-xs" : "text-sm"
+      )}>
+        {styles.bankLogoText}
+      </span>
+    </div>
+  )
+}
+
 function ValidationIndicator({ isValid }: { isValid?: boolean }) {
   if (isValid === undefined) return null
 
@@ -543,11 +857,13 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
       cvv = "",
       isFlipped = false,
       variant = "default",
+      issuer: providedIssuer,
       size,
       compact,
       showChip = true,
       showContactless = true,
       showHologram = true,
+      showBankLogo = true,
       isValid,
       validationErrors = [],
       showValidationErrors = false,
@@ -574,11 +890,26 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
     ref
   ) => {
     const resolvedSize: BankCardSize = size ?? (compact ? "compact" : "regular")
-    const tone = toneStyles[variant]
-
     const cardBrand = brand || getCardType(cardNumber)
     const isStripeSavedCard = isMasked || isCardMasked(cardNumber)
     const displayNumber = buildMaskedCardNumber(cardNumber, cardBrand)
+    
+    // Detect issuer from BIN or use provided issuer
+    const detectedIssuer = providedIssuer || detectCardIssuer(cardNumber, cardBrand)
+    
+    // Use issuer styles if available, otherwise fall back to tone
+    const baseTone = toneStyles[variant]
+    const issuerStyle = detectedIssuer ? issuerStyles[detectedIssuer] : null
+    
+    const tone: ToneStyles = issuerStyle ? {
+      surface: issuerStyle.background,
+      text: issuerStyle.textColor,
+      textMuted: issuerStyle.textMuted,
+      placeholder: `${issuerStyle.textColor}/25`,
+      chip: baseTone.chip,
+      chipDot: baseTone.chipDot,
+      hologram: baseTone.hologram,
+    } : baseTone
 
         // ref={ref}
         // className={cn(
@@ -654,7 +985,12 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
                   {showChip && <CardChip tone={tone} size={resolvedSize} />}
                   {showContactless && <ContactlessIcon tone={tone} size={resolvedSize} />}
                 </div>
-                <CardLogo brand={cardBrand} tone={tone} size={resolvedSize} />
+                {/* Show bank logo if issuer detected and has logo, otherwise show card brand logo */}
+                {detectedIssuer && showBankLogo ? (
+                  <BankLogo issuer={detectedIssuer} size={resolvedSize} />
+                ) : (
+                  <CardLogo brand={cardBrand} tone={tone} size={resolvedSize} />
+                )}
               </div>
 
               {/* Number */}
@@ -741,19 +1077,9 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
 
 BankCard.displayName = "BankCard"
 
-interface SavedBankCard {
-  id: string
-  cardNumber: string
-  cardholderName: string
-  expiryMonth: string
-  expiryYear: string
-  variant: BankCardTone
-  isDefault?: boolean
-  brand?: string
-}
 
-interface SavedBankCardsProps extends React.HTMLAttributes<HTMLDivElement> {
-  cards: SavedBankCard[]
+export interface SavedBankCardsProps extends React.HTMLAttributes<HTMLDivElement> {
+  cards: (Partial<BankCardProps> & { id: string; isDefault?: boolean })[]
   selectedCardId?: string
   onCardSelect?: (cardId: string) => void
   onAddCard?: () => void
@@ -813,6 +1139,7 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                   expiryMonth={card.expiryMonth}
                   expiryYear={card.expiryYear}
                   variant={card.variant}
+                  issuer={card.issuer}
                   brand={card.brand}
                   isMasked
                   isSelected={selectedCardId === card.id}
@@ -824,8 +1151,8 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                 {card.isDefault && (
                   <div className="absolute -top-3 -left-3 z-20">
                     <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-success to-success/70 rounded-full blur-md opacity-60" />
-                      <div className="relative flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-br from-success to-success/70 shadow-linear-md border border-white/60">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 rounded-full blur-md opacity-60" />
+                      <div className="relative flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-lg border border-white/80">
                         <span className="text-[10px] font-bold text-white leading-none">Default</span>
                       </div>
                     </motion.div>
@@ -839,12 +1166,12 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                       <button
                         type="button"
                         onClick={(e) => e.stopPropagation()}
-                        className="h-8 w-8 rounded-full backdrop-blur-md shadow-linear-sm flex items-center justify-center transition-colors bg-surface-primary/60 hover:bg-surface-primary/80 border border-line-secondary"
+                        className="h-8 w-8 rounded-full backdrop-blur-md shadow-lg flex items-center justify-center transition-all duration-200 bg-white/90 hover:bg-white dark:bg-neutral-800/90 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
                       >
-                        <MoreVertical className="h-4 w-4 text-content-secondary" />
+                        <MoreVertical className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-40">
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation()
@@ -953,11 +1280,13 @@ const InteractiveBankCard = React.forwardRef<HTMLDivElement, InteractiveBankCard
       cvv = "",
       isFlipped = false,
       variant = "default",
+      issuer,
       size,
       compact,
       showChip = true,
       showContactless = true,
       showHologram = true,
+      showBankLogo = true,
       onCardNumberChange,
       onCardholderNameChange,
       onExpiryMonthChange,
@@ -1041,10 +1370,12 @@ const InteractiveBankCard = React.forwardRef<HTMLDivElement, InteractiveBankCard
           cvv={cvv}
           isFlipped={localFlipped}
           variant={variant}
+          issuer={issuer}
           size={resolvedSize}
           showChip={showChip}
           showContactless={showContactless}
           showHologram={showHologram}
+          showBankLogo={showBankLogo}
           isValid={isValid}
           validationErrors={validationErrors}
           focusField={focusField}
@@ -1225,3 +1556,4 @@ const InteractiveBankCard = React.forwardRef<HTMLDivElement, InteractiveBankCard
 InteractiveBankCard.displayName = "InteractiveBankCard"
 
 export { BankCard, InteractiveBankCard, SavedBankCardsGallery }
+export type { BankCardProps, InteractiveBankCardProps, BankCardTone, BankCardSize, CardIssuer }

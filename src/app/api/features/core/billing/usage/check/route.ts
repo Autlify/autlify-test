@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 import { auth } from '@/auth'
 import type { MeteringScope } from '@/generated/prisma/client'
-import { canPerform } from '@/lib/iam/policy/can'
+import { canPerform } from '@/lib/features/iam/policy/can'
 
 export async function POST(req: NextRequest) {
   const session = await auth()

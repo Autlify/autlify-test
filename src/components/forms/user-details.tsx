@@ -80,7 +80,7 @@ const UserDetails = ({ id, type, subAccounts, userData }: Props) => {
         if (response) setAuthUserData(response)
         
         // Check permission to manage team
-        const hasManagePermission = await hasPermission('agency.members.invite')
+        const hasManagePermission = await hasPermission('core.agency.team_member.invite')
         setCanManageTeam(hasManagePermission)
       }
       fetchDetails()

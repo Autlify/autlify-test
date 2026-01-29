@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 import { db } from '@/lib/db'
-import { grantRecurringCreditsForAgency } from '@/lib/core/billing/credits/grant'
+import { grantRecurringCreditsForAgency } from '@/lib/features/core/billing/credits/grant'
 
 function assertJobSecret(req: NextRequest) {
   const configured = process.env.JOBS_SECRET

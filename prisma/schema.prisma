@@ -11,12 +11,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["public", "finance"]
 }
 
 enum RoleScope {
   SYSTEM
   AGENCY
   SUBACCOUNT
+
+  @@schema("public")
 }
 
 // Stripe Business Type:  "company" | "government_entity" | "individual" | "non_profit"
@@ -27,6 +30,7 @@ enum EntityType {
   GOVERNMENT_ENTITY
 
   @@map("Entity")
+  @@schema("public")
 }
 
 enum SubscriptionStatus {
@@ -36,12 +40,16 @@ enum SubscriptionStatus {
   TRIALING
   INCOMPLETE
   UNPAID
+
+  @@schema("public")
 }
 
 enum ApiKeyKind {
   USER
   AGENCY
   SUBACCOUNT
+
+  @@schema("public")
 }
 
 enum Icon {
@@ -75,6 +83,8 @@ enum Icon {
   category
   contact
   clipboardIcon
+
+  @@schema("public")
 }
 
 model User {
@@ -109,7 +119,10 @@ model User {
   SSOUserMappings    SSOUserMapping[]
   featurePreferences FeaturePreference[]
 
-  ApiKeys ApiKey[]
+  ApiKeys            ApiKey[]
+  IntegrationApiKeys IntegrationApiKey[]
+
+  @@schema("public")
 }
 
 model Authenticator {
@@ -125,6 +138,7 @@ model Authenticator {
   User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+  @@schema("public")
 }
 
 model Account {
@@ -145,6 +159,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+  @@schema("public")
 }
 
 model Session {
@@ -172,20 +187,21 @@ model Session {
   @@index([activeAgencyId])
   @@index([activeSubAccountId])
   @@index([sessionToken])
+  @@schema("public")
 }
 
 model ApiKey {
-  id        String     @id @default(uuid())
-  kind      ApiKeyKind @default(USER)
-  name      String
+  id   String     @id @default(uuid())
+  kind ApiKeyKind @default(USER)
+  name String
 
   // Token format: autl_<prefix>_<secret>
-  prefix    String     @unique
-  secretHash String    @db.Text
+  prefix     String @unique
+  secretHash String @db.Text
 
   // Ownership and scoping
   ownerUserId String
-  ownerUser   User       @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  ownerUser   User   @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
 
   // Scope binding
   agencyId     String?
@@ -208,6 +224,7 @@ model ApiKey {
   @@index([ownerUserId])
   @@index([agencyId])
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model VerificationToken {
@@ -216,6 +233,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@schema("public")
 }
 
 model TaxIdentity {
@@ -246,6 +264,7 @@ model TaxIdentity {
 
   @@index([countryCode])
   @@index([tinNumber])
+  @@schema("public")
 }
 
 model TaxObligation {
@@ -273,6 +292,7 @@ model TaxObligation {
   @@index([taxIdentityId])
   @@index([isActive])
   @@index([effectiveFrom, effectiveTo])
+  @@schema("public")
 }
 
 model Agency {
@@ -303,16 +323,44 @@ model Agency {
   AddOns           AddOns[]
 
   // New RBAC relations
-  Roles                 Role[]
-  Memberships           AgencyMembership[]
-  UsageTracking         UsageTracking[]
-  EntitlementOverrides  EntitlementOverride[]
-  FeatureCreditBalances FeatureCreditBalance[]
-  ssoconnection         SSOConnection?
+  Roles                       Role[]
+  Memberships                 AgencyMembership[]
+  UsageTracking               UsageTracking[]
+  EntitlementOverrides        EntitlementOverride[]
+  FeatureCreditBalances       FeatureCreditBalance[]
+  SSOConnection               SSOConnection?
+  GLConfiguration             GLConfiguration?
+  AccountBalances             AccountBalance[]
+  ChartOfAccounts             ChartOfAccount[]
+  AgencyGroupCOAs             AgencyGroupCOA[]
+  ConsolidationMappings       ConsolidationMapping[]
+  FinancialPeriods            FinancialPeriod[]
+  JournalEntries              JournalEntry[]
+  ExchangeRates               ExchangeRate[]
+  CurrencyRevaluations        CurrencyRevaluation[]
+  PostingRules                PostingRule[]
+  PostingTemplates            PostingTemplate[]
+  Reconciliations             Reconciliation[]
+  ReconciliationRules         ReconciliationRule[]
+  IntercompanyReconciliations IntercompanyReconciliation[]
+  ConsolidationSnapshots      ConsolidationSnapshot[]
+  SubAccountOwnerships        SubAccountOwnership[]
+  SavedReports                SavedReport[]
 
-  ApiKeys ApiKey[]
+  // Open Item & Subledger Management
+  SubLedgers           SubLedger[]
+  Vendors              Vendor[]
+  Customers            Customer[]
+  GLConfigurationLocks GLConfigurationLock[]
+  OpenItems            OpenItem[]
+
+  ApiKeys                ApiKey[]
+  IntegrationApiKeys     IntegrationApiKey[]
+  IntegrationConnections IntegrationConnection[]
+  AppInstallations       AppInstallation[]
 
   @@index([taxIdentityId])
+  @@schema("public")
 }
 
 model SubAccount {
@@ -347,13 +395,35 @@ model SubAccount {
   Notification Notification[]
 
   // New RBAC relations
-  Roles       Role[]
-  Memberships SubAccountMembership[]
+  Roles                 Role[]
+  Memberships           SubAccountMembership[]
+  ChartOfAccounts       ChartOfAccount[]
+  ConsolidationMappings ConsolidationMapping[]
+  FinancialPeriods      FinancialPeriod[]
+  JournalEntries        JournalEntry[]
+  CurrencyRevaluations  CurrencyRevaluation[]
+  PostingRules          PostingRule[]
+  Reconciliations       Reconciliation[]
+  ICReconciliations1    IntercompanyReconciliation[] @relation("ICRecon1")
+  ICReconciliations2    IntercompanyReconciliation[] @relation("ICRecon2")
+  SubAccountOwnership   SubAccountOwnership[]
+  SavedReports          SavedReport[]
+  OpenItems             OpenItem[]
+  GLConfiguration       GLConfigurationSubAccount? // SKB1-style SubAccount-level GL config
+  AccountBalances       AccountBalance[]
+  SubLedgers            SubLedger[]
+  Vendors               Vendor[]
+  Customers             Customer[]
+  GLConfigurationLocks  GLConfigurationLock[]
 
-  ApiKeys ApiKey[]
+  ApiKeys                ApiKey[]
+  IntegrationApiKeys     IntegrationApiKey[]
+  IntegrationConnections IntegrationConnection[]
+  AppInstallations       AppInstallation[]
 
   @@index([agencyId])
   @@index([taxIdentityId])
+  @@schema("public")
 }
 
 model Tag {
@@ -368,6 +438,7 @@ model Tag {
   Ticket     Ticket[]
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model Pipeline {
@@ -380,6 +451,7 @@ model Pipeline {
   subAccountId String
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model Lane {
@@ -393,6 +465,7 @@ model Lane {
   order      Int      @default(0)
 
   @@index([pipelineId])
+  @@schema("public")
 }
 
 model Ticket {
@@ -416,10 +489,13 @@ model Ticket {
   @@index([laneId])
   @@index([customerId])
   @@index([assignedUserId])
+  @@schema("public")
 }
 
 enum TriggerTypes {
   CONTACT_FORM
+
+  @@schema("public")
 }
 
 model Trigger {
@@ -433,6 +509,7 @@ model Trigger {
   Automations  Automation[]
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model Automation {
@@ -450,6 +527,7 @@ model Automation {
 
   @@index([triggerId])
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model AutomationInstance {
@@ -461,10 +539,13 @@ model AutomationInstance {
   active       Boolean    @default(false)
 
   @@index([automationId])
+  @@schema("public")
 }
 
 enum ActionType {
   CREATE_CONTACT
+
+  @@schema("public")
 }
 
 model Action {
@@ -479,6 +560,7 @@ model Action {
   laneId       String     @default("0")
 
   @@index([automationId])
+  @@schema("public")
 }
 
 model Contact {
@@ -493,6 +575,7 @@ model Contact {
   Ticket     Ticket[]
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model Media {
@@ -506,6 +589,7 @@ model Media {
   Subaccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model Funnel {
@@ -524,6 +608,7 @@ model Funnel {
   ClassName     ClassName[]
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 model ClassName {
@@ -537,6 +622,7 @@ model ClassName {
   Funnel     Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
 
   @@index([funnelId])
+  @@schema("public")
 }
 
 model FunnelPage {
@@ -553,6 +639,7 @@ model FunnelPage {
   Funnel       Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
 
   @@index([funnelId])
+  @@schema("public")
 }
 
 model AgencySidebarOption {
@@ -566,6 +653,7 @@ model AgencySidebarOption {
   updatedAt DateTime @updatedAt
 
   @@index([agencyId])
+  @@schema("public")
 }
 
 model SubAccountSidebarOption {
@@ -579,12 +667,15 @@ model SubAccountSidebarOption {
   subAccountId String?
 
   @@index([subAccountId])
+  @@schema("public")
 }
 
 enum InvitationStatus {
   ACCEPTED
   REVOKED
   PENDING
+
+  @@schema("public")
 }
 
 model Invitation {
@@ -596,6 +687,7 @@ model Invitation {
   role     String           @default("SUBACCOUNT_USER")
 
   @@index([agencyId])
+  @@schema("public")
 }
 
 model Notification {
@@ -615,12 +707,15 @@ model Notification {
   @@index([agencyId])
   @@index([subAccountId])
   @@index([userId])
+  @@schema("public")
 }
 
 enum Plan {
   price_1SpVOXJglUPlULDQt9Ejhunb
   price_1SpVOYJglUPlULDQhsRkA5YV
   price_1SpVOZJglUPlULDQoFq3iPES
+
+  @@schema("public")
 }
 
 model Subscription {
@@ -646,6 +741,7 @@ model Subscription {
 
   @@index([customerId])
   @@index([status])
+  @@schema("public")
 }
 
 model AddOns {
@@ -659,6 +755,7 @@ model AddOns {
   Agency    Agency?  @relation(fields: [agencyId], references: [id])
 
   @@index([agencyId])
+  @@schema("public")
 }
 
 // ========================================
@@ -678,6 +775,7 @@ model Permission {
 
   @@index([category])
   @@index([isSystem])
+  @@schema("public")
 }
 
 model RolePermission {
@@ -693,6 +791,7 @@ model RolePermission {
   @@unique([roleId, permissionId])
   @@index([roleId])
   @@index([permissionId])
+  @@schema("public")
 }
 
 model Role {
@@ -716,6 +815,7 @@ model Role {
   @@index([subAccountId])
   @@index([scope])
   @@index([isSystem])
+  @@schema("public")
 }
 
 model AgencyMembership {
@@ -738,6 +838,7 @@ model AgencyMembership {
   @@index([agencyId])
   @@index([roleId])
   @@index([isActive])
+  @@schema("public")
 }
 
 model SubAccountMembership {
@@ -759,6 +860,7 @@ model SubAccountMembership {
   @@index([subAccountId])
   @@index([roleId])
   @@index([isActive])
+  @@schema("public")
 }
 
 // ========================================
@@ -774,23 +876,31 @@ enum FeatureValueType {
   DECIMAL
   STRING
   JSON
+
+  @@schema("public")
 }
 
 enum MeteringType {
   NONE
   COUNT
   SUM
+
+  @@schema("public")
 }
 
 enum MeterAggregation {
   COUNT
   SUM
   LAST
+
+  @@schema("public")
 }
 
 enum MeteringScope {
   AGENCY
   SUBACCOUNT
+
+  @@schema("public")
 }
 
 enum UsagePeriod {
@@ -798,17 +908,23 @@ enum UsagePeriod {
   WEEKLY
   MONTHLY
   YEARLY
+
+  @@schema("public")
 }
 
 enum LimitEnforcement {
   HARD
   SOFT
+
+  @@schema("public")
 }
 
 enum OverageMode {
   NONE
   INTERNAL_CREDITS
   STRIPE_METERED
+
+  @@schema("public")
 }
 
 enum CreditLedgerType {
@@ -817,6 +933,8 @@ enum CreditLedgerType {
   CONSUME
   ADJUST
   EXPIRE
+
+  @@schema("public")
 }
 
 // --------------------
@@ -867,6 +985,7 @@ model EntitlementFeature {
   @@index([valueType])
   @@index([metering])
   @@index([scope])
+  @@schema("public")
 }
 
 model EntitlementOverride {
@@ -905,6 +1024,7 @@ model EntitlementOverride {
   @@index([subAccountId])
   @@index([featureKey])
   @@index([scope])
+  @@schema("public")
 }
 
 model PlanFeature {
@@ -948,6 +1068,7 @@ model PlanFeature {
   @@index([planId])
   @@index([featureKey])
   @@index([overageMode])
+  @@schema("public")
 }
 
 model FeaturePreference {
@@ -969,6 +1090,7 @@ model FeaturePreference {
   @@index([featureKey])
   @@index([agencyId])
   @@index([subAccountId])
+  @@schema("public")
 }
 
 // --------------------
@@ -1003,6 +1125,7 @@ model UsageTracking {
   @@index([featureKey])
   @@index([periodStart, periodEnd])
   @@index([scope])
+  @@schema("public")
 }
 
 model UsageEvent {
@@ -1023,6 +1146,7 @@ model UsageEvent {
 
   @@index([agencyId, subAccountId, featureKey, createdAt])
   @@index([scope])
+  @@schema("public")
 }
 
 // --------------------
@@ -1049,6 +1173,7 @@ model FeatureCreditBalance {
   @@index([subAccountId])
   @@index([featureKey])
   @@index([scope])
+  @@schema("public")
 }
 
 model FeatureCreditLedger {
@@ -1075,6 +1200,7 @@ model FeatureCreditLedger {
 
   @@index([agencyId, subAccountId, featureKey, createdAt])
   @@index([scope])
+  @@schema("public")
 }
 
 // ========================================
@@ -1101,6 +1227,7 @@ model Passkey {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@schema("public")
 }
 
 // MFA Challenge (one-time codes sent during auth)
@@ -1127,6 +1254,7 @@ model MFAChallenge {
 
   @@index([userId, expiresAt])
   @@index([code])
+  @@schema("public")
 }
 
 // Enum for MFA methods
@@ -1136,6 +1264,8 @@ enum MFAMethodType {
   EMAIL // Email OTP
   BACKUP_CODES // One-time recovery codes
   PASSKEY // Already have this
+
+  @@schema("public")
 }
 
 model MFAMethod {
@@ -1168,6 +1298,7 @@ model MFAMethod {
 
   @@unique([userId, type])
   @@index([userId])
+  @@schema("public")
 }
 
 // SSO Configuration (per Agency/Organization)
@@ -1199,6 +1330,7 @@ model SSOConnection {
   ssouserMappings    SSOUserMapping[]
 
   @@index([provider])
+  @@schema("public")
 }
 
 // SSO User Mapping (link user to their SSO identity)
@@ -1228,6 +1360,7 @@ model SSOUserMapping {
   @@unique([ssoConnectionId, providerUserId])
   @@index([userId])
   @@index([ssoConnectionId])
+  @@schema("public")
 }
 
 // SSO Audit Log (for compliance/debugging)
@@ -1255,6 +1388,7 @@ model SSOAuditLog {
 
   @@index([ssoConnectionId, createdAt])
   @@index([email])
+  @@schema("public")
 }
 
 // Enums
@@ -1266,6 +1400,8 @@ enum SSOProvider {
   OKTA
   PING_IDENTITY
   AUTH0
+
+  @@schema("public")
 }
 
 enum SyncStatus {
@@ -1273,6 +1409,8 @@ enum SyncStatus {
   SUSPENDED
   PENDING
   FAILED
+
+  @@schema("public")
 }
 
 enum SSOEventType {
@@ -1285,4 +1423,2091 @@ enum SSOEventType {
   TOKEN_REFRESH
   CONNECTION_TESTED
   CONNECTION_UPDATED
+
+  @@schema("public")
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+
+  @@schema("finance")
+}
+
+enum AccountCategory {
+  // Assets
+  CURRENT_ASSET
+  FIXED_ASSET
+  OTHER_ASSET
+  // Liabilities
+  CURRENT_LIABILITY
+  LONG_TERM_LIABILITY
+  // Equity
+  CAPITAL
+  RETAINED_EARNINGS_CAT
+  // Revenue
+  OPERATING_REVENUE
+  OTHER_REVENUE
+  // Expense
+  COST_OF_GOODS_SOLD
+  OPERATING_EXPENSE
+  OTHER_EXPENSE
+
+  @@schema("finance")
+}
+
+enum SubledgerType {
+  NONE
+  ACCOUNTS_RECEIVABLE
+  ACCOUNTS_PAYABLE
+  INVENTORY
+  FIXED_ASSETS
+  PAYROLL
+  BANK
+
+  @@schema("finance")
+}
+
+enum SystemAccountType {
+  RETAINED_EARNINGS
+  OPENING_BALANCE_CONTROL
+  SUSPENSE
+  ROUNDING_DIFFERENCE
+  INTERCOMPANY_CLEARING
+  PAYROLL_CLEARING
+  PAYMENT_CLEARING
+  BANK_RECONCILIATION
+  FOREIGN_EXCHANGE_GAIN
+  FOREIGN_EXCHANGE_LOSS
+  UNREALIZED_FX_GAIN
+  UNREALIZED_FX_LOSS
+  CONSOLIDATION_ADJUSTMENT
+  ELIMINATION_ACCOUNT
+
+  @@schema("finance")
+}
+
+enum PeriodType {
+  MONTH
+  QUARTER
+  HALF_YEAR
+  YEAR
+  CUSTOM
+
+  @@schema("finance")
+}
+
+enum PeriodStatus {
+  FUTURE
+  OPEN
+  CLOSED
+  LOCKED
+
+  @@schema("finance")
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  REVERSED
+  VOIDED
+
+  @@schema("finance")
+}
+
+enum JournalEntryType {
+  NORMAL
+  OPENING
+  CLOSING
+  CARRY_FORWARD
+  BROUGHT_FORWARD
+  YEAR_END_CLOSING
+  ADJUSTMENT
+  REVERSAL
+  CONSOLIDATION
+  ELIMINATION
+
+  @@schema("finance")
+}
+
+enum BalanceType {
+  NORMAL
+  OPENING
+  CLOSING
+  ADJUSTMENT
+  REVERSAL
+
+  @@schema("finance")
+}
+
+enum SourceModule {
+  MANUAL
+  INVOICE
+  PAYMENT
+  EXPENSE
+  PAYROLL
+  ASSET
+  INVENTORY
+  BANK
+  ADJUSTMENT
+  CONSOLIDATION
+  INTERCOMPANY
+  REVERSAL
+  YEAR_END
+  OPENING_BALANCE
+
+  @@schema("finance")
+}
+
+enum PartnerType {
+  CUSTOMER
+  VENDOR
+  EMPLOYEE
+  BANK
+  INTERCOMPANY
+  OTHER
+
+  @@schema("finance")
+}
+
+enum ClearingDocumentType {
+  PAYMENT
+  RECEIPT
+  CREDIT_NOTE
+  DEBIT_NOTE
+  ADJUSTMENT
+  WRITE_OFF
+  TRANSFER
+  MANUAL
+
+  @@schema("finance")
+}
+
+enum OpenItemStatus {
+  OPEN
+  PARTIALLY_CLEARED
+  CLEARED
+  WRITTEN_OFF
+
+  @@schema("finance")
+}
+
+enum ReconciliationStatus {
+  IN_PROGRESS
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CLOSED
+
+  @@schema("finance")
+}
+
+enum ReconciliationItemStatus {
+  UNMATCHED
+  MATCHED
+  EXCLUDED
+  DISCREPANCY
+
+  @@schema("finance")
+}
+
+enum ConsolidationMethod {
+  FULL
+  PROPORTIONAL
+  EQUITY
+
+  @@schema("finance")
+}
+
+enum ConsolidationStatus {
+  DRAFT
+  IN_PROGRESS
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  SUPERSEDED
+
+  @@schema("finance")
+}
+
+enum Industry {
+  RETAIL
+  MANUFACTURING
+  SAAS
+  ECOMMERCE
+  CONSULTING
+  REAL_ESTATE
+  HOSPITALITY
+  HEALTHCARE
+  CONSTRUCTION
+  NON_PROFIT
+  EDUCATION
+  AGRICULTURE
+  GENERIC
+
+  @@schema("finance")
+}
+
+enum ReportType {
+  BALANCE_SHEET
+  INCOME_STATEMENT
+  CASH_FLOW
+  TRIAL_BALANCE
+  GENERAL_LEDGER
+  SUBSIDIARY_LEDGER
+  ACCOUNT_BALANCE
+  CONSOLIDATED_BALANCE_SHEET
+  CONSOLIDATED_INCOME_STATEMENT
+  CONSOLIDATED_CASH_FLOW
+  INTERCOMPANY_REPORT
+  CUSTOM
+
+  @@schema("finance")
+}
+
+enum ReportFormat {
+  PDF
+  EXCEL
+  CSV
+  JSON
+
+  @@schema("finance")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  SUBMIT
+  APPROVE
+  REJECT
+  POST
+  REVERSE
+  VOID
+  CLOSE
+  LOCK
+  CONSOLIDATE
+  ELIMINATE
+
+  @@schema("finance")
+}
+
+model GLConfiguration {
+  id String @id @default(uuid())
+
+  agencyId String @unique
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  // General settings
+  baseCurrency       String  @default("USD")
+  fiscalYearEnd      String  @default("12-31") // MM-DD format
+  fiscalYearStart    String  @default("01-01") // MM-DD format
+  useControlAccounts Boolean @default(true)
+
+  // Posting settings
+  requireApproval       Boolean  @default(true)
+  approvalThreshold     Decimal? @db.Decimal(18, 6) // Amount above which requires approval
+  autoPostingEnabled    Boolean  @default(false)
+  allowFuturePeriodPost Boolean  @default(false)
+  allowClosedPeriodPost Boolean  @default(false)
+
+  // Consolidation settings
+  consolidationEnabled  Boolean             @default(false)
+  consolidationMethod   ConsolidationMethod @default(FULL)
+  eliminateIntercompany Boolean             @default(true)
+
+  // Period settings
+  autoCreatePeriods Boolean @default(true)
+  periodLockDays    Int     @default(5) // Days after period end to auto-lock
+
+  // Number formats
+  accountCodeFormat    String @default("####-####")
+  accountCodeLength    Int    @default(8)
+  accountCodeSeparator String @default("-")
+
+  // Document Number Prefixes (null = use default)
+  journalEntryPrefix   String? // null = "JE"
+  reversalEntryPrefix  String? // null = "RE"
+  adjustingEntryPrefix String? // null = "ADJ"
+  reconciliationPrefix String? // null = "REC"
+  consolidationPrefix  String? // null = "CON"
+  revaluationPrefix    String? // null = "REV"
+  closingEntryPrefix   String? // null = "MEC"
+
+  // System Generated Posted Document Number Starting From
+  // Using smaller ranges to fit within Int32 (max 2147483647)
+  docNumAssetStart     Int @default(100000000) // Asset accounts start
+  docNumLiabilityStart Int @default(200000000) // Liability accounts start
+  docNumEquityStart    Int @default(300000000) // Equity accounts start
+  docNumRevenueStart   Int @default(400000000) // Revenue accounts start
+  docNumExpenseStart   Int @default(500000000) // Expense accounts start
+  docNumClearingStart  Int @default(10000000) // Clearing documents start
+
+  // Document Format Patterns (null = use default pattern)
+  invoiceFormat    String? // null = "INV-{YYYY}-{######}"
+  paymentFormat    String? // null = "PAY-{YYYY}-{######}"
+  creditNoteFormat String? // null = "CN-{YYYY}-{######}"
+  debitNoteFormat  String? // null = "DN-{YYYY}-{######}"
+  receiptFormat    String? // null = "RCP-{YYYY}-{######}"
+
+  // Document Number Reset Rule
+  documentNumberResetRule String @default("YEARLY") // YEARLY, NEVER, MONTHLY
+
+  // Integrations
+  erpIntegrationEnabled Boolean @default(false)
+  erpSystemType         String?
+  erpApiUrl             String?
+  erpApiKey             String? @db.Text
+
+  // Audit retention
+  retainAuditDays Int @default(2555) // ~7 years
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Reverse relation for SubAccount-level configs
+  SubAccountConfigs GLConfigurationSubAccount[]
+
+  @@index([agencyId])
+  @@schema("finance")
+}
+
+// ========================================
+// GL CONFIGURATION - SUBACCOUNT LEVEL (SKB1)
+// Similar to SAP: SKA1 = Agency, SKB1 = SubAccount
+// SubAccounts can override agency config or inherit
+// ========================================
+
+model GLConfigurationSubAccount {
+  id String @id @default(uuid())
+
+  // Links to SubAccount
+  subAccountId String     @unique
+  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Parent Agency config (for inheritance)
+  agencyConfigId String?
+  AgencyConfig   GLConfiguration? @relation(fields: [agencyConfigId], references: [id], onDelete: SetNull)
+
+  // Independence mode: true = use own settings, false = inherit from agency
+  isIndependent Boolean @default(false)
+
+  // Override settings (only used when isIndependent = true)
+  baseCurrency       String?
+  fiscalYearEnd      String?
+  fiscalYearStart    String?
+  useControlAccounts Boolean?
+
+  // Posting settings override
+  requireApproval       Boolean?
+  approvalThreshold     Decimal? @db.Decimal(18, 6)
+  autoPostingEnabled    Boolean?
+  allowFuturePeriodPost Boolean?
+  allowClosedPeriodPost Boolean?
+
+  // Period settings override
+  autoCreatePeriods Boolean?
+  periodLockDays    Int?
+
+  // Number formats override
+  accountCodeFormat    String?
+  accountCodeLength    Int?
+  accountCodeSeparator String?
+
+  // Document Number Prefixes override (null = inherit from agency)
+  journalEntryPrefix   String?
+  reversalEntryPrefix  String?
+  adjustingEntryPrefix String?
+  reconciliationPrefix String?
+  consolidationPrefix  String?
+  revaluationPrefix    String?
+  closingEntryPrefix   String?
+
+  // Document Format Patterns override (null = inherit from agency)
+  invoiceFormat    String?
+  paymentFormat    String?
+  creditNoteFormat String?
+  debitNoteFormat  String?
+  receiptFormat    String?
+
+  // Consolidation (SubAccount to Agency mapping)
+  consolidationAccountMapping Json? // Maps local accounts to agency accounts
+
+  // Audit retention override
+  retainAuditDays Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@index([subAccountId])
+  @@index([agencyConfigId])
+  @@schema("finance")
+}
+
+// ========================================
+// CHART OF ACCOUNTS
+// ========================================
+
+model ChartOfAccount {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Account identification
+  code        String
+  name        String
+  description String? @db.Text
+
+  // Hierarchy (hybrid: parentId + materialized path + level)
+  parentAccountId String?
+  ParentAccount   ChartOfAccount?  @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: Restrict)
+  ChildAccounts   ChartOfAccount[] @relation("AccountHierarchy")
+  path            String           @default("/") // Materialized path: "/1/12/123/"
+  level           Int              @default(0) // 0-based depth (max 7)
+
+  // Classification
+  accountType AccountType
+  category    AccountCategory?
+  subcategory String?
+
+  // Control account settings
+  isControlAccount  Boolean          @default(false)
+  subledgerType     SubledgerType    @default(NONE)
+  controlAccountId  String?
+  ControlAccount    ChartOfAccount?  @relation("ControlAccountLink", fields: [controlAccountId], references: [id])
+  SubledgerAccounts ChartOfAccount[] @relation("ControlAccountLink")
+
+  // System account settings
+  isSystemAccount   Boolean            @default(false)
+  isSystemManaged   Boolean            @default(false)
+  systemAccountType SystemAccountType?
+
+  // Special account flags
+  isClearingAccount   Boolean @default(false)
+  isSuspenseAccount   Boolean @default(false)
+  isRetainedEarnings  Boolean @default(false)
+  isOpeningBalControl Boolean @default(false)
+
+  // Posting behavior
+  allowManualPosting Boolean @default(true)
+  requireApproval    Boolean @default(false)
+  isPostingAccount   Boolean @default(true) // Can post to this account (leaf node)
+
+  // Consolidation settings
+  isConsolidationEnabled   Boolean @default(false)
+  consolidationAccountCode String? // Maps to Agency Group COA
+
+  // Currency settings
+  currencyCode    String? // If null, uses base currency
+  isMultiCurrency Boolean @default(false)
+
+  // Status
+  isActive   Boolean   @default(true)
+  isArchived Boolean   @default(false)
+  archivedAt DateTime?
+  archivedBy String?
+
+  // Normal balance (for display/validation)
+  normalBalance String @default("DEBIT") // DEBIT or CREDIT
+
+  // Sort order within parent
+  sortOrder Int @default(0)
+
+  // Audit fields
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  JournalEntryLines  JournalEntryLine[]
+  AccountBalances    AccountBalance[]
+  Reconciliations    Reconciliation[]
+  PostingRuleDebits  PostingRule[]      @relation("PostingRuleDebit")
+  PostingRuleCredits PostingRule[]      @relation("PostingRuleCredit")
+
+  // Open Item & Subledger Relations
+  OpenItems  OpenItem[]  @relation("OpenItemAccount")
+  SubLedgers SubLedger[] @relation("SubLedgerControl")
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, accountType])
+  @@index([agencyId, isActive])
+  @@index([agencyId, path])
+  @@index([agencyId, level])
+  @@index([subAccountId, accountType])
+  @@index([subAccountId, isActive])
+  @@index([subAccountId, path])
+  @@index([parentAccountId])
+  @@index([controlAccountId])
+  @@index([isControlAccount])
+  @@index([isSystemAccount])
+  @@index([isConsolidationEnabled])
+  @@schema("finance")
+}
+
+// ========================================
+// AGENCY GROUP COA (For Consolidation)
+// ========================================
+
+model AgencyGroupCOA {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  // Account identification
+  code        String
+  name        String
+  description String? @db.Text
+
+  // Classification
+  accountType AccountType
+  category    AccountCategory?
+
+  // Hierarchy
+  parentId String?
+  Parent   AgencyGroupCOA?  @relation("GroupCOAHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  Children AgencyGroupCOA[] @relation("GroupCOAHierarchy")
+  path     String           @default("/")
+  level    Int              @default(0)
+
+  // Status
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  ConsolidationMappings ConsolidationMapping[]
+  ConsolidatedBalances  ConsolidatedBalance[]
+  WorksheetLines        ConsolidationWorksheetLine[]
+
+  @@unique([agencyId, code])
+  @@index([agencyId, accountType])
+  @@index([agencyId, isActive])
+  @@index([parentId])
+  @@schema("finance")
+}
+
+// ========================================
+// CONSOLIDATION MAPPING
+// ========================================
+
+model ConsolidationMapping {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  // SubAccount COA → Agency Group COA mapping
+  subAccountId String
+  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  subAccountCOACode String // Source account code from subaccount
+  groupCOAId        String // Target Agency Group COA
+  GroupCOA          AgencyGroupCOA @relation(fields: [groupCOAId], references: [id], onDelete: Cascade)
+
+  // Mapping rules
+  mappingPercentage Decimal @default(100) @db.Decimal(5, 2) // For proportional consolidation
+  isElimination     Boolean @default(false) // Intercompany elimination account
+  eliminationPairId String? // Linked elimination account in other subaccount
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@unique([agencyId, subAccountId, subAccountCOACode])
+  @@index([agencyId])
+  @@index([subAccountId])
+  @@index([groupCOAId])
+  @@index([isElimination])
+  @@schema("finance")
+}
+
+// ========================================
+// FINANCIAL PERIODS
+// ========================================
+
+model FinancialPeriod {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope (can be Agency or SubAccount level)
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Period identification
+  name         String // "January 2026", "Q1 FY2026"
+  shortName    String? // "Jan-26", "Q1-26"
+  periodType   PeriodType
+  fiscalYear   Int
+  fiscalPeriod Int // 1-12 for months, 1-4 for quarters
+
+  // Date range
+  startDate DateTime
+  endDate   DateTime
+
+  // Status workflow
+  status PeriodStatus @default(FUTURE)
+
+  // Workflow metadata
+  openedAt DateTime?
+  openedBy String?
+  closedAt DateTime?
+  closedBy String?
+  lockedAt DateTime?
+  lockedBy String?
+
+  // Balance snapshots (JSON for efficiency)
+  openingBalances Json?
+  closingBalances Json?
+
+  // Year-end
+  isYearEnd          Boolean   @default(false)
+  yearEndProcessedAt DateTime?
+  yearEndProcessedBy String?
+
+  // Notes
+  notes String? @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  JournalEntries         JournalEntry[]
+  AccountBalances        AccountBalance[]
+  Reconciliations        Reconciliation[]
+  ConsolidationSnapshots ConsolidationSnapshot[]
+
+  @@unique([agencyId, fiscalYear, periodType, fiscalPeriod])
+  @@unique([subAccountId, fiscalYear, periodType, fiscalPeriod])
+  @@index([agencyId, status])
+  @@index([agencyId, fiscalYear])
+  @@index([subAccountId, status])
+  @@index([subAccountId, fiscalYear])
+  @@index([startDate, endDate])
+  @@index([status])
+  @@schema("finance")
+}
+
+// ========================================
+// JOURNAL ENTRIES
+// ========================================
+
+model JournalEntry {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Entry identification
+  entryNumber String // Auto-generated: JE-2026-00001
+  reference   String? // External reference
+
+  // Period
+  periodId  String
+  Period    FinancialPeriod @relation(fields: [periodId], references: [id])
+  entryDate DateTime
+
+  // Type and source
+  entryType       JournalEntryType @default(NORMAL)
+  sourceModule    SourceModule     @default(MANUAL)
+  sourceId        String? // ID of source document
+  sourceReference String? // Reference number of source
+
+  // Posting rule (if auto-generated)
+  postingRuleId String?
+  PostingRule   PostingRule? @relation(fields: [postingRuleId], references: [id])
+
+  // Description
+  description String  @db.Text
+  notes       String? @db.Text
+
+  // Currency
+  currencyCode String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+
+  // Totals (denormalized for performance)
+  totalDebit      Decimal @default(0) @db.Decimal(18, 6)
+  totalCredit     Decimal @default(0) @db.Decimal(18, 6)
+  totalDebitBase  Decimal @default(0) @db.Decimal(18, 6) // In base currency
+  totalCreditBase Decimal @default(0) @db.Decimal(18, 6)
+
+  // Status workflow
+  status JournalEntryStatus @default(DRAFT)
+
+  // CF/BF tracking
+  isCarryForward     Boolean        @default(false)
+  isBroughtForward   Boolean        @default(false)
+  carryForwardFromId String?
+  CarryForwardFrom   JournalEntry?  @relation("CarryForwardLink", fields: [carryForwardFromId], references: [id])
+  CarriedForwardTo   JournalEntry[] @relation("CarryForwardLink")
+
+  // Reversal tracking
+  isReversal   Boolean        @default(false)
+  reversalOfId String?
+  ReversalOf   JournalEntry?  @relation("ReversalLink", fields: [reversalOfId], references: [id])
+  ReversedBy   JournalEntry[] @relation("ReversalLink")
+
+  // Workflow audit
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  postedAt        DateTime?
+  postedBy        String?
+  reversedAt      DateTime?
+  reversedByUser  String?
+  reversalReason  String?   @db.Text
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  Lines JournalEntryLine[]
+
+  @@unique([agencyId, entryNumber])
+  @@unique([subAccountId, entryNumber])
+  @@index([agencyId, status])
+  @@index([agencyId, periodId])
+  @@index([agencyId, entryDate])
+  @@index([agencyId, entryType])
+  @@index([subAccountId, status])
+  @@index([subAccountId, periodId])
+  @@index([subAccountId, entryDate])
+  @@index([sourceModule, sourceId])
+  @@index([postingRuleId])
+  @@index([status])
+  @@index([createdBy])
+  @@index([approvedBy])
+  @@schema("finance")
+}
+
+model JournalEntryLine {
+  id String @id @default(uuid())
+
+  journalEntryId String
+  JournalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+
+  // Line number
+  lineNumber Int
+
+  // Account
+  accountId String
+  Account   ChartOfAccount @relation(fields: [accountId], references: [id])
+
+  // Description
+  description String?
+
+  // Amounts (transaction currency)
+  debitAmount  Decimal @default(0) @db.Decimal(18, 6)
+  creditAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Base currency amounts
+  debitAmountBase  Decimal @default(0) @db.Decimal(18, 6)
+  creditAmountBase Decimal @default(0) @db.Decimal(18, 6)
+
+  // Exchange rate (line-level override if different from header)
+  exchangeRate Decimal? @db.Decimal(12, 6)
+
+  // Reference fields (for subledger linking)
+  subledgerType      SubledgerType @default(NONE)
+  subledgerReference String? // Customer ID, Vendor ID, etc.
+
+  // Tax information
+  taxCode   String?
+  taxAmount Decimal? @db.Decimal(18, 6)
+
+  // Dimensions (future extensibility)
+  dimension1 String? // Cost center
+  dimension2 String? // Department
+  dimension3 String? // Project
+  dimension4 String? // Custom
+
+  // Intercompany
+  isIntercompany           Boolean @default(false)
+  intercompanySubAccountId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([journalEntryId])
+  @@index([accountId])
+  @@index([subledgerType, subledgerReference])
+  @@index([isIntercompany])
+  @@schema("finance")
+}
+
+// ========================================
+// ACCOUNT BALANCES
+// ========================================
+
+model AccountBalance {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Account and period
+  accountId String
+  Account   ChartOfAccount  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  periodId  String
+  Period    FinancialPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  // Currency
+  currencyCode String @default("USD")
+
+  // Balance components
+  openingBalance Decimal @default(0) @db.Decimal(18, 6) // BF
+  debitMovement  Decimal @default(0) @db.Decimal(18, 6)
+  creditMovement Decimal @default(0) @db.Decimal(18, 6)
+  closingBalance Decimal @default(0) @db.Decimal(18, 6) // CF
+
+  // Base currency balances
+  openingBalanceBase Decimal @default(0) @db.Decimal(18, 6)
+  debitMovementBase  Decimal @default(0) @db.Decimal(18, 6)
+  creditMovementBase Decimal @default(0) @db.Decimal(18, 6)
+  closingBalanceBase Decimal @default(0) @db.Decimal(18, 6)
+
+  // Balance type
+  balanceType BalanceType @default(NORMAL)
+
+  // Transaction count
+  transactionCount Int @default(0)
+
+  // Last recalculation
+  lastRecalculatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([accountId, periodId, currencyCode])
+  @@index([agencyId, periodId])
+  @@index([subAccountId, periodId])
+  @@index([accountId])
+  @@index([periodId])
+  @@schema("finance")
+}
+
+// ========================================
+// MULTI-CURRENCY
+// ========================================
+
+model Currency {
+  id String @id @default(uuid())
+
+  code          String @unique // ISO 4217: USD, EUR, JPY
+  name          String // US Dollar, Euro, Japanese Yen
+  symbol        String // $, €, ¥
+  decimalPlaces Int    @default(2) // 0 for JPY, 2 for USD
+
+  isActive       Boolean @default(true)
+  isBaseCurrency Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ExchangeRatesFrom ExchangeRate[]        @relation("FromCurrency")
+  ExchangeRatesTo   ExchangeRate[]        @relation("ToCurrency")
+  Revaluations      CurrencyRevaluation[]
+
+  @@index([isActive])
+  @@index([code])
+  @@schema("finance")
+}
+
+model ExchangeRate {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  fromCurrencyCode String
+  FromCurrency     Currency @relation("FromCurrency", fields: [fromCurrencyCode], references: [code])
+  toCurrencyCode   String
+  ToCurrency       Currency @relation("ToCurrency", fields: [toCurrencyCode], references: [code])
+
+  rate        Decimal @db.Decimal(12, 6)
+  inverseRate Decimal @db.Decimal(12, 6)
+
+  effectiveDate DateTime
+  expiryDate    DateTime?
+
+  rateType String  @default("SPOT") // SPOT, AVERAGE, BUDGET
+  source   String? // API source or manual
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@unique([agencyId, fromCurrencyCode, toCurrencyCode, effectiveDate, rateType])
+  @@index([agencyId, effectiveDate])
+  @@index([fromCurrencyCode, toCurrencyCode])
+  @@index([effectiveDate])
+  @@schema("finance")
+}
+
+model CurrencyRevaluation {
+  id String @id @default(uuid())
+
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  periodId     String
+  currencyCode String
+  Currency     Currency @relation(fields: [currencyCode], references: [code])
+
+  revaluationDate DateTime
+  exchangeRate    Decimal  @db.Decimal(12, 6)
+  previousRate    Decimal  @db.Decimal(12, 6)
+
+  // Amounts
+  unrealizedGain Decimal @default(0) @db.Decimal(18, 6)
+  unrealizedLoss Decimal @default(0) @db.Decimal(18, 6)
+  netGainLoss    Decimal @default(0) @db.Decimal(18, 6)
+
+  // Generated journal entry
+  journalEntryId String?
+
+  status String @default("DRAFT") // DRAFT, POSTED, REVERSED
+
+  createdAt DateTime  @default(now())
+  createdBy String
+  postedAt  DateTime?
+  postedBy  String?
+
+  @@index([agencyId, periodId])
+  @@index([subAccountId, periodId])
+  @@index([currencyCode])
+  @@schema("finance")
+}
+
+// ========================================
+// POSTING RULES & AUTOMATION
+// ========================================
+
+model PostingRule {
+  id String @id @default(uuid())
+
+  // Scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Identification
+  code        String
+  name        String
+  description String? @db.Text
+
+  // Source
+  sourceModule SourceModule
+
+  // Template accounts
+  debitAccountId  String
+  DebitAccount    ChartOfAccount @relation("PostingRuleDebit", fields: [debitAccountId], references: [id])
+  creditAccountId String
+  CreditAccount   ChartOfAccount @relation("PostingRuleCredit", fields: [creditAccountId], references: [id])
+
+  // Amount calculation
+  amountType  String   @default("FULL") // FULL, PERCENTAGE, FIXED
+  percentage  Decimal? @db.Decimal(5, 4)
+  fixedAmount Decimal? @db.Decimal(18, 6)
+
+  // Conditions (JSON for flexibility)
+  conditions Json? // { "amountGreaterThan": 1000, "customerType": "VIP" }
+
+  // Execution
+  priority Int     @default(0)
+  isActive Boolean @default(true)
+  autoPost Boolean @default(false) // Auto-post or create draft
+
+  // Audit
+  createdAt     DateTime  @default(now())
+  createdBy     String
+  updatedAt     DateTime  @updatedAt
+  updatedBy     String?
+  activatedAt   DateTime?
+  activatedBy   String?
+  deactivatedAt DateTime?
+  deactivatedBy String?
+
+  JournalEntries JournalEntry[]
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, sourceModule, isActive])
+  @@index([subAccountId, sourceModule, isActive])
+  @@index([sourceModule])
+  @@index([isActive])
+  @@schema("finance")
+}
+
+model PostingTemplate {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? @db.Text
+
+  // Template definition (JSON array of lines)
+  // [{ "accountCode": "1000", "debitPercent": 100, "creditPercent": 0 }, ...]
+  template Json
+
+  // Default values
+  defaultDescription String?
+  defaultCurrency    String  @default("USD")
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@unique([agencyId, name])
+  @@index([agencyId, isActive])
+  @@schema("finance")
+}
+
+// ========================================
+// RECONCILIATION
+// ========================================
+
+model Reconciliation {
+  id String @id @default(uuid())
+
+  // Scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Reconciliation target
+  accountId String
+  Account   ChartOfAccount  @relation(fields: [accountId], references: [id])
+  periodId  String
+  Period    FinancialPeriod @relation(fields: [periodId], references: [id])
+
+  // Reference
+  reconciliationNumber String
+  description          String?
+
+  // Balances
+  bookBalance         Decimal @db.Decimal(18, 6)
+  statementBalance    Decimal @db.Decimal(18, 6)
+  statementDate       DateTime
+  adjustedBookBalance Decimal @db.Decimal(18, 6)
+  difference          Decimal @db.Decimal(18, 6)
+
+  // Status
+  status ReconciliationStatus @default(IN_PROGRESS)
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?
+  closedAt        DateTime?
+  closedBy        String?
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  Items ReconciliationItem[]
+
+  @@unique([agencyId, reconciliationNumber])
+  @@unique([subAccountId, reconciliationNumber])
+  @@index([agencyId, status])
+  @@index([subAccountId, status])
+  @@index([accountId, periodId])
+  @@index([status])
+  @@schema("finance")
+}
+
+model ReconciliationItem {
+  id String @id @default(uuid())
+
+  reconciliationId String
+  Reconciliation   Reconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+
+  // Item type
+  itemType String // BOOK, STATEMENT, ADJUSTMENT
+
+  // Transaction reference
+  transactionDate DateTime
+  reference       String?
+  description     String?
+
+  // Amounts
+  amount Decimal @db.Decimal(18, 6)
+
+  // Matching
+  status        ReconciliationItemStatus @default(UNMATCHED)
+  matchedItemId String? // Link to matched item
+  matchedAt     DateTime?
+  matchedBy     String?
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reconciliationId])
+  @@index([status])
+  @@index([matchedItemId])
+  @@schema("finance")
+}
+
+model ReconciliationRule {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  // Rule definition (JSON)
+  // { "matchBy": ["reference", "amount"], "tolerance": 0.01 }
+  ruleDefinition Json
+
+  priority Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@index([agencyId, isActive])
+  @@schema("finance")
+}
+
+// Intercompany reconciliation
+model IntercompanyReconciliation {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  periodId String
+
+  // Subaccounts involved
+  subAccountId1 String
+  SubAccount1   SubAccount @relation("ICRecon1", fields: [subAccountId1], references: [id])
+  subAccountId2 String
+  SubAccount2   SubAccount @relation("ICRecon2", fields: [subAccountId2], references: [id])
+
+  // Account codes
+  accountCode1 String
+  accountCode2 String
+
+  // Balances
+  balance1   Decimal @db.Decimal(18, 6)
+  balance2   Decimal @db.Decimal(18, 6)
+  difference Decimal @db.Decimal(18, 6)
+
+  status ReconciliationStatus @default(IN_PROGRESS)
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@index([agencyId, periodId])
+  @@index([subAccountId1])
+  @@index([subAccountId2])
+  @@schema("finance")
+}
+
+// ========================================
+// CONSOLIDATION
+// ========================================
+
+model ConsolidationSnapshot {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  periodId String
+  Period   FinancialPeriod @relation(fields: [periodId], references: [id])
+
+  // Snapshot identification
+  snapshotNumber String
+  name           String
+  description    String? @db.Text
+
+  // Scope - which subaccounts are included
+  subAccountIds String[] // Array of subaccount IDs
+
+  // Consolidation method
+  consolidationMethod ConsolidationMethod
+
+  // Consolidated results (denormalized JSON for performance)
+  consolidatedBalances Json // { "1000": { balance, eliminations, adjusted } }
+  balanceSheet         Json
+  incomeStatement      Json
+  cashFlowStatement    Json
+
+  // Adjustments summary
+  eliminationEntries Json // Array of elimination entries
+  adjustmentEntries  Json // Array of manual adjustments
+  totalEliminations  Decimal @default(0) @db.Decimal(18, 6)
+  totalAdjustments   Decimal @default(0) @db.Decimal(18, 6)
+
+  // Ownership percentages (for proportional/equity)
+  ownershipPercentages Json? // { "subaccount1": 100, "subaccount2": 60 }
+
+  // Version control
+  version           Int     @default(1)
+  previousVersionId String?
+
+  // Status workflow
+  status ConsolidationStatus @default(DRAFT)
+
+  // Validation
+  validationResults Json? // { warnings: [], errors: [] }
+  isValid           Boolean @default(false)
+
+  // Workflow
+  consolidatedAt  DateTime  @default(now())
+  consolidatedBy  String
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  WorksheetLines        ConsolidationWorksheetLine[]
+  Adjustments           ConsolidationAdjustment[]
+  Eliminations          IntercompanyElimination[]
+  consolidatedBalances_ ConsolidatedBalance[]
+
+  @@unique([agencyId, periodId, version])
+  @@index([agencyId, periodId, status])
+  @@index([agencyId, status])
+  @@index([periodId])
+  @@schema("finance")
+}
+
+model ConsolidationWorksheetLine {
+  id String @id @default(uuid())
+
+  snapshotId String
+  Snapshot   ConsolidationSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  // Group COA reference
+  groupCOAId  String
+  GroupCOA    AgencyGroupCOA @relation(fields: [groupCOAId], references: [id])
+  accountCode String
+  accountName String
+
+  // SubAccount balances (JSON for flexibility)
+  // { "subaccount1": 1000.00, "subaccount2": 500.00 }
+  subAccountBalances Json
+
+  // Totals before adjustments
+  totalBeforeAdj Decimal @db.Decimal(18, 6)
+
+  // Adjustments
+  eliminations Decimal @default(0) @db.Decimal(18, 6)
+  adjustments  Decimal @default(0) @db.Decimal(18, 6)
+
+  // Final consolidated balance
+  consolidatedBalance Decimal @db.Decimal(18, 6)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([snapshotId, accountCode])
+  @@index([snapshotId])
+  @@index([groupCOAId])
+  @@schema("finance")
+}
+
+model ConsolidatedBalance {
+  id String @id @default(uuid())
+
+  snapshotId String
+  Snapshot   ConsolidationSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  groupCOAId String
+  GroupCOA   AgencyGroupCOA @relation(fields: [groupCOAId], references: [id])
+
+  // Balance
+  balance Decimal @db.Decimal(18, 6)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([snapshotId, groupCOAId])
+  @@index([snapshotId])
+  @@schema("finance")
+}
+
+model ConsolidationAdjustment {
+  id String @id @default(uuid())
+
+  snapshotId String
+  Snapshot   ConsolidationSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  // Adjustment details
+  adjustmentNumber String
+  description      String
+
+  debitAccountCode  String
+  creditAccountCode String
+  amount            Decimal @db.Decimal(18, 6)
+
+  adjustmentType String // MANUAL, MINORITY_INTEREST, GOODWILL, OTHER
+
+  // Status
+  status     String    @default("DRAFT") // DRAFT, APPROVED, REJECTED
+  approvedAt DateTime?
+  approvedBy String?
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@index([snapshotId])
+  @@schema("finance")
+}
+
+model IntercompanyElimination {
+  id String @id @default(uuid())
+
+  snapshotId String
+  Snapshot   ConsolidationSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  // Elimination details
+  eliminationNumber String
+  description       String
+
+  // Intercompany pair
+  subAccountId1 String
+  subAccountId2 String
+  accountCode1  String
+  accountCode2  String
+
+  // Amount
+  amount Decimal @db.Decimal(18, 6)
+
+  eliminationType String // REVENUE_EXPENSE, RECEIVABLE_PAYABLE, INVENTORY_PROFIT, OTHER
+
+  // Status
+  status     String    @default("DRAFT")
+  approvedAt DateTime?
+  approvedBy String?
+
+  // Auto or manual
+  isAutoGenerated Boolean @default(true)
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@index([snapshotId])
+  @@index([subAccountId1, subAccountId2])
+  @@schema("finance")
+}
+
+model SubAccountOwnership {
+  id String @id @default(uuid())
+
+  agencyId String
+  Agency   Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  subAccountId String
+  SubAccount   SubAccount @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Ownership details
+  ownershipPercentage Decimal             @db.Decimal(5, 2) // 0.00 to 100.00
+  consolidationMethod ConsolidationMethod
+
+  // Effective dates
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  // Minority interest account (if applicable)
+  minorityInterestAccountCode String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@unique([agencyId, subAccountId, effectiveFrom])
+  @@index([agencyId, isActive])
+  @@index([subAccountId])
+  @@schema("finance")
+}
+
+// ========================================
+// REPORTING
+// ========================================
+
+model SavedReport {
+  id String @id @default(uuid())
+
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  reportType ReportType
+
+  // Report parameters (JSON)
+  parameters Json // { periodId, accountIds, etc. }
+
+  // Schedule (optional)
+  isScheduled Boolean @default(false)
+  schedule    String? // Cron expression
+
+  // Output
+  lastGeneratedAt DateTime?
+  lastGeneratedBy String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+
+  @@index([agencyId, reportType])
+  @@index([subAccountId, reportType])
+  @@schema("finance")
+}
+
+model ReportTemplate {
+  id String @id @default(uuid())
+
+  name        String  @unique
+  description String?
+
+  reportType ReportType
+
+  // Template definition
+  templateDefinition Json // Layout, columns, calculations
+
+  // Default parameters
+  defaultParameters Json?
+
+  isSystem Boolean @default(true)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportType, isActive])
+  @@schema("finance")
+}
+
+model COATemplate {
+  id String @id @default(uuid())
+
+  name               String // "SaaS Company COA"
+  industry           Industry
+  description        String   @db.Text
+  region             String   @default("US")
+  accountingStandard String   @default("GAAP")
+
+  // Full COA structure as JSON
+  template Json
+
+  // Metadata
+  version   String  @default("1.0")
+  isActive  Boolean @default(true)
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([industry, isActive])
+  @@index([region, accountingStandard])
+  @@schema("finance")
+}
+
+// ========================================
+// AUDIT TRAIL
+// ========================================
+
+model GLAuditTrail {
+  id String @id @default(uuid())
+
+  // Scope
+  agencyId     String?
+  subAccountId String?
+
+  // What changed
+  entityType String // JournalEntry, ChartOfAccount, etc.
+  entityId   String
+
+  // Action
+  action AuditAction
+
+  // Who
+  userId    String
+  userEmail String?
+  userName  String?
+
+  // When
+  timestamp DateTime @default(now())
+
+  // What changed (before/after)
+  previousValues Json?
+  newValues      Json?
+
+  // Context
+  ipAddress String?
+  userAgent String?
+  sessionId String?
+
+  // Notes
+  reason String?
+
+  @@index([agencyId, entityType, entityId])
+  @@index([subAccountId, entityType, entityId])
+  @@index([agencyId, timestamp])
+  @@index([subAccountId, timestamp])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([action])
+  @@schema("finance")
+}
+
+// ========================================
+// SUBLEDGER MANAGEMENT
+// ========================================
+
+model SubLedger {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope (Agency-level, shared across SubAccounts)
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  code        String // Unique code for the subledger
+  name        String
+  description String?       @db.Text
+  type        SubledgerType
+
+  // Link to control account
+  controlAccountId String?
+  ControlAccount   ChartOfAccount? @relation("SubLedgerControl", fields: [controlAccountId], references: [id])
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  Vendors   Vendor[]
+  Customers Customer[]
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, type])
+  @@index([subAccountId, type])
+  @@index([controlAccountId])
+  @@schema("finance")
+}
+
+model Vendor {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Vendor identification
+  code    String // Vendor code
+  name    String
+  taxId   String? // Tax identification number
+  email   String?
+  phone   String?
+  address Json? // Address details
+
+  // Subledger link
+  subLedgerId String?
+  SubLedger   SubLedger? @relation(fields: [subLedgerId], references: [id])
+
+  // Payment terms
+  paymentTermDays Int      @default(30)
+  currency        String   @default("MYR")
+  creditLimit     Decimal? @db.Decimal(18, 6)
+
+  // Bank details
+  bankName      String?
+  bankAccount   String?
+  bankSwiftCode String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  OpenItems OpenItem[] @relation("VendorOpenItems")
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, isActive])
+  @@index([subAccountId, isActive])
+  @@index([subLedgerId])
+  @@schema("finance")
+}
+
+model Customer {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Customer identification
+  code    String // Customer code
+  name    String
+  taxId   String? // Tax identification number
+  email   String?
+  phone   String?
+  address Json? // Address details
+
+  // Subledger link
+  subLedgerId String?
+  SubLedger   SubLedger? @relation(fields: [subLedgerId], references: [id])
+
+  // Payment terms
+  paymentTermDays Int      @default(30)
+  currency        String   @default("MYR")
+  creditLimit     Decimal? @db.Decimal(18, 6)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  OpenItems OpenItem[] @relation("CustomerOpenItems")
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, isActive])
+  @@index([subAccountId, isActive])
+  @@index([subLedgerId])
+  @@schema("finance")
+}
+
+// ========================================
+// CONFIGURATION LOCK (Immutability)
+// ========================================
+
+model GLConfigurationLock {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // What's locked
+  settingKey   String // "baseCurrency", "fiscalYear", "accountCodeFormat"
+  lockedValue  String @db.Text // The value that's locked
+  lockedReason String // "Transactions exist", "Fiscal year closed"
+
+  // Lock metadata
+  lockedAt DateTime @default(now())
+  lockedBy String
+
+  // Unlock conditions (JSON) - what needs to happen to unlock
+  // e.g., { "zeroBalance": true } or { "uploadMappingFile": true }
+  unlockConditions Json?
+
+  // Whether this lock is permanent (can never be unlocked)
+  isPermanent Boolean @default(false)
+
+  @@unique([agencyId, settingKey])
+  @@unique([subAccountId, settingKey])
+  @@index([agencyId])
+  @@index([subAccountId])
+  @@schema("finance")
+}
+
+// ========================================
+// OPEN ITEM MANAGEMENT (Clearing Mechanism)
+// ========================================
+
+model OpenItem {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String?
+  subAccountId String?
+  Agency       Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Account (Control Account: AR, AP, Bank)
+  accountId String
+  Account   ChartOfAccount @relation("OpenItemAccount", fields: [accountId], references: [id])
+
+  journalEntryId String?
+  journalLineId  String?
+
+  // Source Document
+  sourceModule    SourceModule
+  sourceId        String? // ID of source document (Invoice, Payment, etc.)
+  sourceReference String? // Document number
+
+  // Matching Info (for clearing)
+  reference  String? // User-defined reference for matching
+  assignment String? // Additional info for matching (e.g., PO number)
+  text       String? @db.Text // Description or memo
+
+  // Item Details
+  itemDate DateTime
+  itemType String?
+  dueDate  DateTime?
+
+  // Amounts in local currency (system base currency)
+  localCurrencyCode    String  @default("MYR")
+  localAmount          Decimal @db.Decimal(18, 6)
+  localRemainingAmount Decimal @db.Decimal(18, 6)
+
+  // Amounts in document currency
+  documentCurrencyCode    String    @default("MYR")
+  documentAmount          Decimal   @db.Decimal(18, 6)
+  documentRemainingAmount Decimal   @db.Decimal(18, 6)
+  documentNumber          String? // Original document number
+  documentDate            DateTime?
+
+  // Exchange rate at posting
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+
+  // Partner (Customer/Vendor/Bank)
+  partnerType PartnerType?
+  customerId  String?
+  Customer    Customer?    @relation("CustomerOpenItems", fields: [customerId], references: [id])
+  vendorId    String?
+  Vendor      Vendor?      @relation("VendorOpenItems", fields: [vendorId], references: [id])
+
+  // Clearing Status
+  status             OpenItemStatus @default(OPEN)
+  clearingDate       DateTime?
+  clearingDocumentId String? // ID of clearing document
+  clearingReference  String? // Clearing document number
+
+  // Audit trail
+  createdAt DateTime  @default(now())
+  createdBy String
+  enteredAt DateTime  @default(now()) // Entry date
+  postedAt  DateTime? // Posting date
+  clearedAt DateTime?
+  clearedBy String?
+
+  // Allocations for partial clearing
+  Allocations OpenItemAllocation[]
+
+  @@index([agencyId, accountId, status])
+  @@index([subAccountId, accountId, status])
+  @@index([customerId, status])
+  @@index([vendorId, status])
+  @@index([clearingDate])
+  @@index([sourceModule, sourceId])
+  @@index([reference])
+  @@schema("finance")
+}
+
+model OpenItemAllocation {
+  id String @id @default(uuid())
+
+  // Link to open item being cleared
+  openItemId String
+  OpenItem   OpenItem @relation(fields: [openItemId], references: [id], onDelete: Cascade)
+
+  // Clearing document details
+  clearedById   String // ID of the document that clears this item
+  clearedByType ClearingDocumentType
+  clearedByRef  String? // Reference number of clearing document
+
+  // Amounts allocated
+  localAmount    Decimal @db.Decimal(18, 6)
+  documentAmount Decimal @db.Decimal(18, 6)
+
+  // Exchange difference (if any)
+  exchangeDifference Decimal @default(0) @db.Decimal(18, 6)
+
+  allocatedAt DateTime @default(now())
+  allocatedBy String
+
+  notes String? @db.Text
+
+  @@index([openItemId])
+  @@index([clearedById])
+  @@index([allocatedAt])
+  @@schema("finance")
+}
+
+// -----------------------------------------------------------------------------
+// Apps Hub: Integrations & Webhooks (Add-on modules)
+// -----------------------------------------------------------------------------
+
+model IntegrationApiKey {
+  id        String @id @default(uuid())
+  name      String
+  // Store only hash + prefix (never store raw secret)
+  keyPrefix String @unique
+  keyHash   String @db.Text
+
+  // Scope of ownership
+  agencyId     String?
+  subAccountId String?
+
+  createdByUserId String?
+  createdAt       DateTime  @default(now())
+  revokedAt       DateTime?
+  lastUsedAt      DateTime?
+
+  Agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  CreatedBy  User?       @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([agencyId])
+  @@index([subAccountId])
+  @@index([createdByUserId])
+  @@schema("public")
+}
+
+model IntegrationConnection {
+  id       String @id @default(uuid())
+  provider String
+  status   String @default("DISCONNECTED") // DISCONNECTED | CONNECTED | ERROR
+
+  agencyId     String?
+  subAccountId String?
+
+  // OAuth / API credentials and provider config
+  credentials Json?
+  config      Json?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  Agency     Agency?     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  WebhookSubscriptions IntegrationWebhookSubscription[]
+  ProviderEvents       IntegrationProviderEvent[]
+
+  @@unique([provider, agencyId, subAccountId])
+  @@index([provider])
+  @@index([agencyId])
+  @@index([subAccountId])
+  @@schema("public")
+}
+
+model IntegrationWebhookSubscription {
+  id           String @id @default(uuid())
+  connectionId String
+
+  url        String   @db.Text
+  secretHash String?  @db.Text
+  secretEnc  String?  @db.Text
+  events     String[]
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Connection IntegrationConnection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  Deliveries IntegrationWebhookDelivery[]
+
+  @@index([connectionId])
+  @@index([isActive])
+  @@schema("public")
+}
+
+model IntegrationProviderEvent {
+  id           String @id @default(uuid())
+  provider     String
+  connectionId String
+
+  // Provider delivery/event id for idempotency
+  externalEventId String?
+
+  headers Json?
+  payload Json?
+
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  Connection IntegrationConnection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  Deliveries IntegrationWebhookDelivery[]
+
+  @@unique([connectionId, externalEventId])
+  @@index([provider])
+  @@index([connectionId])
+  @@schema("public")
+}
+
+model IntegrationWebhookDelivery {
+  id              String  @id @default(uuid())
+  subscriptionId  String
+  providerEventId String?
+
+  status        String    @default("PENDING") // PENDING | SUCCESS | FAILED
+  attemptCount  Int       @default(0)
+  nextAttemptAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Subscription  IntegrationWebhookSubscription      @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  ProviderEvent IntegrationProviderEvent?           @relation(fields: [providerEventId], references: [id], onDelete: SetNull)
+  Attempts      IntegrationWebhookDeliveryAttempt[]
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([nextAttemptAt])
+  @@schema("public")
+}
+
+model IntegrationWebhookDeliveryAttempt {
+  id         String @id @default(uuid())
+  deliveryId String
+
+  statusCode   Int?
+  responseBody String? @db.Text
+  error        String? @db.Text
+  durationMs   Int?
+
+  attemptedAt DateTime @default(now())
+
+  Delivery IntegrationWebhookDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryId])
+  @@index([attemptedAt])
+  @@schema("public")
+}
+
+enum AppScopeKind {
+  AGENCY
+  SUBACCOUNT
+
+  @@schema("public")
+}
+
+enum AppInstallationStatus {
+  INSTALLED
+  AVAILABLE
+  EXPIRED
+  DISABLED
+
+  @@schema("public")
+}
+
+model AppInstallation {
+  id            String                @id @default(uuid())
+  appKey        String
+  agencyId      String
+  subAccountId  String?
+  status        AppInstallationStatus @default(INSTALLED)
+  installedAt   DateTime              @default(now())
+  uninstalledAt DateTime?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  Agency     Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  @@index([appKey])
+  @@index([agencyId])
+  @@index([subAccountId])
+  @@schema("public")
 }

@@ -53,7 +53,7 @@ export function FeatureAdmin() {
 
   async function loadFeatures() {
     try {
-      const response = await fetch('/api/admin/features')
+      const response = await fetch('/api/features/')
       const data = await response.json()
       
       if (!response.ok) {
@@ -89,7 +89,7 @@ export function FeatureAdmin() {
     setSubmitting(true)
     
     try {
-      const response = await fetch('/api/admin/features/override', {
+      const response = await fetch('/api/features//override', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

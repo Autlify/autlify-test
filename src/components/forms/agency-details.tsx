@@ -1,11 +1,10 @@
 'use client'
 import { Agency } from '@/generated/prisma/client'
-import { useForm } from 'react-hook-form'
 import React, { useEffect, useState } from 'react'
 import { NumberInput } from '@tremor/react'
 import { v4 } from 'uuid'
 import { useSession } from 'next-auth/react'
-
+import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import {
   CountrySelector,
@@ -43,6 +42,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form'
+import { Label } from '../ui/label'
 import { useToast } from '../ui/use-toast'
 
 import * as z from 'zod'
@@ -61,6 +61,7 @@ import Loading from '../global/loading'
 import Stripe from 'stripe'
 import { StripeCustomerType } from '@/lib/types'
 import { Plan } from '@/generated/prisma/client'
+import { City, Country, State } from 'country-state-city'
 
 type Props = {
   data?: Partial<Agency>
@@ -92,6 +93,8 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
   const [phoneCode, setPhoneCode] = useState(data?.companyPhone || '')
   const [countryCode, setCountryCode] = useState(data?.country || '')
   const [stateCode, setStateCode] = useState(data?.state || '')
+  const [city, setCity] = useState(data?.city || '')
+  const [phoneNumber, setPhoneNumber] = useState(data?.companyPhone || '')
 
   const form = useForm<z.infer<typeof FormSchema>>({
     mode: 'onSubmit',
@@ -123,18 +126,18 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
           // Use ipapi.co for free IP geolocation
           const response = await fetch('https://ipapi.co/json/')
           const locationData = await response.json()
-          
+
           if (locationData.country_code) {
             const { Country } = await import('country-state-city')
             const countries = Country.getAllCountries()
             const detectedCountry = countries.find(c => c.isoCode === locationData.country_code)
-            
+
             if (detectedCountry) {
               // Set country
               setCountryCode(detectedCountry.isoCode)
               form.setValue('country', detectedCountry.name)
               form.setValue('countryCode', detectedCountry.isoCode)
-              
+
               // Set phone code
               const phoneCodeValue = `+${detectedCountry.phonecode}`
               setPhoneCode(phoneCodeValue)
@@ -145,10 +148,39 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
           console.log('Location detection failed, using defaults')
         }
       }
-      
       detectLocation()
     }
   }, [data?.id, countryCode, form])
+
+
+  useEffect(() => {
+    if (data) {
+      const country = Country.getAllCountries().find(c => c.name === data?.country)
+      const state = State.getStatesOfCountry(country?.isoCode).find(s => s.name === data?.state)
+      const city = City.getCitiesOfState(state?.countryCode || '', state?.isoCode || '').find(c => c.name === data?.city)
+      const phoneCodeMatch = data?.companyPhone && country ? data.companyPhone.match(new RegExp(`^(\\+${country.phonecode})(.*)$`)) : null
+      const phoneCodeFromMatch = phoneCodeMatch ? phoneCodeMatch[1] : null
+      const phoneNumberFromMatch = phoneCodeMatch ? phoneCodeMatch[2].toString().trim() : null
+
+      setCountryCode(country ? country.isoCode : '')
+      form.setValue('country', country ? country.name : data.country || '')
+      form.setValue('countryCode', country ? country.isoCode : '')
+      setStateCode(state ? state.isoCode : '')
+      form.setValue('state', state ? state.name : data.state || '')
+      form.setValue('stateCode', state ? state.isoCode : '')
+      setCity(city ? city.name : '')
+      form.setValue('city', city ? city.name : data.city || '')
+      form.setValue('postalCode', data.postalCode || '')
+      setPhoneCode(phoneCodeFromMatch || '')
+      form.setValue('phoneCode', phoneCodeFromMatch || '')
+      setPhoneNumber(phoneNumberFromMatch || data.companyPhone || '')
+    }
+  }, [data, form])
+
+
+
+
+
 
   const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
     try {
@@ -224,7 +256,7 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
       if (response) {
         // Force session update to refresh activeRole and activeAgencyId
         await updateSession()
-        
+
         // If user selected a paid plan, redirect to billing for payment
         if (selectedPlan) {
           window.location.href = `/agency/${response.id}/billing?plan=${selectedPlan}`
@@ -325,8 +357,8 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
                       <FormLabel>Agency Email</FormLabel>
                       <FormControl>
                         <Input
-                          readOnly  
-                          className ="text-gray-500 cursor-not-allowed"
+                          readOnly
+                          className="text-gray-500 cursor-not-allowed"
                           placeholder="Email"
                           {...field}
                         />
@@ -462,7 +494,7 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
                             const states = State.getStatesOfCountry(countryCode);
                             const matchedState = states.find(
                               s => s.name.toLowerCase() === address.state?.toLowerCase() ||
-                                   s.isoCode.toLowerCase() === address.state?.toLowerCase()
+                                s.isoCode.toLowerCase() === address.state?.toLowerCase()
                             );
                             if (matchedState) {
                               setStateCode(matchedState.isoCode);
@@ -538,42 +570,42 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
                     </FormItem>
                   )}
                 />
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <CountrySelector
-                        value={countryCode}
-                        onValueChange={(code, countryData) => {
-                          setCountryCode(code)
-                          setStateCode('') // Reset state when country changes
-                          form.setValue('country', countryData?.name || '')
-                          form.setValue('countryCode', code)
-                          form.setValue('state', '')
-                          form.setValue('stateCode', '')
-                          form.setValue('city', '')
-                        }}
-                        placeholder="Select country"
-                        disabled={isLoading}
-                        styleVariant="plain"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  disabled={isLoading}
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <CountrySelector
+                          value={countryCode}
+                          onValueChange={(code, countryData) => {
+                            setCountryCode(code)
+                            setStateCode('') // Reset state when country changes
+                            form.setValue('country', countryData?.name || '')
+                            form.setValue('countryCode', code)
+                            form.setValue('state', '')
+                            form.setValue('stateCode', '')
+                            form.setValue('city', '')
+                          }}
+                          placeholder="Select country"
+                          disabled={isLoading}
+                          styleVariant="plain"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               {data?.id && (
                 <div className="flex flex-col gap-2">
-                  <FormLabel>Create A Goal</FormLabel>
-                  <FormDescription>
+                  <Label>Create A Goal</Label>
+                  <p className="text-muted-foreground text-sm">
                     ✨ Create a goal for your agency. As your business grows
                     your goals grow too so dont forget to set the bar higher!
-                  </FormDescription>
+                  </p>
                   <NumberInput
                     defaultValue={data?.goal}
                     onValueChange={async (val) => {

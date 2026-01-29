@@ -168,7 +168,7 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
   
   useEffect(() => {
     const checkPermission = async () => {
-      const hasManagePermission = await hasPermission('agency.members.remove')
+      const hasManagePermission = await hasPermission('core.agency.team_member.remove')
       setCanManageTeam(hasManagePermission)
     }
     checkPermission()

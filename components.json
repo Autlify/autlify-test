@@ -18,10 +18,11 @@
   "registries": {
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
     "@ncdai": "https://chanhdai.com/r/{name}.json",
-    "@billingsdk": "https://billingsdk.com/r/{name}.json",
     "@shadcn-studio": "https://shadcnstudio.com/r/{name}.json",
     "@ss-components": "https://shadcnstudio.com/r/components/{name}.json",
     "@ss-blocks": "https://shadcnstudio.com/r/blocks/{name}.json",
-    "@ss-themes": "https://shadcnstudio.com/r/themes/{name}.json"
+    "@ss-themes": "https://shadcnstudio.com/r/themes/{name}.json",
+    "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json"
   }
 }

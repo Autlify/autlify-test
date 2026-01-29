@@ -41,6 +41,7 @@ export default function DocsPage() {
 
   const popularGuides = [
     { title: "Quick Start Guide", href: "/site/docs/getting-started/quick-start", time: "5 min" },
+    { title: "Billing SDK Components", href: "/site/docs/billing-sdk", time: "8 min" },
     { title: "Creating Your First Project", href: "/site/docs/guides/first-project", time: "10 min" },
     { title: "Setting Up Team Permissions", href: "/site/docs/concepts/teams", time: "8 min" },
     { title: "API Authentication", href: "/site/docs/api/authentication", time: "12 min" },

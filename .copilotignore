@@ -6,6 +6,13 @@ out/**
 dist/**
 build/**
 
+packages/**/node_modules/**
+packages/**/dist/**
+packages/**/build/**
+packages/**/.next/**
+packages/**/out/**
+
+
 # Prisma
 prisma/migrations/**
 
@@ -33,3 +40,11 @@ public/assets/**
 
 # Documentation (optional - remove if you want Copilot to read docs)
 # docs/**
+
+# Local environment files
+_app/
+_app/**
+
+# MacOS system files
+.DS_Store
+

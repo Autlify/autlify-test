@@ -2,13 +2,14 @@ import React from 'react'
 import Link from 'next/link'
 
 import { db } from '@/lib/db'
-import { getAgencySubscriptionState } from '@/lib/iam/authz/resolver'
+import { getAgencySubscriptionState } from '@/lib/features/iam/authz/resolver'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { pricingCards } from '@/lib/constants'
-import { TrialExpiryCard } from '@/components/billingsdk/trial-expiry-card'
+import { TrialBanner } from '@/components/billing-sdk/trial-banner'
+import { SubscriptionManagement } from '@autlify/billing-sdk/components'
 
 
 
@@ -43,7 +44,7 @@ export default async function SubscriptionPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* <Card className="p-5">
+      <Card className="p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -125,9 +126,9 @@ export default async function SubscriptionPage({ params }: Props) {
             </tbody>
           </table>
         </div>
-      </Card> */}
+      </Card>
 
-      <TrialExpiryCard
+      {/* <TrialBanner
         trialEndDate={new Date(trialEndDate)}
         onUpgrade={handleUpgrade || undefined}
         features={[
@@ -137,7 +138,7 @@ export default async function SubscriptionPage({ params }: Props) {
           "Custom domain integration",
         ]}
         className="w-full max-w-md"
-      />
+      /> */}
     </div>
   )
 }

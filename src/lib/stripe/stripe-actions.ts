@@ -4,7 +4,7 @@ import { db } from '../db'
 import { stripe } from '.'
 import { Plan, SubscriptionStatus } from '@/generated/prisma/enums'
 import { pricingCards } from '@/lib/constants'
-import { applyTopUpCreditsFromCheckout } from '@/lib/core/billing/credits/grant'
+import { applyTopUpCreditsFromCheckout } from '@/lib/features/core/billing/credits/grant'
 
 export const subscriptionCreated = async (
   subscription: Stripe.Subscription,

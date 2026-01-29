@@ -62,12 +62,12 @@ export default function SignUpPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          firstName, 
-          lastName, 
-          name, 
-          email, 
-          password: usePasskeyOnly ? null : password 
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          name,
+          email,
+          password: usePasskeyOnly ? null : password
         }),
       })
 
@@ -213,6 +213,23 @@ export default function SignUpPage() {
             </div>
           </div>
 
+          <div className="space-y-3">
+            <PasskeyButton
+              email={email}
+              variant="signup"
+              onSuccess={(result) => {
+                // Redirect after passkey signup
+                router.push('/agency')
+                router.refresh()
+              }}
+              onError={(err) => setError(err)}
+              disabled={isLoading || !termsAgreed}
+            />
+            <p className="text-xs text-center text-muted-foreground">
+              Secure, passwordless authentication using your device
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Button
               variant="outline"
@@ -243,8 +260,8 @@ export default function SignUpPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <TermsAgreement 
-            agreed={termsAgreed} 
+          <TermsAgreement
+            agreed={termsAgreed}
             onChange={setTermsAgreed}
             variant="signup"
           />

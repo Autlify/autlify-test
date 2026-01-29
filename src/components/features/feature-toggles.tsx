@@ -8,8 +8,8 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Info } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { getFeatureFlagsByCategory } from '@/lib/core/features/flags'
-import type { FeatureFlagState } from '@/lib/core/features/flags'
+import { getFeatureFlagsByCategory } from '@/lib/features/experimental/flags'
+import type { FeatureFlagState } from '@/lib/features/experimental/flags'
 
 export function FeatureToggles() {
   const [flags, setFlags] = useState<Record<string, FeatureFlagState[]>>({})
@@ -41,7 +41,7 @@ export function FeatureToggles() {
     setToggling(featureKey)
     
     try {
-      const response = await fetch('/api/features/toggle', {
+      const response = await fetch('/api/features/experimental', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featureKey, enabled }),

@@ -93,7 +93,7 @@ const LaunchPadPage = async ({ params, searchParams }: Props) => {
             <div className="flex justify-between items-center w-full border p-4 rounded-lg gap-2">
               <div className="flex md:items-center gap-4 flex-col md:!flex-row">
                 <Image
-                  src="./assets/logos/stripe.svg"
+                  src={'/logos/stripe.svg'}
                   alt="app logo"
                   height={80}
                   width={80}

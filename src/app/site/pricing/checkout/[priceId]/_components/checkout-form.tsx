@@ -1156,19 +1156,20 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                       stripe={stripePromise}
                                       options={{
                                         mode: 'setup',
-                                        currency: 'usd',
+                                        currency: 'myr',
                                         paymentMethodCreation: 'manual',
                                         appearance: {
-                                          theme: 'stripe',
                                           variables: {
-                                            colorPrimary: '#3b82f6',
-                                            colorBackground: 'transparent',
-                                            colorText: '#0f172a',
-                                            colorDanger: '#ef4444',
+                                            colorSuccess: 'var(--success-text)',
+                                            colorPrimary: 'var(--primary)',
+                                            colorBackground: 'linear-gradient(to_br, var(--bg-muted/30), var(--bg-muted/20), var(--bg-muted/10))',
+                                            colorText: 'var(--fg-primary)',
+                                            colorDanger: 'var(--warning-text)',
                                             fontFamily: 'system-ui, sans-serif',
                                             borderRadius: '0.75rem',
-                                            spacingUnit: '4px',
+                                            spacingUnit: '4px', 
                                           },
+                                         
                                         },
                                       }}
                                     >

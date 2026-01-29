@@ -9,7 +9,9 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
+      // Responsive to screen sizes
       "rounded-lg border bg-card text-card-foreground shadow-sm",
+      // rounded-lg border bg-card text-card-foreground shadow-sm
       className
     )}
     {...props}
@@ -17,26 +19,28 @@ const Card = React.forwardRef<
 ))
 Card.displayName = "Card"
 
-const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref
+) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn(
+      // Responsive padding and spacing to screen sizes
+      "flex flex-col space-y-1.5 p-6 sm:p-8 sm:space-y-2",
+         // "flex flex-col space-y-1.5 p-6",
+      className)}
     {...props}
   />
 ))
 CardHeader.displayName = "CardHeader"
 
-const CardTitle = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+const CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      // Responsive design to screen sizes
+      "lg:text-2xl font-bold leading-none tracking-tight",
       className
     )}
     {...props}
@@ -44,10 +48,8 @@ const CardTitle = React.forwardRef<
 ))
 CardTitle.displayName = "CardTitle"
 
-const CardDescription = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+const CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
@@ -56,18 +58,35 @@ const CardDescription = React.forwardRef<
 ))
 CardDescription.displayName = "CardDescription"
 
-const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref) => (
+    // Responsive padding to screen sizes
+  <div ref={ref} className={cn("p-6 pt-0", className)}
+    {...props}
+  />
 ))
 CardContent.displayName = "CardContent"
 
-const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+
+const CardHighlight = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "from-muted/30 via-muted/20 to-muted/30 border-border/50 relative overflow-hidden rounded-xl border bg-gradient-to-r p-3 sm:p-4",
+      className
+    )}
+    {...props}
+  />
+))
+CardHighlight.displayName = "CardHighlight"
+
+
+
+
+
+const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((
+  { className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn("flex items-center p-6 pt-0", className)}
@@ -76,4 +95,4 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardHighlight }

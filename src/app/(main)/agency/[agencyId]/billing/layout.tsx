@@ -1,7 +1,7 @@
 import React from 'react'
 
 import Unauthorized from '@/components/unauthorized'
-import { hasPermission } from '@/lib/iam/authz/permissions'
+import { hasPermission } from '@/lib/features/iam/authz/permissions'
 import { BillingNav } from './_components/billing-nav'
 import { Separator } from '@/components/ui/separator'
 
@@ -15,9 +15,8 @@ export default async function BillingLayout({ children, params }: Props) {
 
   // Guard: billing management access (supports legacy + newer keys)
   const canBilling =
-    (await hasPermission('agency.billing.update')) ||
-    (await hasPermission('agency.billing.manage')) ||
-    (await hasPermission('agency.billing.account.manage')) ||
+    (await hasPermission('core.billing.account.read')) ||
+    (await hasPermission('core.billing.account.manage')) ||
     (await hasPermission('core.billing.account.manage')) ||
     (await hasPermission('core.billing.account.update'))
 

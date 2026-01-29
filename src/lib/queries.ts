@@ -7,17 +7,13 @@ import { redirect } from 'next/navigation'
 import {
   Agency,
   Lane,
-
   Plan,
   Prisma,
-  Role,
   SubAccount,
   Tag,
-  TaxIdentity,
   Ticket,
   User,
 } from '@/generated/prisma/client'
-import type { AdapterAuthenticator } from '@auth/core/adapters'
 import { v4 } from 'uuid'
 import {
   CreateFunnelFormSchema,
@@ -26,8 +22,11 @@ import {
 } from './types'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { createSecretKey, randomBytes } from 'crypto'
-import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto' 
+import { CONTEXT_COOKIE, parseSavedContext } from  '@/lib/features/iam/authz/resolver'
+import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions'
+import { cookies } from 'next/headers'
+
 
 /**
  * =============================================================================
@@ -88,6 +87,13 @@ import bcrypt from 'bcryptjs'
  * 
  * =============================================================================
  */
+ 
+export const getContextCookie = async () => {
+  const cookieStore = await cookies()
+  const contextCookie = cookieStore.get(CONTEXT_COOKIE)
+  if (!contextCookie) return null
+  return parseSavedContext(contextCookie.value)
+}
 
 export const getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
   agencyId: string
@@ -256,7 +262,7 @@ export const saveActivityLogsNotification = async ({
 }
 
 export const createTeamUser = async (agencyId: string, user: Partial<User>) => {
-  const hasCreatePermission = await hasPermission('agency.users.create')
+  const hasCreatePermission = await hasPermission('core.agency.users.create')
   if (!hasCreatePermission) return null
 
   // Create user without role/agencyId (those are in User model)
@@ -528,7 +534,7 @@ export const upsertAgency = async (agency: Agency, price?: Plan) => {
           // Update session with this agency context
           await db.session.updateMany({
             where: { userId: user.id },
-            data: { 
+            data: {
               activeAgencyId: agencyDetails.id,
             },
           })
@@ -542,11 +548,11 @@ export const upsertAgency = async (agency: Agency, price?: Plan) => {
   }
 }
 
-export const getAgency = async (agencyId: string) => {
+export const getAgencyDetails = async (agencyId: string) => {
   try {
     const agency = await db.agency.findUnique({
-      where: { id: agencyId }, 
-      include: {Subscription: true},
+      where: { id: agencyId },
+      include: { Subscription: true },
     })
     return agency
   } catch (error) {
@@ -572,8 +578,14 @@ export const getNotificationAndUser = async (agencyId: string) => {
 export const upsertSubAccount = async (subAccount: SubAccount) => {
   if (!subAccount.companyEmail) return null
 
+   const context = await getContextCookie()
+  if (!context || context.kind !== 'agency') {
+    console.log('🔴Error: No context found in cookies')
+    return null
+  }
+
   // Check permission for creating subaccount
-  const hasCreatePermission = await hasPermission('subaccount.account.create')
+  const hasCreatePermission = await hasAgencyPermission(context.agencyId, 'core.agency.subaccounts.create') // to-be-changed to use hasAgencyPermission
   if (!hasCreatePermission) {
     console.log('🔴Error: No permission to create subaccount')
     return null
@@ -1297,21 +1309,21 @@ export const validateVerificationToken = async (token: string) => {
       email,
       emailVerified: new Date()
     })
-    
+
     // Delete used verification token
     await deleteVerificationToken(token)
-    
+
     // Create one-time authentication token for auto-login (5 minutes expiry)
     const autoLoginToken = await createVerificationToken(email, 'authN', 5 * 60 * 1000)
 
     return {
-      success: true, 
+      success: true,
       url: `/agency/verify?verified=true&email=${encodeURIComponent(email)}&token=${autoLoginToken.token}`,
       scope,
       email,
-      user 
+      user
     }
-    
+
   } else if (scope === 'authN') {
     // For authentication tokens, return email for auto-login
     // Token will be deleted by auth.ts after successful login
@@ -1780,10 +1792,10 @@ export const updateAgencyMemberRole = async (
   roleId: string
 ) => {
   // Import permission check
-  const { hasAgencyPermission } = await import('@/lib/iam/authz/permissions')
-  
+  const { hasAgencyPermission } = await import('@/lib/features/iam/authz/permissions')
+
   // Check permission
-  const hasPermission = await hasAgencyPermission(agencyId, 'agency.members.manage')
+  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.team_member.manage')
   if (!hasPermission) {
     throw new Error('Permission denied: Cannot assign roles')
   }

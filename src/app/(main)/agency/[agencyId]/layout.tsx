@@ -4,9 +4,9 @@ import Sidebar from '@/components/sidebar'
 import Unauthorized from '@/components/unauthorized'
 import {
   getNotificationAndUser,
-  verifyAndAcceptInvitation
+  verifyAndAcceptInvitation,
 } from '@/lib/queries'
-import { hasPermission } from '@/lib/iam/authz/permissions'
+import { hasPermission } from '@/lib/features/iam/authz/permissions'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -20,7 +20,7 @@ const layout = async ({ children, params }: Props) => {
   const { agencyId: paramsAgencyId } = await params
   const agencyId = await verifyAndAcceptInvitation()
   const session = await auth()
-  
+
   if (!session?.user) {
     return redirect('/')
   }
@@ -34,7 +34,7 @@ const layout = async ({ children, params }: Props) => {
   }
 
   // Check if user has agency access permission
-  const hasAgencyAccess = await hasPermission('agency.account.read')
+  const hasAgencyAccess = await hasPermission('core.agency.account.read')
 
   if (!hasAgencyAccess) {
     return <Unauthorized />
@@ -45,14 +45,13 @@ const layout = async ({ children, params }: Props) => {
   if (notifications) allNoti = notifications
 
   // Check permission for filtering notifications
-  const canFilterBySubAccount = await hasPermission('subaccount.account.read')
+  const canFilterBySubAccount = await hasPermission(
+    'core.subaccount.account.read'
+  )
 
   return (
     <div className="h-screen overflow-hidden">
-      <Sidebar
-        id={paramsAgencyId}
-        type="agency"
-      />
+      <Sidebar id={paramsAgencyId} type="agency" />
       <div className="md:pl-[300px]">
         <InfoBar
           notifications={allNoti}

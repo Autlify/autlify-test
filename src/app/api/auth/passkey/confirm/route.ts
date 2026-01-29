@@ -34,11 +34,11 @@ export async function POST(req: Request) {
 
     // SIGNIN MODE: Verify signin authentication
     if (mode === 'signin') {
-      return await handleSigninConfirmation()
+      return await handleSigninConfirmation(credential, email)
     }
 
     // REGISTER MODE: Complete passkey registration
-    if (mode === 'signup') {
+    if (mode === 'register') {
       if (!email || !token) {
         return NextResponse.json(
           { error: 'Email and token are required for registration' },
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { error: 'Invalid mode. Use \"signin\" or \"register\"' },
+      { error: 'Invalid mode. Use "signin" or "register"' },
       { status: 400 }
     )
   } catch (error) {
@@ -64,103 +64,119 @@ export async function POST(req: Request) {
 /**
  * Handle signin authentication confirmation
  */
-async function handleSigninConfirmation() {
-  // Find passkey by credential ID (convert base64url to base64)
-  const credentialIdBase64 = (Credential as any).id.replace(/_/g, '/').replace(/-/g, '+')
+async function handleSigninConfirmation(credential: AuthenticationResponseJSON, email?: string) {
+  // For usernameless flow: Find passkey by credential ID
+  // For email flow: Verify email matches the passkey owner
+  const credentialIdBase64 = Buffer.from(credential.id, 'base64url').toString('base64')
     
-    const passkey = await db.passkey.findUnique({
-      where: { credentialId: credentialIdBase64 },
-      include: { user: true },
-    })
+  const passkey = await db.passkey.findUnique({
+    where: { credentialId: credentialIdBase64 },
+    include: { user: true },
+  })
 
-    if (!passkey) {
-      return NextResponse.json(
-        { error: 'Passkey not found' },
-        { status: 404 }
-      )
-    }
-
-    // Get stored challenge
-    const challengeRecord = await db.verificationToken.findFirst({
-      where: { identifier: passkey.user.email },
-      orderBy: { expires: 'desc' },
-    })
-
-    if (!challengeRecord || challengeRecord.expires < new Date()) {
-      return NextResponse.json(
-        { error: 'Challenge not found or expired' },
-        { status: 400 }
-      )
-    }
-
-    // Verify the authentication
-    const verification = await verifyAuthenticationResponse({
-      response: credentialIdBase64 as AuthenticationResponseJSON,
-      expectedChallenge: challengeRecord.token,
-      expectedOrigin: origin,
-      expectedRPID: rpID,
-      authenticator: {
-        credentialID: Buffer.from(passkey.credentialId, 'base64'),
-        credentialPublicKey: Buffer.from(passkey.publicKey, 'base64'),
-        counter: passkey.counter,
-      },
-    })
-
-    if (!verification.verified) {
-      return NextResponse.json(
-        { error: 'Authentication verification failed' },
-        { status: 400 }
-      )
-    }
-
-    // Check for possible cloning (counter should increase)
-    if (verification.authenticationInfo.newCounter <= passkey.counter) {
-      console.warn(`⚠️  Possible clone detected for passkey ${passkey.id}`)
-      return NextResponse.json(
-        { error: 'Security check failed: possible cloning detected' },
-        { status: 400 }
-      )
-    }
-
-    // Update passkey counter and lastUsedAt
-    await db.passkey.update({
-      where: { id: passkey.id },
-      data: {
-        counter: verification.authenticationInfo.newCounter,
-        lastUsedAt: new Date(),
-      },
-    })
-
-    // Delete used challenge
-    await deleteVerificationToken(challengeRecord.token)
-
-    // Create auto-login token
-    const autoLoginToken = Buffer.from(
-      Array.from({ length: 32 }, () => Math.floor(Math.random() * 256))
-    ).toString('hex')
-
-    await db.verificationToken.create({
-      data: {
-        identifier: passkey.user.email,
-        token: autoLoginToken,
-        expires: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-      },
-    })
-
-    // Sign in the user with credentials provider
-    await signIn('credentials', {
-      email: passkey.user.email,
-      password: autoLoginToken,
-      redirect: false,
-    })
-
+  if (!passkey) {
     return NextResponse.json(
-      {
-        success: true,
-        message: 'Authentication successful',
-      },
-      { status: 200 }
+      { error: 'Passkey not found' },
+      { status: 404 }
     )
+  }
+
+  // If email was provided, verify it matches
+  if (email && passkey.user.email !== email) {
+    return NextResponse.json(
+      { error: 'Passkey does not belong to this user' },
+      { status: 403 }
+    )
+  }
+
+  // Get stored challenge (use email from passkey user if usernameless)
+  const userEmail = passkey.user.email
+  const challengeRecord = await db.verificationToken.findFirst({
+    where: { 
+      OR: [
+        { identifier: userEmail },
+        { identifier: { startsWith: 'usernameless-' } }
+      ]
+    },
+    orderBy: { expires: 'desc' },
+  })
+
+  if (!challengeRecord || challengeRecord.expires < new Date()) {
+    return NextResponse.json(
+      { error: 'Challenge not found or expired' },
+      { status: 400 }
+    )
+  }
+
+  // Verify the authentication
+  const verification = await verifyAuthenticationResponse({
+    response: credential,
+    expectedChallenge: challengeRecord.token,
+    expectedOrigin: origin,
+    expectedRPID: rpID,
+    authenticator: {
+      credentialID: Buffer.from(passkey.credentialId, 'base64'),
+      credentialPublicKey: Buffer.from(passkey.publicKey, 'base64'),
+      counter: passkey.counter,
+    },
+  })
+
+  if (!verification.verified) {
+    return NextResponse.json(
+      { error: 'Authentication verification failed' },
+      { status: 400 }
+    )
+  }
+
+  // Check for possible cloning (counter should increase)
+  if (verification.authenticationInfo.newCounter <= passkey.counter) {
+    console.warn(`⚠️  Possible clone detected for passkey ${passkey.id}`)
+    return NextResponse.json(
+      { error: 'Security check failed: possible cloning detected' },
+      { status: 400 }
+    )
+  }
+
+  // Update passkey counter and lastUsedAt
+  await db.passkey.update({
+    where: { id: passkey.id },
+    data: {
+      counter: verification.authenticationInfo.newCounter,
+      lastUsedAt: new Date(),
+    },
+  })
+
+  // Delete used challenge
+  await deleteVerificationToken(challengeRecord.token)
+
+  // Create auto-login token
+  const autoLoginToken = Buffer.from(
+    Array.from({ length: 32 }, () => Math.floor(Math.random() * 256))
+  ).toString('hex')
+
+  await db.verificationToken.create({
+    data: {
+      identifier: passkey.user.email,
+      token: autoLoginToken,
+      expires: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+    },
+  })
+
+  // Sign in the user with credentials provider
+  await signIn('credentials', {
+    email: passkey.user.email,
+    password: autoLoginToken,
+    redirect: false,
+  })
+
+  return NextResponse.json(
+    {
+      success: true,
+      message: 'Authentication successful',
+      email: passkey.user.email, // Return email for usernameless flow
+    },
+    { status: 200 }
+  )
 }
 
 /**
@@ -211,7 +227,7 @@ async function handleRegistrationConfirmation(
   const passkey = await db.passkey.create({
     data: {
       userId: user.id,
-      credentialId: verification.registrationInfo.credentialID.toString(),
+      credentialId: Buffer.from(verification.registrationInfo.credentialID).toString('base64'),
       publicKey: Buffer.from(verification.registrationInfo.credentialPublicKey).toString('base64'),
       counter: verification.registrationInfo.counter,
       deviceName: deviceName || 'Unnamed Device',

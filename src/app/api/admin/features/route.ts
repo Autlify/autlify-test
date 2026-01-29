@@ -1,22 +1,25 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { requireRequestAccess, ApiAuthzError } from '@/lib/iam/authz/require'
+import { requireRequestAccess, ApiAuthzError } from '@/lib/features/iam/authz/require'
 
 /**
+ * @
  * @module ADM
- * @method GET 
+ * @namespace AdminFeatures
+ * @abstraction Admin Features API Routes
  * @description List all features with admin controls
  * 
- * Requires: x-autlify-agency or x-autlify-subaccount header
- * Supports: User sessions and API keys
+ * @requires x-autlify-agency or x-autlify-subaccount header
+ * @supports User sessions and API keys
+ * 
  */
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     // Secure authorization with header-based context resolution
     await requireRequestAccess({
       req: request,
-      requiredKeys: ['core.agency.features.manage'],
+      requiredKeys: ['core.billing.features.manage'],
       requireActiveSubscription: true,
     })
     

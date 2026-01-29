@@ -12,7 +12,7 @@ import type {
  * WebAuthn/Passkey utility functions
  */
 
-export async function isWebAuthnSupported(): Promise<boolean> {
+export const isWebAuthnSupported = async (): Promise<boolean> => {
   try {
     return (
       typeof window !== 'undefined' &&
@@ -24,7 +24,11 @@ export async function isWebAuthnSupported(): Promise<boolean> {
   }
 }
 
-export async function isUserVerificationSupported(): Promise<boolean> {
+/**
+ * Check if user verification is supported
+ */
+
+export const isUserVerificationSupported = async (): Promise<boolean> => {
   try {
     return await browserSupportsWebAuthn();
   } catch {
@@ -35,13 +39,14 @@ export async function isUserVerificationSupported(): Promise<boolean> {
 /**
  * Detect authenticator capabilities
  */
-export async function detectAuthenticatorCapabilities(): Promise<{
-  isPlatform: boolean;
-  isCrossPlatform: boolean;
-  supportsUserVerification: boolean;
-  deviceType: 'platform' | 'cross-platform' | 'both' | 'none';
-  description: string;
-}> {
+export const detectAuthenticatorCapabilities = async (): Promise<
+  {
+    isPlatform: boolean;
+    isCrossPlatform: boolean;
+    supportsUserVerification: boolean;
+    deviceType: 'platform' | 'cross-platform' | 'both' | 'none';
+    description: string;
+  }> => {
   const isSupported = await isWebAuthnSupported();
   const hasUserVerification = await isUserVerificationSupported();
 
@@ -86,7 +91,7 @@ export async function detectAuthenticatorCapabilities(): Promise<{
 /**
  * Get human-readable device description
  */
-export function getDeviceDescription(): string {
+export const getDeviceDescription = (): string => {
   const userAgent = navigator.userAgent.toLowerCase();
 
   if (/iphone/.test(userAgent)) return 'Face ID & Touch ID';
@@ -102,12 +107,12 @@ export function getDeviceDescription(): string {
 /**
  * Start passkey registration
  */
-export async function registerPasskey(
+export const registerPasskey = async (
   userId: string,
   userName: string,
   userEmail: string,
   passkeyName: string = 'My Passkey'
-): Promise<RegistrationResponseJSON> {
+): Promise<RegistrationResponseJSON> => {
   try {
     // Get registration options from server
     const optionsResponse = await fetch('/api/auth/passkey', {
@@ -148,7 +153,7 @@ export async function registerPasskey(
 /**
  * Start passkey authentication
  */
-export async function authenticateWithPasskey(email: string): Promise<AuthenticationResponseJSON> {
+export const authenticateWithPasskey = async (email: string): Promise<AuthenticationResponseJSON> => {
   try {
     // Get authentication options from server
     const optionsResponse = await fetch('/api/auth/passkey', {
@@ -183,9 +188,9 @@ export async function authenticateWithPasskey(email: string): Promise<Authentica
 /**
  * Get device icon based on capabilities
  */
-export function getAuthenticatorIcon(
+export const getAuthenticatorIcon = (
   deviceType: 'platform' | 'cross-platform' | 'both' | 'none'
-): string {
+): string => {
   const userAgent = navigator.userAgent.toLowerCase();
 
   switch (deviceType) {

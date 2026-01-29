@@ -39,6 +39,8 @@ const Sidebar = async ({ id, type }: Props) => {
       sideBarLogo =
         agency.SubAccount.find((subaccount) => subaccount.id === id)
           ?.subAccountLogo || agency.agencyLogo
+    } else if ( type === 'agency' ) {
+      sideBarLogo = '/assets/autlify-logo.svg'
     }
   }
 

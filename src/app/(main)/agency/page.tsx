@@ -1,4 +1,4 @@
-import { resolveLandingTarget, CONTEXT_COOKIE } from '@/lib/iam/authz/resolver'
+import { resolveLandingTarget, CONTEXT_COOKIE } from '@/lib/features/iam/authz/resolver'
 import { verifyAndAcceptInvitation } from '@/lib/queries'
 import { Plan } from '@/generated/prisma/client'
 import { redirect } from 'next/navigation' 
@@ -24,9 +24,9 @@ const Page = async ({
 
   const landingTarget = await resolveLandingTarget({
     cookieValue,
-    agencyPermissionKey: 'agency.account.read',
-    subAccountPermissionKey: 'subaccount.account.read',
-    billingPermissionKey: 'agency.billing.update',
+    agencyPermissionKey: 'core.agency.account.read',
+    subAccountPermissionKey: 'core.subaccount.account.read',
+    billingPermissionKey: 'core.billing.account.read',
   })
 
   if (!landingTarget) {
@@ -36,7 +36,7 @@ const Page = async ({
 
   if (landingTarget.kind === 'agency') {
     const { agencyId, hasInactiveSubscription, permissionKeys } = landingTarget
-    const canManageBilling = permissionKeys.includes('agency.billing.update')
+    const canManageBilling = permissionKeys.includes('core.billing.account.manage')
 
     // IMPORTANT: missing subscription is treated as inactive too.
     if (hasInactiveSubscription) {
