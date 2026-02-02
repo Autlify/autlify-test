@@ -43,7 +43,7 @@ const getContext = async (): Promise<Context | null> => {
     userId: session.user.id,
     agencyId: dbSession?.activeAgencyId ?? undefined,
     subAccountId: dbSession?.activeSubAccountId ?? undefined,
-  };
+  }; 
 };
 
 /**
@@ -57,8 +57,8 @@ export const getFinancialPeriod = async (periodId: string): Promise<ActionResult
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.view');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view periods' };
@@ -99,8 +99,8 @@ export const getCurrentOpenPeriod = async (): Promise<ActionResult<any>> => {
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.view');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view periods' };
@@ -141,8 +141,8 @@ export const listFinancialPeriods = async (): Promise<ActionResult<any>> => {
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.view');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view periods' };
@@ -178,8 +178,8 @@ export const createFinancialPeriod = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.create')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.create');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to create periods' };
@@ -261,8 +261,8 @@ export const updateFinancialPeriod = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.edit')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.edit');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to edit periods' };
@@ -333,8 +333,8 @@ export const openPeriod = async (periodId: string): Promise<ActionResult<any>> =
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.open')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.open');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to open periods' };
@@ -403,8 +403,8 @@ export const closePeriod = async (periodId: string): Promise<ActionResult<any>> 
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.close')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.close');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to close periods' };
@@ -547,8 +547,8 @@ export const lockPeriod = async (periodId: string, reason: string): Promise<Acti
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.Period.lock')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.Period.lock');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.configuration.fiscal_years.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.configuration.fiscal_years.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to lock periods' };

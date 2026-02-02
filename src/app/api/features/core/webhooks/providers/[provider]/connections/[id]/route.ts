@@ -15,7 +15,7 @@ type Props = { params: Promise<{ provider: string; id: string }> }
 
 export async function GET(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     const { id } = await props.params
     const conn = await getConnectionById(id)
     if (!connectionInScope(conn, scope)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -29,7 +29,7 @@ export async function GET(req: Request, props: Props) {
 
 export async function PATCH(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const { id } = await props.params
     const conn = await getConnectionById(id)
     if (!connectionInScope(conn, scope)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -47,7 +47,7 @@ export async function PATCH(req: Request, props: Props) {
 
 export async function DELETE(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const { id } = await props.params
     const conn = await getConnectionById(id)
     if (!connectionInScope(conn, scope)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

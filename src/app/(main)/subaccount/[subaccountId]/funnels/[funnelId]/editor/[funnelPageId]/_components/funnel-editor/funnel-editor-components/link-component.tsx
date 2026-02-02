@@ -44,7 +44,7 @@ const LinkComponent = (props: Props) => {
     <div
       style={styles}
       draggable
-      onDragStart={(e) => handleDragStart(e, 'text')}
+      onDragStart={(e) => handleDragStart(e, 'link')}
       onClick={handleOnClickBody}
       className={clsx(
         'p-[2px] w-full m-[5px] relative text-[16px] transition-all',
@@ -72,6 +72,7 @@ const LinkComponent = (props: Props) => {
       {!state.editor.previewMode && !state.editor.liveMode && (
         <span
           contentEditable={!state.editor.liveMode}
+          suppressContentEditableWarning={true}
           onBlur={(e) => {
             const spanElement = e.target as HTMLSpanElement
             dispatch({
@@ -80,6 +81,7 @@ const LinkComponent = (props: Props) => {
                 elementDetails: {
                   ...props.element,
                   content: {
+                    ...(!Array.isArray(props.element.content) ? props.element.content : {}),
                     innerText: spanElement.innerText,
                   },
                 },

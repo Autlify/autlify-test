@@ -8,6 +8,7 @@ import { checkUsage } from '@/lib/features/core/billing/usage/consume'
 import type { UsageDecision } from '@/lib/features/core/billing/usage/consume'
 
 import { POLICY_MESSAGES, type PolicyReason, type PolicySuggestion } from './messages'
+import type { ActionKey, FeatureKey } from '@/lib/registry'
 
 export type CanPerformArgs = {
   userId: string
@@ -15,19 +16,19 @@ export type CanPerformArgs = {
   subAccountId?: string | null
 
   // RBAC
-  requiredPermissionKey?: string
-  requiredPermissionKeys?: string[]
+  requiredPermissionKey?: ActionKey
+  requiredPermissionKeys?: ActionKey[]
 
   // Subscription
   requireActiveSubscription?: boolean
 
   // Feature/usage gating
-  featureKey?: string
+  featureKey?: FeatureKey
   quantity?: number
-  actionKey?: string
+  actionKey?: ActionKey
 
   // Determines whether to show topup/upgrade or contact-admin
-  billingPermissionKeys?: string[]
+  billingPermissionKeys?: ActionKey[]
 }
 
 export type CanPerformResult = {
@@ -42,9 +43,8 @@ export type CanPerformResult = {
   hasBillingAccess?: boolean
 }
 
-const DEFAULT_BILLING_PERMISSION_KEYS = [
-  'core.billing.account.manage',
-  'core.billing.account.update',
+const DEFAULT_BILLING_PERMISSION_KEYS: Partial<ActionKey>[] = [
+  'core.billing.account.view',
   'core.billing.account.manage',
 ]
 
@@ -71,7 +71,7 @@ async function hasAllPermissions(
   userId: string,
   agencyId: string,
   subAccountId: string | null,
-  keys: string[]
+  keys: ActionKey[]
 ): Promise<boolean> {
   if (keys.length === 0) return true
   if (subAccountId) {
@@ -93,7 +93,7 @@ async function computeHasBillingAccess(
   userId: string,
   agencyId: string,
   subAccountId: string | null,
-  billingKeys?: string[]
+  billingKeys?: ActionKey[]
 ): Promise<boolean> {
   const keys = billingKeys?.length ? billingKeys : DEFAULT_BILLING_PERMISSION_KEYS
   // Billing is typically agency-scoped even when operating in subaccount context.
@@ -131,7 +131,7 @@ export const canPerform = async (args: CanPerformArgs): Promise<CanPerformResult
   const permKeys = [
     ...(requiredPermissionKey ? [requiredPermissionKey] : []),
     ...(requiredPermissionKeys ?? []),
-  ].map((s) => s.trim()).filter(Boolean)
+  ].map((s) => s.trim()).filter(Boolean) as ActionKey[]
 
   const permOk = await hasAllPermissions(userId, agencyId, subAccountId, permKeys)
   if (!permOk) {

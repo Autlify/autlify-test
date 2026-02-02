@@ -21,7 +21,7 @@ import { Separator } from '@/components/ui/separator'
 
 export default function Home() {
   return (
-    <div className="relative overflow-hidden bg-bg-primary text-fg-primary">
+    <div className="min-w-full min-h-svh relative overflow-hidden bg-bg-primary text-fg-primary">
 
       {/* Premium: Subtle grid overlay for depth */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--line-quaternary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--line-quaternary))_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40" aria-hidden="true" />
@@ -119,7 +119,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-?
       {/* Spacer */}
       <div className="h-32 md:h-40" aria-hidden="true" />
 

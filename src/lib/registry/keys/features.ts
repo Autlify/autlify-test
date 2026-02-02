@@ -13,32 +13,25 @@ import type { ModuleCode, SubModuleOf, ResourceOf, KEYS } from '@/lib/registry/k
 import type { ActionKey } from '@/lib/registry/keys/actions'
 
 /** Resource codes (e.g., 'account', 'subaccounts', 'team_member') */
-export type ResourceCode = {
+export type FeatureCode = {
   [M in ModuleCode]: { 
     [S in SubModuleOf<M>]: ResourceOf<M, S> 
   }[SubModuleOf<M>]
 }[ModuleCode];
 
 /** Full resource keys (e.g., 'core.agency.account', 'core.billing.subscription') */
-export type ResourceKey = {
+export type FeatureKey = {
   [M in ModuleCode]: {
     [S in SubModuleOf<M>]: `${M}.${S}.${ResourceOf<M, S>}`
   }[SubModuleOf<M>]
 }[ModuleCode];
 
 /** Resource types (uppercase, e.g., 'ACCOUNT', 'SUBACCOUNTS') */
-export type ResourceType = Uppercase<ResourceCode>;
+export type FeatureType = Uppercase<FeatureCode>;
 
 /** Feature value types for entitlements */
 export type EntitlementValueType = 'BOOLEAN' | 'INTEGER' | 'DECIMAL' | 'STRING'
 
-/** Feature category for grouping */
-export type FeatureCategory = 
-  | 'CORE'      // Core platform features
-  | 'CRM'       // Customer relationship features  
-  | 'BILLING'   // Billing and payment features
-  | 'APPS'      // Platform apps and integrations
-  | 'FI'        // Financial modules
 
 /** Feature scope for metering */
 export type FeatureScope = 'AGENCY' | 'SUBACCOUNT'
@@ -48,7 +41,7 @@ export type FeatureScope = 'AGENCY' | 'SUBACCOUNT'
  * Use to check if a feature is enabled for a given scope.
  */
 export interface FeatureAccess {
-  featureKey: string
+  featureKey: FeatureKey
   isEnabled: boolean
   isUnlimited: boolean
   currentUsage?: number
@@ -60,7 +53,7 @@ export interface FeatureAccess {
  * Helper to format feature display name from key.
  * e.g., 'core.agency.subaccounts' -> 'Sub-Accounts'
  */
-export function formatFeatureDisplayName(key: string): string {
+export function formatFeatureDisplayName(key: FeatureKey): string {
   const parts = key.split('.')
   const resource = parts[parts.length - 1]
   return resource
@@ -68,3 +61,4 @@ export function formatFeatureDisplayName(key: string): string {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
 }
+

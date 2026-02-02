@@ -3,8 +3,12 @@ import 'server-only'
 import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import type { Permission } from '@/generated/prisma/client'
+import type { ActionKey } from '@/lib/registry'
+import { resolveEffectiveEntitlements } from '@/lib/features/core/billing/entitlements/resolve'
+import { getPermissionCatalogSeeds } from '@/lib/features/iam/authz/permission-catalog'
+import { isPermissionAssignable } from '@/lib/features/iam/authz/permission-entitlements'
 
-type PermissionKey = string
+type PermissionKey = ActionKey
 
 const normalizeKey = (k: string) => k.trim()
 
@@ -69,11 +73,12 @@ export const getUserPermissions = async (): Promise<Permission[]> => {
 
 export const getUserPermissionKeys = async (): Promise<PermissionKey[]> => {
   const perms = await getUserPermissions()
-  return perms.map((p) => p.key)
+  // DB stores strings but we trust seeded permission keys match ActionKey
+  return perms.map((p) => p.key as PermissionKey)
 }
 
-export const hasPermission = async (permissionKey: string): Promise<boolean> => {
-  const key = normalizeKey(permissionKey)
+export const hasPermission = async (permissionKey: PermissionKey): Promise<boolean> => {
+  const key = normalizeKey(permissionKey) as PermissionKey
   const keys = await getUserPermissionKeys()
   return keys.includes(key)
 }
@@ -90,7 +95,8 @@ export const getAgencyPermissionKeys = async (
   const membership = user.AgencyMemberships.find((m) => m.agencyId === agencyId)
   if (!membership) return []
 
-  return membership.Role.Permissions.map((rp) => rp.Permission.key)
+  // DB stores strings but we trust seeded permission keys match ActionKey
+  return membership.Role.Permissions.map((rp) => rp.Permission.key as PermissionKey)
 }
 
 export const getSubAccountPermissionKeys = async (
@@ -104,26 +110,126 @@ export const getSubAccountPermissionKeys = async (
   )
   if (!membership) return []
 
-  return membership.Role.Permissions.map((rp) => rp.Permission.key)
+  // DB stores strings but we trust seeded permission keys match ActionKey
+  return membership.Role.Permissions.map((rp) => rp.Permission.key as PermissionKey)
 }
 
 export const hasAgencyPermission = async (
   agencyId: string,
-  permissionKey: string
+  permissionKey: PermissionKey
 ): Promise<boolean> => {
-  const key = normalizeKey(permissionKey)
+  const key = normalizeKey(permissionKey) as PermissionKey
   const keys = await getAgencyPermissionKeys(agencyId)
   return keys.includes(key)
 }
 
 export const hasSubAccountPermission = async (
   subAccountId: string,
-  permissionKey: string
+  permissionKey: PermissionKey
 ): Promise<boolean> => {
-  const key = normalizeKey(permissionKey)
+  const key = normalizeKey(permissionKey) as PermissionKey
   const keys = await getSubAccountPermissionKeys(subAccountId)
   return keys.includes(key)
 }
+
+// =============================================================================
+// ENTITLED PERMISSIONS - For Role Management UI
+// =============================================================================
+
+/**
+ * Get permissions available for role assignment based on (subscription + add-ons).
+ *
+ * Notes:
+ * - Uses the permission registry as the source of truth (not membership usage),
+ *   so the UI can show the full assignable catalog for custom roles.
+ * - Applies entitlement gating via isPermissionAssignable().
+ */
+export type PermissionsByCategory = Record<string, Permission[]>
+
+export const getEntitledPermissions = async (
+  agencyId: string,
+  scope: 'AGENCY' | 'SUBACCOUNT'
+): Promise<PermissionsByCategory> => {
+  const entitlements = await resolveEffectiveEntitlements({
+    scope: scope === 'SUBACCOUNT' ? 'SUBACCOUNT' : 'AGENCY',
+    agencyId,
+    subAccountId: null,
+  })
+
+  const scopePrefixes =
+    scope === 'AGENCY'
+      ? ['core.agency.', 'core.billing.', 'core.apps.', 'core.features.', 'crm.', 'fi.']
+      : ['core.subaccount.', 'crm.', 'fi.']
+
+  const seeds = getPermissionCatalogSeeds()
+    .filter((s) => scopePrefixes.some((p) => s.key.startsWith(p)))
+    .filter((s) => isPermissionAssignable(s.key, entitlements))
+
+  // Ensure DB contains all assignable keys (needed because RolePermission uses IDs).
+  await db.permission.createMany({
+    data: seeds.map((s) => ({
+      key: s.key,
+      name: s.name,
+      description: s.description,
+      category: s.category,
+      isSystem: s.isSystem,
+    })),
+    skipDuplicates: true,
+  })
+
+  const permissions = await db.permission.findMany({
+    where: { key: { in: seeds.map((s) => s.key) } },
+    orderBy: [{ category: 'asc' }, { key: 'asc' }],
+  })
+
+  // Group by category
+  const grouped: PermissionsByCategory = {}
+  for (const perm of permissions) {
+    if (!grouped[perm.category]) {
+      grouped[perm.category] = []
+    }
+    grouped[perm.category].push(perm)
+  }
+
+  return grouped
+}
+
+/**
+ * Get flat list of entitled permission keys (for validation).
+ */
+export const getEntitledPermissionKeys = async (
+  agencyId: string,
+  scope: 'AGENCY' | 'SUBACCOUNT'
+): Promise<PermissionKey[]> => {
+  const grouped = await getEntitledPermissions(agencyId, scope)
+  return Object.values(grouped)
+    .flat()
+    .map((p) => p.key as PermissionKey)
+}
+
+/**
+ * Validate that a set of permission keys are all entitled for this context.
+ * Used when creating/updating custom roles to prevent assigning unsubscribed permissions.
+ */
+export const validatePermissionKeys = async (
+  agencyId: string,
+  scope: 'AGENCY' | 'SUBACCOUNT',
+  permissionKeys: string[]
+): Promise<{ valid: boolean; invalidKeys: string[] }> => {
+  const entitled = await getEntitledPermissionKeys(agencyId, scope)
+  const entitledSet = new Set(entitled)
+  
+  const invalidKeys = permissionKeys.filter((k) => !entitledSet.has(k as PermissionKey))
+  
+  return {
+    valid: invalidKeys.length === 0,
+    invalidKeys,
+  }
+}
+
+// =============================================================================
+// TEAM ACCESS - For TeamSwitcher UI
+// =============================================================================
 
 /**
  * Get user's accessible teams structured for TeamSwitcher

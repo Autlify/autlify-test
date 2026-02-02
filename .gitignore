@@ -8,6 +8,10 @@ packages/*/node_modules
 
 # testing
 /coverage
+e2e/results/
+e2e/report/
+e2e/screenshots/
+test-results/
 
 # next.js
 /.next/
@@ -48,12 +52,12 @@ src/generated/prisma/
 
 # IDEs and editors
 .vscode/
-/_app/
-/_app
-_entitlement_system/
-/_entitlement_system/
-_entitlement_system/    
-_entitlement_to_patch/
+/ai-agent-builder/
+/ai-agent-builder
+ai-agent-builder/
+/patches/
+/patches
+patches/
 
 docs
 scripts/

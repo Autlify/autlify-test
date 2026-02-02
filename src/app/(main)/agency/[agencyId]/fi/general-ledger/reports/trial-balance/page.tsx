@@ -5,8 +5,7 @@ import { auth } from '@/auth'
 import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions'
 import { generateTrialBalance } from '@/lib/features/fi/general-ledger/actions/reports'
 import { getFinancialPeriod } from '@/lib/features/fi/general-ledger/actions/periods'
-import { TrialBalanceReport } from './_components/trial-balance-report'
-import { ReportFilters } from './_components/report-filters'
+import { TrialBalanceReport, ReportFilters } from '@/components/fi/general-ledger/reports'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -28,7 +27,7 @@ export default async function TrialBalancePage({ params, searchParams }: Props) 
     redirect('/sign-in')
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general-ledger.reports.view')
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.reports.view')
   if (!hasPermission) {
     notFound()
   }

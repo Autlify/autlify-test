@@ -1,43 +1,82 @@
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { Sidebar as SidebarMenu } from "@/components/sidebar-00/app-sidebar";
-import { getUserAccessibleTeams } from "../../lib/features/iam/authz/permissions";
-import type { Route } from "@/components/sidebar-00/nav-main";
-import type { NotificationWithUser } from "../../lib/types";
-import { auth } from "@/auth";
-import type { Notification } from "./nav-notifications";
-import type { ReactNode } from "react";
+import { getAuthUserDetails } from '@/lib/queries'
+import { off } from 'process'
+import React from 'react'
+import MenuOptions from './menu-options'
 
 type Props = {
-  id: string;
-  type: "agency" | "subaccount";
-  notifications: Notification[];
-  children: ReactNode;
+  id: string
+  type: 'agency' | 'subaccount'
 }
 
-const Sidebar = async ({ id, type, notifications, children }: Props) => {
-  if (!id || !type) return null;
-  const session = await auth();
-  if (!session?.user) return null;
+const Sidebar = async ({ id, type }: Props) => {
+  const user = await getAuthUserDetails()
+  if (!user) return null
 
-  // Get user's accessible teams with nested subaccounts
-  const teams = await getUserAccessibleTeams();
+  // Get the agency from memberships
+  const agencyMembership = user.AgencyMemberships?.find(
+    (membership) =>
+      type === 'agency'
+        ? membership.agencyId === id
+        : membership.Agency.SubAccount.some((sub) => sub.id === id)
+  )
+
+  if (!agencyMembership) return null
+
+  const agency = agencyMembership.Agency
+
+  const details =
+    type === 'agency'
+      ? agency
+      : agency.SubAccount.find((subaccount) => subaccount.id === id)
+
+  const isWhiteLabeledAgency = agency.whiteLabel
+  if (!details) return
+
+  let sideBarLogo = agency.agencyLogo || '/assets/autlify-logo.svg'
+
+  if (!isWhiteLabeledAgency) {
+    if (type === 'subaccount') {
+      sideBarLogo =
+        agency.SubAccount.find((subaccount) => subaccount.id === id)
+          ?.subAccountLogo || agency.agencyLogo
+    } else if (type === 'agency') {
+      sideBarLogo = '/assets/autlify-logo.svg'
+    }
+  }
+
+  const sidebarOpt =
+    type === 'agency'
+      ? agency.SidebarOption || []
+      : agency.SubAccount.find((subaccount) => subaccount.id === id)
+        ?.SidebarOption || []
+
+  // Get subaccounts user has access to via SubAccountMemberships
+  const subaccounts = agency.SubAccount.filter((subaccount) =>
+    user.SubAccountMemberships?.some(
+      (membership) =>
+        membership.subAccountId === subaccount.id && membership.isActive
+    )
+  )
 
   return (
-    <SidebarProvider defaultOpen={true}>
-    <div className="relative flex h-screen w-full">
-      <SidebarMenu id={id} type={type} teams={teams} notifications={notifications} />
-      <SidebarInset className="flex flex-col" >
-        {children}
-      </SidebarInset>
-      </div>
-            {/* <div className="relative flex h-screen w-full">
-              <DashboardSidebar />
-              <SidebarInset className="flex flex-col" />
-            </div> */}
-    </SidebarProvider>
-  );
+    <>
+      <MenuOptions
+        defaultOpen={true}
+        details={details}
+        id={id}
+        sidebarLogo={sideBarLogo}
+        subAccounts={subaccounts}
+        user={user}
+      />
+      {/* <MenuOptions
+        details={details}
+        id={id}
+        sidebarLogo={sideBarLogo}
+        subAccounts={subaccounts}
+        user={user}
+      /> */}
+    </>
+  )
 }
 
-Sidebar.displayName = "Sidebar";
-
-export default Sidebar;
+export default Sidebar

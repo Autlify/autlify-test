@@ -3,50 +3,50 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import { CreditCard, Receipt, BarChart3, Gift, type LucideIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
-type Item = { href: string; label: string }
+type Item = { href: string; label: string; icon: LucideIcon }
 
-export function BillingNav(props: { baseHref: string }) {
+export function BillingNav(props: { baseHref: string; className?: string }) {
   const pathname = usePathname()
   const base = props.baseHref
 
   const items: Item[] = [
-    { href: `${base}`, label: 'Overview' },
-    { href: `${base}/subscription`, label: 'Subscription' },
-    { href: `${base}/payment-methods`, label: 'Payment Methods' },
-    { href: `${base}/credits`, label: 'Credits & Top‑Up' },
-    { href: `${base}/usage`, label: 'Usage' },
-    { href: `${base}/invoices`, label: 'Invoices' },
-    { href: `${base}/coupons`, label: 'Coupons' },
-    { href: `${base}/dunning`, label: 'Dunning' },
-    { href: `${base}/allocation`, label: 'Cost Allocation' },
+    { href: `${base}/subscription`, label: 'Subscription', icon: Receipt },
+    { href: `${base}/payment-methods`, label: 'Payment Methods', icon: CreditCard },
+    { href: `${base}/usage`, label: 'Usage', icon: BarChart3 },
+    { href: `${base}/credits`, label: 'Credits & Coupons', icon: Gift },
   ]
 
   return (
-    <div className="relative">
+    <div className={cn('w-full', props.className)}>
       <ScrollArea className="w-full">
-        <div className="flex w-max gap-2 pb-2">
-          {items.map((it) => {
-            const active = pathname === it.href || (it.href !== base && pathname?.startsWith(it.href))
+        <div className="inline-flex h-10 items-center justify-start gap-1 rounded-lg bg-muted p-1">
+          {items.map((item) => {
+            const active = pathname === item.href || pathname?.startsWith(item.href)
+            const Icon = item.icon
             return (
-              <Button
-                key={it.href}
-                asChild
-                variant={active ? 'default' : 'outline'}
+              <Link
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  'h-9 rounded-full px-4 text-sm',
-                  active ? 'shadow-sm' : 'bg-card/40'
+                  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  active
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
-                <Link href={it.href}>{it.label}</Link>
-              </Button>
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline">{item.label}</span>
+              </Link>
             )
           })}
         </div>
+        <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
     </div>
   )

@@ -58,8 +58,8 @@ export const generateTrialBalance = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.report.generate')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.report.generate');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reports.generate')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reports.generate');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to generate reports' };
@@ -185,8 +185,8 @@ export const generateBalanceSheet = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.report.generate')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.report.generate');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reports.generate')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reports.generate');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to generate reports' };
@@ -364,8 +364,8 @@ export const generateIncomeStatement = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.report.generate')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.report.generate');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reports.generate')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reports.generate');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to generate reports' };
@@ -547,8 +547,8 @@ export const generateGeneralLedger = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.report.generate')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.report.generate');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reports.generate')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reports.generate');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to generate reports' };

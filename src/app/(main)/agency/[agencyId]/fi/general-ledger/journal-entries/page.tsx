@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { JournalEntriesTable } from './_components/journal-entries-table';
+import { JournalEntriesTable } from '@/components/fi/general-ledger/journal-entries';
 import { listJournalEntries } from '@/lib/features/fi/general-ledger/actions/journal-entries';
 
 type Props = {
@@ -21,7 +21,7 @@ export default async function JournalEntriesPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read'); // TODO: to replace with fi.general-ledger.journal.view
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.journal_entries.read');
   if (!hasPermission) {
     notFound();
   }
@@ -31,14 +31,14 @@ export default async function JournalEntriesPage({ params }: Props) {
   const entries = entriesResult.success ? entriesResult.data : [];
 
   // Check create permission
-  const canCreate = await hasAgencyPermission(agencyId, 'core.agency.account.read'); // TODO: to replace with fi.general-ledger.journal.create
+  const canCreate = await hasAgencyPermission(agencyId, 'fi.general_ledger.journal_entries.create');
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Journal Entries</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold">Journal Entries</h1>
+          <p className="text-sm text-muted-foreground">
             Manage journal entries and transactions
           </p>
         </div>

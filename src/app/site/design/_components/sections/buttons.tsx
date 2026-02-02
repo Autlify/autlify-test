@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, Download, Trash2, AlertCircle } from 'lucide-react'
 import { SegmentedTabs} from '@/components/ui/segmented-tabs'
 import MercuryButton from '@/components/ui/liquid-glass'
+import  SegmentedControl from '@/components/ui/segmented-control'
  
 export function ButtonsSection() {
   return (
@@ -86,12 +87,6 @@ export function ButtonsSection() {
             defaultTab="option1"
           />
         </div>
-
-        <div className="space-y-4">
-          <p className="text-xs text-fg-tertiary uppercase tracking-wide font-semibold">Mercury Button</p>
-          <MercuryButton>Click Me</MercuryButton>
-          </div>
-
       </div>
     </section>
   )

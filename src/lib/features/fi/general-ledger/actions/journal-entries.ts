@@ -137,8 +137,8 @@ export const getJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.view')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.view');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.read')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.read');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to view journal entries' };
@@ -196,8 +196,8 @@ export const listJournalEntries = async (filters?: {
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.view')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.view');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.read')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.read');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to view journal entries' };
@@ -258,8 +258,8 @@ export const createJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.create')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.create');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.create')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.create');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to create journal entries' };
@@ -389,8 +389,8 @@ export const updateJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.edit_draft')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.edit_draft');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.update')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.update');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to edit journal entries' };
@@ -514,8 +514,8 @@ export const submitJournalEntry = async (entryId: string): Promise<ActionResult<
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.submit')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.submit');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.submit')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.submit');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to submit journal entries' };
@@ -591,8 +591,8 @@ export const approveJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.approve')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.approve');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.approve')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.approve');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to approve journal entries' };
@@ -750,8 +750,8 @@ export const rejectJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.reject')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.reject');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.reject')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.reject');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to reject journal entries' };
@@ -820,8 +820,8 @@ export const reverseJournalEntry = async (
         }
 
         const hasPermission = context.subAccountId
-            ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.journal.reverse')
-            : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.journal.reverse');
+            ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.journal_entries.reverse')
+            : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.journal_entries.reverse');
 
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to reverse journal entries' };

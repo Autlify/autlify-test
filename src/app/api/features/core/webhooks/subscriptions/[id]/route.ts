@@ -18,7 +18,7 @@ type Props = { params: Promise<{ id: string }> }
 
 export async function GET(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     const { id } = await props.params
     const ok = await subscriptionInScope(id, scope)
     if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -47,7 +47,7 @@ export async function GET(req: Request, props: Props) {
 
 export async function PATCH(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const { id } = await props.params
     const body = await req.json()
     const parsed = PatchSchema.safeParse(body)
@@ -66,7 +66,7 @@ export async function PATCH(req: Request, props: Props) {
 
 export async function DELETE(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const { id } = await props.params
     const ok = await subscriptionInScope(id, scope)
     if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -101,7 +101,7 @@ export async function POST(req: Request, props: Props) {
 }
 
 async function handleTest(req: Request, props: Props) {
-  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
   const { id } = await props.params
   const sub = await getSubscriptionWithScope(id)
   if (!sub) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 })
@@ -128,7 +128,7 @@ async function handleTest(req: Request, props: Props) {
 }
 
 async function handleRotate(req: Request, props: Props) {
-  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
   const { id } = await props.params
   const sub = await getSubscriptionWithScope(id)
   if (!sub) return NextResponse.json({ error: 'Not found' }, { status: 404 })

@@ -20,6 +20,7 @@ import {
 } from '@/lib/schemas/fi/general-ledger/consolidation'
 import { Decimal } from 'decimal.js'
 import { ConsolidationStatus } from '@/generated/prisma/client'
+import { ActionKey } from '@/lib/registry'
 
 // ========== Types ==========
 
@@ -55,7 +56,7 @@ const getContext = async (): Promise<ConsolidationContext | null> => {
 
 const checkPermission = async (
   context: ConsolidationContext,
-  permissionKey: string
+  permissionKey: ActionKey
 ): Promise<boolean> => {
   if (context.subAccountId) {
     return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -80,7 +81,7 @@ export const getConsolidationMappings = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -127,7 +128,7 @@ export const upsertConsolidationMapping = async (
       return { success: false, error: 'Agency context required for consolidation' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -197,7 +198,7 @@ export const generateAutoMappings = async (
       return { success: false, error: 'Agency context required for consolidation' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -271,7 +272,7 @@ export const createConsolidationSnapshot = async (
       return { success: false, error: 'Agency context required for consolidation' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.create')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -396,7 +397,7 @@ export const listConsolidationSnapshots = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -448,7 +449,7 @@ export const getConsolidationSnapshot = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -496,7 +497,7 @@ export const createConsolidationAdjustment = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -550,7 +551,7 @@ export const createConsolidationElimination = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -606,7 +607,7 @@ export const detectIntercompanyTransactions = async (
       return { success: false, error: 'Agency context required' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -700,7 +701,7 @@ export const finalizeConsolidation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.consolidation.approve')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.consolidation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }

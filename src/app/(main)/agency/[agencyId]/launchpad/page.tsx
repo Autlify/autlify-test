@@ -13,6 +13,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { stripe } from '@/lib/stripe'
+import { redirect } from 'next/navigation'
 
 type Props = {
   params: Promise<{
@@ -59,12 +60,21 @@ const LaunchPadPage = async ({ params, searchParams }: Props) => {
           where: { id: agencyId },
           data: { connectAccountId: response.stripe_user_id },
         })
-        connectedStripeAccount = true
+        // Redirect to remove code from URL and prevent re-processing
+        return redirect(`/agency/${agencyId}/launchpad`)
       } catch (error) {
-        console.log('🔴 Could not connect stripe account')
+        console.log('🔴 Could not connect stripe account', error)
+        // Redirect to remove invalid/used code from URL
+        return redirect(`/agency/${agencyId}/launchpad`)
       }
+    } else {
+      // Already connected, redirect to remove code from URL
+      return redirect(`/agency/${agencyId}/launchpad`)
     }
   }
+
+  // Check if already connected (for display purposes)
+  connectedStripeAccount = !!agencyDetails.connectAccountId
 
   return (
     <div className="flex flex-col justify-center items-center">

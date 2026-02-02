@@ -125,7 +125,7 @@ export async function sendVerificationEmail({
   name: string
 }): Promise<EmailResult> {
   const baseUrl = process.env.NEXT_PUBLIC_URL
-  const verificationUrl = `${baseUrl}api/auth/register/confirm?token=${token}`
+  const verificationUrl = `${baseUrl}api/auth/token/confirm?token=${token}`
 
   const subject = "Email Verification"
 
@@ -257,8 +257,7 @@ export async function sendPasswordResetEmail({
   name?: string
 }): Promise<EmailResult> {
   const baseUrl = process.env.NEXT_PUBLIC_URL
-  const resetUrl = `${baseUrl}agency/reset-password?token=${token}`
-
+  const verificationUrl = `${baseUrl}api/auth/token/confirm?token=${token}`
   const subject = "Reset Your Password"
 
   const text = `
@@ -266,7 +265,7 @@ export async function sendPasswordResetEmail({
 
     You requested to reset your password. Please click the link below to set a new password:
 
-    ${resetUrl}
+    ${verificationUrl}
 
     If you did not request this, please ignore this email.
 
@@ -383,7 +382,7 @@ export async function sendPasswordResetEmail({
         <h2 style="font-size: 1.875rem; font-weight: bold;">🔐 Reset Your Password</h2>
         <p style="margin-top: 0.5rem;">Hi${name ? ' <span class="accent-reset">' + name + '</span>' : ''},</p>
         <p style="margin-top: 0.5rem;">You requested to reset your password. Click the button below to set a new password.</p>
-        <a href="${resetUrl}" class="btn">Reset Password</a>
+        <a href="${verificationUrl}" class="btn">Reset Password</a>
         <p style="margin-top: 2rem; font-size: 0.9rem; color: #aaa;">
           This link will expire in 1 hour. If you didn't request this, please ignore this email.
         </p>
@@ -397,12 +396,16 @@ export async function sendPasswordResetEmail({
 
 export async function sendInvitationEmail({
   email,
+  name,
   role,
-  invitationId
+  invitationId,
+  tenantName
 }: {
   email: string
+  name?: string
   role: string
   invitationId: string
+  tenantName: string
 }): Promise<EmailResult> {
   const baseUrl = process.env.NEXT_PUBLIC_URL
   const invitationUrl = `${baseUrl}agency/sign-up?invitation=${invitationId}`
@@ -410,9 +413,9 @@ export async function sendInvitationEmail({
   const subject = "You're invited to join Autlify!"
 
   const text = `
-    Hello,
+    Hello ${name},
 
-    You have been invited to join Autlify with the role: ${role}.
+    You have been invited to join ${tenantName} on Autlify as ${role}.
 
     To accept the invitation and create your account, please click the link below:
 
@@ -531,9 +534,9 @@ export async function sendInvitationEmail({
     <body>
       <div class="card">
         <h2 style="font-size: 1.875rem; font-weight: bold;">🎉 You're invited to join Autlify!</h2>
-        <p style="margin-top: 0.5rem;">Hello,</p>
+        <p style="margin-top: 0.5rem;">Hello ${name},</p>
         <p style="margin-top: 0.5rem;">
-          You have been invited to join our platform as <span class="accent-invitation">${role}</span>.
+          You have been invited to join  ${tenantName} on Autlify as <span class="accent-invitation">${role}</span>.
         </p>
         <p style="margin-top: 1rem;">To accept the invitation and create your account, please click the button below:</p>
         <a href="${invitationUrl}" class="btn">Accept Invitation</a>

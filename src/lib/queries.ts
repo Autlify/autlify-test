@@ -22,10 +22,13 @@ import {
 } from './types'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
-import { randomBytes } from 'crypto' 
-import { CONTEXT_COOKIE, parseSavedContext } from  '@/lib/features/iam/authz/resolver'
+import { randomBytes } from 'crypto'
+import { CONTEXT_COOKIE, parseSavedContext } from '@/lib/features/iam/authz/resolver'
 import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions'
 import { cookies } from 'next/headers'
+import { ActionKey } from './registry'
+import type { TokenScopeInput, TokenScope, TokenValidationResult } from '@/types/auth'
+import { normalizeTokenScope } from '@/types/auth'
 
 
 /**
@@ -87,7 +90,7 @@ import { cookies } from 'next/headers'
  * 
  * =============================================================================
  */
- 
+
 export const getContextCookie = async () => {
   const cookieStore = await cookies()
   const contextCookie = cookieStore.get(CONTEXT_COOKIE)
@@ -143,6 +146,7 @@ export const getAuthUserDetails = async () => {
           Agency: {
             include: {
               SidebarOption: true,
+              Subscription: true,
               SubAccount: {
                 include: {
                   SidebarOption: true,
@@ -169,6 +173,31 @@ export const getAuthUserDetails = async () => {
   })
 
   return userData
+}
+
+/**
+ * Get sidebar options from the unified SidebarOption table
+ * Filters by scope type (agency, subaccount, or user)
+ */
+export const getSidebarOptions = async (
+  scopeType: 'agency' | 'subaccount' | 'user'
+) => {
+  const whereClause = {
+    ...(scopeType === 'agency' && { agency: true }),
+    ...(scopeType === 'subaccount' && { subaccount: true }),
+    ...(scopeType === 'user' && { user: true }),
+  }
+
+  return await db.sidebarOption.findMany({
+    where: whereClause,
+    include: {
+      OptionLinks: {
+        where: whereClause,
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+    orderBy: { createdAt: 'asc' },
+  })
 }
 
 export const saveActivityLogsNotification = async ({
@@ -261,11 +290,22 @@ export const saveActivityLogsNotification = async ({
   }
 }
 
-export const createTeamUser = async (agencyId: string, user: Partial<User>) => {
-  const hasCreatePermission = await hasPermission('core.agency.users.create')
-  if (!hasCreatePermission) return null
+export const getUserByEmail = async (email: string) => {
+  const response = await db.user.findUnique({
+    where: {
+      email,
+    },
+  })
 
-  // Create user without role/agencyId (those are in User model)
+  return response
+}
+
+/**
+ * Create a team user (internal function - no permission check)
+ * Used by invitation flow where the inviter already had permission to invite.
+ * For manual user creation, use the permission-checked version in team actions.
+ */
+export const createTeamUser = async (user: Partial<User>) => {
   const { id, email, name, avatarUrl, emailVerified, password, createdAt, updatedAt } = user
   const response = await db.user.create({
     data: {
@@ -282,82 +322,123 @@ export const createTeamUser = async (agencyId: string, user: Partial<User>) => {
   return response
 }
 
+/**
+ * Verify and accept pending invitation for current user
+ * Handles both new users (creates account) and existing users (just creates membership)
+ * Returns the agencyId if successful, null if no membership found
+ */
 export const verifyAndAcceptInvitation = async () => {
   const session = await auth()
   if (!session?.user?.email) return redirect('/sign-in')
 
-  const invitationExists = await db.invitation.findUnique({
+  const email = session.user.email
+
+  // Check for pending invitation
+  const invitation = await db.invitation.findUnique({
     where: {
-      email: session.user.email,
+      email,
       status: 'PENDING',
     },
   })
 
-  if (invitationExists) {
-    const userDetails = await createTeamUser(invitationExists.agencyId, {
-      email: invitationExists.email,
-      avatarUrl: session.user.image ?? null,
-      id: session.user.id,
-      name: session.user.name || '',
-      emailVerified: null,
-      password: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+  if (invitation) {
+    // Check if user already exists in our system
+    let user = await db.user.findUnique({
+      where: { email },
     })
 
-    if (userDetails) {
-      // Find the role by name from invitation
-      const role = await db.role.findFirst({
-        where: {
-          name: invitationExists.role,
-          scope: 'AGENCY',
-        },
+    // If user doesn't exist, create them
+    if (!user) {
+      user = await createTeamUser({
+        email,
+        avatarUrl: session.user.image ?? null,
+        id: session.user.id,
+        name: session.user.name || '',
+        emailVerified: null,
+        password: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
+    }
 
-      if (role) {
-        // Create AgencyMembership for the invited user
-        await db.agencyMembership.create({
-          data: {
-            userId: userDetails.id,
-            agencyId: invitationExists.agencyId,
-            roleId: role.id,
-            isActive: true,
-            isPrimary: false,
-          },
-        })
-
-        // Update session context
-        await db.session.updateMany({
-          where: { userId: userDetails.id },
-          data: { activeAgencyId: invitationExists.agencyId },
-        })
-      }
-
-      await saveActivityLogsNotification({
-        agencyId: invitationExists?.agencyId,
-        description: `Joined`,
-        subaccountId: undefined,
-      })
-
-      await db.invitation.delete({
-        where: { email: userDetails.email },
-      })
-
-      return invitationExists.agencyId
-    } else return null
-  } else {
-    // Check if user already has agency membership
-    const existingMembership = await db.agencyMembership.findFirst({
-      where: {
-        User: { email: session.user.email },
-      },
-    })
-    if (existingMembership) {
-      return existingMembership.agencyId
-    } else {
+    if (!user) {
+      console.error('Failed to create or find user for invitation')
       return null
     }
+
+    // Determine the role scope based on role name pattern
+    // SUBACCOUNT_* roles are for subaccount scope, others are for agency
+    const isSubaccountRole = invitation.role.startsWith('SUBACCOUNT_')
+    const roleScope = isSubaccountRole ? 'SUBACCOUNT' : 'AGENCY'
+
+    // Find the role
+    const role = await db.role.findFirst({
+      where: {
+        name: invitation.role,
+        scope: roleScope,
+      },
+    })
+
+    if (!role) {
+      console.error(`Role not found: ${invitation.role} with scope ${roleScope}`)
+      return null
+    }
+
+    // Check if membership already exists
+    const existingMembership = await db.agencyMembership.findFirst({
+      where: {
+        userId: user.id,
+        agencyId: invitation.agencyId,
+      },
+    })
+
+    if (!existingMembership) {
+      // Create AgencyMembership for the invited user
+      await db.agencyMembership.create({
+        data: {
+          userId: user.id,
+          agencyId: invitation.agencyId,
+          roleId: role.id,
+          isActive: true,
+          isPrimary: false,
+        },
+      })
+    }
+
+    // Update session context to the invited agency
+    await db.session.updateMany({
+      where: { userId: user.id },
+      data: { activeAgencyId: invitation.agencyId },
+    })
+
+    await saveActivityLogsNotification({
+      agencyId: invitation.agencyId,
+      description: `Joined via invitation`,
+      subaccountId: undefined,
+    })
+
+    // Mark invitation as accepted and delete
+    await db.invitation.delete({
+      where: { email },
+    })
+
+    return invitation.agencyId
   }
+
+  // No pending invitation - check existing memberships
+  const existingMembership = await db.agencyMembership.findFirst({
+    where: {
+      User: { email },
+      isActive: true,
+    },
+    orderBy: [{ isPrimary: 'desc' }, { joinedAt: 'asc' }],
+  })
+
+  if (existingMembership) {
+    return existingMembership.agencyId
+  }
+
+  return null
 }
 
 export const updateAgencyDetails = async (
@@ -578,14 +659,14 @@ export const getNotificationAndUser = async (agencyId: string) => {
 export const upsertSubAccount = async (subAccount: SubAccount) => {
   if (!subAccount.companyEmail) return null
 
-   const context = await getContextCookie()
+  const context = await getContextCookie()
   if (!context || context.kind !== 'agency') {
     console.log('🔴Error: No context found in cookies')
     return null
   }
 
   // Check permission for creating subaccount
-  const hasCreatePermission = await hasAgencyPermission(context.agencyId, 'core.agency.subaccounts.create') // to-be-changed to use hasAgencyPermission
+  const hasCreatePermission = await hasAgencyPermission(context.agencyId, 'core.agency.subaccounts.create')
   if (!hasCreatePermission) {
     console.log('🔴Error: No permission to create subaccount')
     return null
@@ -597,7 +678,7 @@ export const upsertSubAccount = async (subAccount: SubAccount) => {
     console.log('🔴Error: No authenticated user')
     return null
   }
-
+  // Check permission for creating subaccount 
   const response = await db.subAccount.upsert({
     where: { id: subAccount.id },
     update: subAccount,
@@ -651,49 +732,76 @@ export const upsertSubAccount = async (subAccount: SubAccount) => {
         ],
       },
     },
+    include: { Agency: true },
   })
 
-  // Create SubAccountMembership for the creator
   const existingMembership = await db.subAccountMembership.findFirst({
     where: {
       subAccountId: response.id,
-      userId: session.user.id,
+      User: { email: subAccount.companyEmail }
     },
   })
 
   if (!existingMembership) {
-    // Get SUBACCOUNT_ADMIN role
-    const adminRole = await db.role.findFirst({
-      where: {
-        name: 'SUBACCOUNT_ADMIN',
-        scope: 'SUBACCOUNT',
-        isSystem: true,
-      },
-    })
+    const existingUser = await getUserByEmail(subAccount.companyEmail)
 
-    if (adminRole) {
-      await db.subAccountMembership.create({
-        data: {
-          userId: session.user.id,
-          subAccountId: response.id,
-          roleId: adminRole.id,
-          isActive: true,
+    if (!existingUser) {
+
+      let existingUser
+      try {
+        const userPrincipalName = subAccount.companyEmail.split('@')[0]
+        const userName = userPrincipalName       // Eg. john.doe -> John Doe; or john_doe -> John Doe
+          .replace(/\./g, ' ').replace(/_/g, ' ')
+          .at(0)?.toUpperCase()
+          + userPrincipalName.slice(1).replace(/\./g, ' ').replace(/_/g, ' ').slice(1)
+
+        const newUser = await createTeamUser({
+          email: subAccount.companyEmail,
+          name: userName,
+        })
+        console.log('Created new user for subaccount contact:', newUser.email)
+        await sendInvitation('SUBACCOUNT_OWNER' as string, response.companyEmail, response.Agency.id, response.Agency.name, userName)
+        existingUser = newUser
+      } catch (error) {
+        console.error('Failed to send subaccount invitation:', error)
+      }
+    } else {
+      existingUser
+    }
+
+    if (existingUser) {
+      const ownerRole = await db.role.findFirst({
+        where: {
+          name: 'SUBACCOUNT_OWNER',
+          scope: 'SUBACCOUNT',
+          isSystem: true,
         },
       })
 
-      // Update session context to this subaccount
-      await db.session.updateMany({
-        where: { userId: session.user.id },
-        data: {
-          activeSubAccountId: response.id,
-          activeAgencyId: subAccount.agencyId,
-        },
-      })
+      if (ownerRole) {
+        await db.subAccountMembership.create({
+          data: {
+            userId: existingUser.id,
+            subAccountId: response.id,
+            roleId: ownerRole.id,
+            isActive: true,
+          },
+        })
+
+        // Update session context to this subaccount
+        await db.session.updateMany({
+          where: { userId: existingUser.id },
+          data: {
+            activeSubAccountId: response.id,
+            activeAgencyId: subAccount.agencyId,
+          },
+        })
+      }
     }
   }
-
   return response
 }
+
 
 export const updateUser = async (user: Partial<User>) => {
   const response = await db.user.update({
@@ -813,14 +921,16 @@ export const getUser = async (id: string) => {
 export const sendInvitation = async (
   roleName: string,
   email: string,
-  agencyId: string
+  agencyId: string,
+  tenantName: string,
+  name?: string
 ) => {
   const response = await db.invitation.create({
     data: { email, agencyId, role: roleName },
   })
 
   try {
-    await sendInvitationEmail({ email, role: roleName, invitationId: response.id })
+    await sendInvitationEmail({ email, role: roleName, invitationId: response.id, tenantName, name })
   } catch (error) {
     console.error('Failed to send invitation email:', error)
     // Don't fail the invitation creation if email fails
@@ -1248,13 +1358,21 @@ export const getPipelines = async (subaccountId: string) => {
   return response
 }
 
+export const getVerificationToken = async (token: string) => {
+  const response = await db.verificationToken.findUnique({
+    where: { token },
+  })
+  const scope = response?.identifier.split(':')[0] || null
+  return { ...response, scope }
+}
+
 export const createVerificationToken = async (
   email: string,
-  scope: 'verify' | 'authN' | 'passkey' | 'email' | 'webauthN' | 'pwd-reset',
+  scope: TokenScopeInput,
   milliseconds: number
 ) => {
   // Normalize friendly scope aliases to persisted identifiers
-  const normalizedScope = scope === 'email' ? 'verify' : scope === 'webauthN' ? 'passkey' : scope
+  const normalizedScope = normalizeTokenScope(scope)
   const identifier = `${normalizedScope}:${email}`
   const existingToken = await db.verificationToken.findFirst({
     where: {
@@ -1302,6 +1420,12 @@ export const validateVerificationToken = async (token: string) => {
   }
 
   const [scope, email] = verificationToken.identifier.split(':')
+  const user = await db.user.findUnique({
+    where: { email },
+  })
+  if (!user) {
+    return { success: false, error: 'user-not-found', message: 'User not found' }
+  }
 
   if (scope === 'verify') {
     // Update user email verification (role will be set when they create an agency)
@@ -1332,9 +1456,24 @@ export const validateVerificationToken = async (token: string) => {
     // Passkey flows validate scope only; specific WebAuthn verification happens in passkey endpoints
     // Do not delete token here; passkey endpoints will delete upon successful verification
     return { success: true, email, scope }
-  } else if (scope === 'pwd-reset') {
-    // Password reset - validate and delete token, caller handles password update
+  } else if (scope === 'reset-request') {
+    // Generate reset-password token and return URL
+
     await deleteVerificationToken(token)
+    const resetPasswordToken = await createVerificationToken(email, 'reset-password', 15 * 60 * 1000) // 15 minutes expiry
+
+    return {
+      success: true,
+      url: `/agency/password?scope=reset-password&email=${encodeURIComponent(email)}&token=${resetPasswordToken.token}`,
+      scope: 'reset-password',
+      email,
+      user
+    }
+
+  } else if (scope === 'reset-password') {
+    // For reset-password tokens, return email for password reset flow
+
+    await deleteVerificationToken(token) // Delete token after validation
     return { success: true, email, scope }
   }
 
@@ -1374,12 +1513,35 @@ export const updateAuthenticatorCounter = async (
   return response
 }
 
-
-
-
 // =============================================================================
 // HELPER FUNCTIONS - RBAC & Context Management
 // =============================================================================
+
+
+export const getRoles = async (id: string, scope: 'AGENCY' | 'SUBACCOUNT') => {
+  const whereClause = scope === 'AGENCY'
+    ? { agencyId: id }
+    : { subAccountId: id }
+
+  return await db.role.findMany({
+    where: {
+      ...whereClause,
+      OR: [
+        { isSystem: true },
+        { ...whereClause }
+      ],
+    },
+    include: {
+      Permissions: {
+        where: { granted: true },
+        include: {
+          Permission: true,
+        },
+      },
+    },
+    orderBy: [{ isSystem: 'desc' }, { name: 'asc' }],
+  })
+}
 
 /**
  * Get current user context from session (activeAgencyId, activeSubAccountId)

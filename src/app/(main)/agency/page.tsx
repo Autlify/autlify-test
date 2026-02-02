@@ -26,7 +26,7 @@ const Page = async ({
     cookieValue,
     agencyPermissionKey: 'core.agency.account.read',
     subAccountPermissionKey: 'core.subaccount.account.read',
-    billingPermissionKey: 'core.billing.account.read',
+    billingPermissionKey: 'core.billing.account.view',
   })
 
   if (!landingTarget) {

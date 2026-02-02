@@ -21,6 +21,7 @@ import {
   updateCurrencySchema,
 } from '@/lib/schemas/fi/general-ledger/currency'
 import { Decimal } from 'decimal.js'
+import { ActionKey } from '@/lib/registry'
 
 // ========== Types ==========
 
@@ -56,7 +57,7 @@ const getContext = async (): Promise<CurrencyContext | null> => {
 
 const checkPermission = async (
   context: CurrencyContext,
-  permissionKey: string
+  permissionKey: ActionKey
 ): Promise<boolean> => {
   if (context.subAccountId) {
     return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -81,7 +82,7 @@ export const getCurrency = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -113,7 +114,7 @@ export const listCurrencies = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -147,7 +148,7 @@ export const createCurrency = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -203,7 +204,7 @@ export const updateCurrency = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -323,7 +324,7 @@ export const listExchangeRates = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -375,7 +376,7 @@ export const createExchangeRate = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -446,7 +447,7 @@ export const importExchangeRates = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -492,7 +493,7 @@ export const runCurrencyRevaluation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.entries.create')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.simulate')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -697,7 +698,7 @@ export const listCurrencyRevaluations = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }

@@ -14,22 +14,42 @@
  */
 
 import type { LimitEnforcement, OverageMode } from '@/generated/prisma/client'
+import type { FeatureKey } from '@/lib/registry/keys/features'
 
 /** Plan IDs (Stripe Price IDs) */
 export const PLAN_IDS = {
   STARTER: 'price_1SpVOXJglUPlULDQt9Ejhunb',
   BASIC: 'price_1SpVOYJglUPlULDQhsRkA5YV',
   ADVANCED: 'price_1SpVOZJglUPlULDQoFq3iPES',
+
   // Add-ons
   PRIORITY_SUPPORT: 'price_1SpVObJglUPlULDQRfhLJNEo',
+
+  // TODO: Replace with actual Stripe price ID when ready
+  FI_GL: 'price_fi_gl_placeholder', // General Ledger
+  FI_AR: 'price_fi_ar_placeholder', // Accounts Receivable
+  FI_AP: 'price_fi_ap_placeholder', // Accounts Payable
+  FI_BL: 'price_fi_bl_placeholder', // Bank Ledgers
+  FI_FS: 'price_fi_fs_placeholder', // Financial Statements aka Advanced Reports
+
+  // CO - Controlling Add-ons (separate module)
+  CO_CCA: 'price_co_cca_placeholder', // Cost Center Accounting
+  CO_PCA: 'price_co_pca_placeholder', // Profit Center Accounting
+  CO_PA: 'price_co_pa_placeholder', // Profitability Analysis
+  CO_BUDGET: 'price_co_budget_placeholder', // Budgeting
+
+  // MM - Materials Management (future)
+  // MM_PUR: 'price_mm_pur_placeholder', // Purchasing
+  // MM_IM: 'price_mm_im_placeholder', // Inventory Management
+  // MM_IV: 'price_mm_iv_placeholder', // Invoice Verification
 } as const
 
 export type PlanId = typeof PLAN_IDS[keyof typeof PLAN_IDS]
 
 /** Plan entitlement seed for database seeding */
 export type PlanEntitlementSeed = {
-  planId: string // Stripe recurring priceId
-  featureKey: string
+  planId: typeof PLAN_IDS[keyof typeof PLAN_IDS] // Stripe recurring priceId
+  featureKey: FeatureKey
   isEnabled?: boolean
   isUnlimited?: boolean
   includedInt?: number
@@ -62,7 +82,7 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'core.agency.team_members',
+    featureKey: 'core.agency.team_member',
     isEnabled: true,
     maxInt: 2,
     enforcement: 'HARD',
@@ -76,56 +96,54 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'crm.funnels.count',
+    featureKey: 'crm.funnels.content',
     isEnabled: true,
     maxInt: 5,
     enforcement: 'HARD',
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'crm.pipelines.count',
+    featureKey: 'crm.pipelines.lane',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'crm.contacts.count',
+    featureKey: 'crm.customers.contact',
     isEnabled: true,
     maxInt: 500,
     enforcement: 'SOFT',
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'billing.rebilling',
+    featureKey: 'crm.media.file',
+    isEnabled: true,
+    maxInt: 100,
+    enforcement: 'SOFT',
+  },
+  {
+    planId: PLAN_IDS.STARTER,
+    featureKey: 'crm.customers.billing',
     isEnabled: false,
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'billing.priority_support',
+    featureKey: 'core.billing.priority_support',
     isEnabled: false,
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'apps.integrations.api_keys',
+    featureKey: 'core.apps.api_keys',
     isEnabled: true,
     maxInt: 3,
     enforcement: 'HARD',
   },
   {
     planId: PLAN_IDS.STARTER,
-    featureKey: 'apps.webhooks.subscriptions',
+    featureKey: 'core.apps.webhooks',
     isEnabled: true,
     maxInt: 5,
     enforcement: 'HARD',
-  },
-  {
-    planId: PLAN_IDS.STARTER,
-    featureKey: 'apps.webhooks.deliveries_month',
-    isEnabled: true,
-    maxInt: 1000,
-    enforcement: 'SOFT',
-    recurringCreditGrantInt: 1000,
-    rolloverCredits: false,
   },
 
   // ─────────────────────────────────────────────────────────
@@ -139,7 +157,7 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'core.agency.team_members',
+    featureKey: 'core.agency.team_member',
     isEnabled: true,
     isUnlimited: true,
   },
@@ -152,56 +170,54 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'crm.funnels.count',
+    featureKey: 'crm.funnels.content',
     isEnabled: true,
     maxInt: 25,
     enforcement: 'SOFT',
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'crm.pipelines.count',
+    featureKey: 'crm.pipelines.lane',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'crm.contacts.count',
+    featureKey: 'crm.customers.contact',
     isEnabled: true,
     maxInt: 5000,
     enforcement: 'SOFT',
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'billing.rebilling',
+    featureKey: 'crm.media.file',
+    isEnabled: true,
+    maxInt: 500,
+    enforcement: 'SOFT',
+  },
+  {
+    planId: PLAN_IDS.BASIC,
+    featureKey: 'crm.customers.billing',
     isEnabled: false,
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'billing.priority_support',
+    featureKey: 'core.billing.priority_support',
     isEnabled: false,
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'apps.integrations.api_keys',
+    featureKey: 'core.apps.api_keys',
     isEnabled: true,
     maxInt: 10,
     enforcement: 'HARD',
   },
   {
     planId: PLAN_IDS.BASIC,
-    featureKey: 'apps.webhooks.subscriptions',
+    featureKey: 'core.apps.webhooks',
     isEnabled: true,
     maxInt: 25,
     enforcement: 'HARD',
-  },
-  {
-    planId: PLAN_IDS.BASIC,
-    featureKey: 'apps.webhooks.deliveries_month',
-    isEnabled: true,
-    maxInt: 10000,
-    enforcement: 'SOFT',
-    recurringCreditGrantInt: 10000,
-    rolloverCredits: false,
   },
 
   // ─────────────────────────────────────────────────────────
@@ -215,7 +231,7 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'core.agency.team_members',
+    featureKey: 'core.agency.team_member',
     isEnabled: true,
     isUnlimited: true,
   },
@@ -228,47 +244,47 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'crm.funnels.count',
+    featureKey: 'crm.funnels.content',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'crm.pipelines.count',
+    featureKey: 'crm.pipelines.lane',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'crm.contacts.count',
+    featureKey: 'crm.customers.contact',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'billing.rebilling',
+    featureKey: 'crm.media.file',
+    isEnabled: true,
+    isUnlimited: true,
+  },
+  {
+    planId: PLAN_IDS.ADVANCED,
+    featureKey: 'crm.customers.billing',
     isEnabled: true, // Rebilling enabled for Advanced
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'billing.priority_support',
+    featureKey: 'core.billing.priority_support',
     isEnabled: true, // 24/7 support enabled for Advanced
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'apps.integrations.api_keys',
+    featureKey: 'core.apps.api_keys',
     isEnabled: true,
     isUnlimited: true,
   },
   {
     planId: PLAN_IDS.ADVANCED,
-    featureKey: 'apps.webhooks.subscriptions',
-    isEnabled: true,
-    isUnlimited: true,
-  },
-  {
-    planId: PLAN_IDS.ADVANCED,
-    featureKey: 'apps.webhooks.deliveries_month',
+    featureKey: 'core.apps.webhooks',
     isEnabled: true,
     isUnlimited: true,
   },
@@ -278,7 +294,158 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   // ─────────────────────────────────────────────────────────
   {
     planId: PLAN_IDS.PRIORITY_SUPPORT,
-    featureKey: 'billing.priority_support',
+    featureKey: 'core.billing.priority_support',
+    isEnabled: true,
+  },
+  // FI-GL: General Ledger Add-on
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.general_ledger.settings',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.general_ledger.journal_entries',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.general_ledger.reports',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.general_ledger.reconciliation',
+    isEnabled: true,
+  },
+  // FI-GL Configuration (bundled with FI_GL)
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.master_data.accounts',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.configuration.fiscal_years',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.configuration.currencies',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.configuration.tax_settings',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.configuration.number_ranges',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.configuration.posting_rules',
+    isEnabled: true,
+  },
+  // FI-GL Master Data (bundled with FI_GL)
+  {
+    planId: PLAN_IDS.FI_GL,
+    featureKey: 'fi.master_data.accounts',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_AR,
+    featureKey: 'fi.accounts_receivable.subledgers',
+    isEnabled: true,
+  },
+    {
+    planId: PLAN_IDS.FI_AP,
+    featureKey: 'fi.accounts_payable.subledgers',
+    isEnabled: true,
+  },
+    {
+    planId: PLAN_IDS.FI_BL,
+    featureKey: 'fi.bank_ledger.bank_accounts',
+    isEnabled: true,
+  },
+    {
+    planId: PLAN_IDS.FI_BL,
+    featureKey: 'fi.bank_ledger.subledgers',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.FI_FS,
+    featureKey: 'fi.advanced_reporting.financial_statements',
+    isEnabled: true,
+  },
+  // ─────────────────────────────────────────────────────────
+  // CO - CONTROLLING ADD-ONS (Separate Module)
+  // ─────────────────────────────────────────────────────────
+  // CO-CCA: Cost Center Accounting
+  {
+    planId: PLAN_IDS.CO_CCA,
+    featureKey: 'co.cost_centers.master_data',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_CCA,
+    featureKey: 'co.cost_centers.hierarchy',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_CCA,
+    featureKey: 'co.cost_centers.allocations',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_CCA,
+    featureKey: 'co.cost_centers.reports',
+    isEnabled: true,
+  },
+  // CO-PCA: Profit Center Accounting
+  {
+    planId: PLAN_IDS.CO_PCA,
+    featureKey: 'co.profit_centers.master_data',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_PCA,
+    featureKey: 'co.profit_centers.hierarchy',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_PCA,
+    featureKey: 'co.profit_centers.reports',
+    isEnabled: true,
+  },
+  // CO-PA: Profitability Analysis
+  {
+    planId: PLAN_IDS.CO_PA,
+    featureKey: 'co.profitability.segments',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_PA,
+    featureKey: 'co.profitability.reports',
+    isEnabled: true,
+  },
+  // CO Budgets
+  {
+    planId: PLAN_IDS.CO_BUDGET,
+    featureKey: 'co.budgets.planning',
+    isEnabled: true,
+  },
+  {
+    planId: PLAN_IDS.CO_BUDGET,
+    featureKey: 'co.budgets.monitoring',
+    isEnabled: true,
+  },
+  // Legacy: Keep fi.controlling for backward compatibility (maps to CO_CCA)
+  {
+    planId: PLAN_IDS.CO_CCA,
+    featureKey: 'fi.controlling.cost_centers',
     isEnabled: true,
   },
 ]

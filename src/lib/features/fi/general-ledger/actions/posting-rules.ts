@@ -12,6 +12,8 @@ import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam
 import { logGLAudit } from './audit'
 import { Prisma } from '@/generated/prisma/client'
 import { PostingRuleInput, postingRuleSchema, UpdatePostingRuleInput, updatePostingRuleSchema } from '@/lib/schemas/fi/general-ledger/posting-rules'
+import { ActionKey } from '@/lib/registry'
+
 
 // ========== Types ==========
 
@@ -47,7 +49,7 @@ const getContext = async (): Promise<RulesContext | null> => {
 
 const checkPermission = async (
   context: RulesContext,
-  permissionKey: string
+  permissionKey: ActionKey
 ): Promise<boolean> => {
   if (context.subAccountId) {
     return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -72,7 +74,7 @@ export const getPostingRule = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.posting-rules.view')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -120,7 +122,7 @@ export const listPostingRules = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.posting-rules.view')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -174,7 +176,7 @@ export const createPostingRule = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.posting-rules.create')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -230,7 +232,7 @@ export const updatePostingRule = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.posting-rules.edit')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -303,7 +305,7 @@ export const deletePostingRule = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.posting-rules.delete')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -367,7 +369,7 @@ export const executePostingRules = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.entries.create')
+    const hasPermission = await checkPermission(context, 'fi.configuration.posting_rules.simulate')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }

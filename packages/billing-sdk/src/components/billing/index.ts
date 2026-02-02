@@ -25,6 +25,8 @@ export type { UsageResource, DetailedUsageTableProps } from "./detailed-usage-ta
 // Dialog Components
 export { UpdatePlanDialog } from "./update-plan-dialog";
 export type { UpdatePlanDialogProps } from "./update-plan-dialog";
+export { PlanSelectorDialog } from "./plan-selector-dialog";
+export type {  PlanOption } from "./plan-selector-dialog";
 export { CancelSubscriptionDialog } from "./cancel-subscription-dialog";
 export type { CancelSubscriptionDialogProps } from "./cancel-subscription-dialog";
 

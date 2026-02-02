@@ -46,7 +46,7 @@ const FunnelEditorNavigation = ({
       type: 'SET_FUNNELPAGE_ID',
       payload: { funnelPageId: funnelPageDetails.id },
     })
-  }, [funnelPageDetails])
+  }, [funnelPageDetails, dispatch])
 
   const handleOnBlurTitleChange: FocusEventHandler<HTMLInputElement> = async (
     event
@@ -151,7 +151,7 @@ const FunnelEditorNavigation = ({
           >
             <TabsList className="grid w-full grid-cols-3 bg-transparent h-fit">
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <TabsTrigger
                     value="Desktop"
                     className="data-[state=active]:bg-muted w-10 h-10 p-0"
@@ -164,7 +164,7 @@ const FunnelEditorNavigation = ({
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <TabsTrigger
                     value="Tablet"
                     className="w-10 h-10 p-0 data-[state=active]:bg-muted"
@@ -177,7 +177,7 @@ const FunnelEditorNavigation = ({
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <TabsTrigger
                     value="Mobile"
                     className="w-10 h-10 p-0 data-[state=active]:bg-muted"

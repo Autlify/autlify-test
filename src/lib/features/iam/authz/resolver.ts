@@ -2,7 +2,7 @@ import 'server-only'
 
 import { auth } from '@/auth'
 import { db } from '@/lib/db'
-import type { ActionKey as PermissionKey } from '@/lib/registry'
+import type { ActionKey } from '@/lib/registry'
 
 export const CONTEXT_COOKIE = 'autlify.context-token'
 
@@ -17,7 +17,7 @@ export type LandingTarget =
     kind: 'agency'
     agencyId: string
     href: string
-    permissionKeys: PermissionKey[]
+    permissionKeys: ActionKey[]
     subscriptionState: SubscriptionState
     hasInactiveSubscription: boolean
    }
@@ -26,7 +26,7 @@ export type LandingTarget =
     subAccountId: string
     agencyId: string
     href: string
-    permissionKeys: PermissionKey[]
+    permissionKeys: ActionKey[]
   }
 
 const computeSubscriptionState = (
@@ -82,9 +82,9 @@ export const formatSavedContext = (ctx: SavedContext): string => {
 
 export const resolveLandingTarget = async (args?: {
   cookieValue?: string | null
-  agencyPermissionKey?: PermissionKey
-  subAccountPermissionKey?: PermissionKey
-  billingPermissionKey?: PermissionKey
+  agencyPermissionKey?: ActionKey
+  subAccountPermissionKey?: ActionKey
+  billingPermissionKey?: ActionKey
 }): Promise<LandingTarget | null> => {
   const session = await auth()
   const userId = session?.user?.id
@@ -93,7 +93,7 @@ export const resolveLandingTarget = async (args?: {
   const agencyPermissionKey = args?.agencyPermissionKey ?? 'core.agency.account.read'
   const subAccountPermissionKey =
     args?.subAccountPermissionKey ?? 'core.subaccount.account.read'
-  const billingPermissionKey = args?.billingPermissionKey ?? 'core.billing.account.read'
+  const billingPermissionKey = args?.billingPermissionKey ?? 'core.billing.account.view'
 
   const saved = parseSavedContext(args?.cookieValue ?? null)
 
@@ -172,7 +172,7 @@ export const resolveLandingTarget = async (args?: {
     const m = agencyMemberships.find((x) => x.agencyId === agencyId)
     if (!m) return null
 
-    const permissionKeys = m.Role.Permissions.map((rp) => rp.Permission.key) as PermissionKey[]
+    const permissionKeys = m.Role.Permissions.map((rp) => rp.Permission.key) as ActionKey[]
     const subscriptionState = computeSubscriptionState(m.Agency.Subscription)
     return {
       kind: 'agency',
@@ -188,7 +188,7 @@ export const resolveLandingTarget = async (args?: {
     const m = subAccountMemberships.find((x) => x.subAccountId === subAccountId)
     if (!m) return null
 
-    const permissionKeys = m.Role.Permissions.map((rp) => rp.Permission.key) as PermissionKey[]
+    const permissionKeys = m.Role.Permissions.map((rp) => rp.Permission.key) as ActionKey[]
     return {
       kind: 'subaccount',
       subAccountId,
@@ -238,7 +238,7 @@ export const resolveAgencyContextForUser = async (args: {
 }): Promise<{
   userId: string
   agencyId: string
-  permissionKeys: PermissionKey[]
+  permissionKeys: ActionKey[]
   subscriptionState: SubscriptionState
 } | null> => {
   const membership = await db.agencyMembership.findFirst({
@@ -272,7 +272,7 @@ export const resolveAgencyContextForUser = async (args: {
 
   if (!membership) return null
 
-  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as PermissionKey[]
+  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as ActionKey[]
   const subscriptionState = computeSubscriptionState(membership.Agency.Subscription)
 
   return {
@@ -288,7 +288,7 @@ export const resolveCurrentAgencyContext = async (args: {
 }): Promise<{
   userId: string
   agencyId: string
-  permissionKeys: PermissionKey[]
+  permissionKeys: ActionKey[]
   subscriptionState: SubscriptionState
 } | null> => {
   const session = await auth()
@@ -326,7 +326,7 @@ export const resolveCurrentAgencyContext = async (args: {
 
   if (!membership) return null
 
-  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as PermissionKey[]
+  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as ActionKey[]
   const subscriptionState = computeSubscriptionState(membership.Agency.Subscription)
 
   return {
@@ -365,7 +365,7 @@ export const resolveSubAccountContextForUser = async (args: {
   userId: string
   agencyId: string
   subAccountId: string
-  permissionKeys: PermissionKey[]
+  permissionKeys: ActionKey[]
 } | null> => {
   const membership = await db.subAccountMembership.findFirst({
     where: { userId: args.userId, subAccountId: args.subAccountId, isActive: true },
@@ -386,7 +386,7 @@ export const resolveSubAccountContextForUser = async (args: {
 
   if (!membership) return null
 
-  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as PermissionKey[]
+  const permissionKeys = membership.Role.Permissions.map((rp) => rp.Permission.key) as ActionKey[]
 
   return {
     userId: membership.userId,
@@ -402,7 +402,7 @@ export const resolveCurrentSubAccountContext = async (args: {
   userId: string
   agencyId: string
   subAccountId: string
-  permissionKeys: PermissionKey[]
+  permissionKeys: ActionKey[]
 } | null> => {
   const session = await auth()
   const userId = session?.user?.id

@@ -5,7 +5,7 @@ import { KEYS } from '@/lib/registry/keys/permissions'
 
 export async function GET(req: Request) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     const url = new URL(req.url)
     const limit = Number(url.searchParams.get('limit') || '50')
     const deliveries = await listDeliveries(scope, { limit: Number.isFinite(limit) ? limit : 50 })

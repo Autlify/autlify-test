@@ -9,7 +9,7 @@ import { INTEGRATION_PROVIDERS } from '@/lib/features/core/integrations/provider
  */
 export async function GET(req: Request) {
   try {
-    await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     return NextResponse.json({ providers: INTEGRATION_PROVIDERS })
   } catch (e: any) {
     if (e instanceof Response) return e

@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { ChartOfAccountsTable } from './_components/chart-of-accounts-table';
+import { ChartOfAccountsTable } from '@/components/fi/general-ledger/chart-of-accounts';
 import { listChartOfAccounts } from '@/lib/features/fi/general-ledger/actions/chart-of-accounts';
 
 type Props = {
@@ -21,7 +21,7 @@ export default async function ChartOfAccountsPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read'); // TODO: to replace with fi.general-ledger.coa.view
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.master_data.accounts.view');
   if (!hasPermission) {
     notFound();
   }
@@ -31,14 +31,14 @@ export default async function ChartOfAccountsPage({ params }: Props) {
   const accounts = accountsResult.success ? accountsResult.data : [];
 
   // Check create permission
-  const canCreate = await hasAgencyPermission(agencyId, 'core.agency.account.read'); // TODO: to replace with fi.general-ledger.coa.create
+  const canCreate = await hasAgencyPermission(agencyId, 'fi.master_data.accounts.manage');
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Chart of Accounts</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold">Chart of Accounts</h1>
+          <p className="text-sm text-muted-foreground">
             Manage your account hierarchy and classifications
           </p>
         </div>

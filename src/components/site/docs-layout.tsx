@@ -173,7 +173,7 @@ export default function DocsLayout({ children, tableOfContents }: DocsLayoutProp
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary">
+    <div className="w-full h-full bg-bg-primary">
       {/* Top Search Bar */}
       <div className="sticky top-0 z-40 border-b border-line-secondary bg-bg-primary/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-[1800px] items-center gap-4 px-4">
@@ -255,7 +255,7 @@ export default function DocsLayout({ children, tableOfContents }: DocsLayoutProp
         )}
 
         {/* Main Content */}
-        <main className="min-w-0 flex-1 px-6 py-8 lg:px-12">
+        <main className="h-full w-full min-w-0 flex-1 px-6 py-8 lg:px-12">
           <div className="mx-auto max-w-3xl">
             {children}
           </div>

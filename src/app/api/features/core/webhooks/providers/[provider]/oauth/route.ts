@@ -30,7 +30,7 @@ export async function GET(req: Request, props: Props) {
 
 async function handleStart(req: Request, provider: string, url: URL) {
   try {
-    const auth = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const auth = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
 
     // Create/update connection record
     const connection = await upsertConnection({

@@ -12,7 +12,7 @@ import bcrypt from 'bcryptjs'
  */
 
 // =============================================================================
-// POST - Request password reset
+// POST - Request password reset 'reset-request' token
 // =============================================================================
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     // Step 1: Check if user exists
     const user = await db.user.findUnique({
       where: { email: normalizedEmail },
-      select: { id: true, name: true, password: true },
+      select: { id: true, name: true, password: true, firstName: true, lastName: true },
     })
 
     // Always return success to prevent email enumeration attacks
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Step 2: Create verification token (24 hours)
     const verificationToken = await createVerificationToken(
       normalizedEmail,
-      'pwd-reset',
+      'reset-request',
       24 * 60 * 60 * 1000
     )
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     await sendPasswordResetEmail({
       email: normalizedEmail,
       token: verificationToken.token,
-      name: user.name || 'User',
+      name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
     })
 
     return NextResponse.json({
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 }
 
 // =============================================================================
-// PUT - Execute password reset
+// PUT - Execute password reset 'reset-password' token
 // =============================================================================
 export async function PUT(req: NextRequest) {
   try {

@@ -1,16 +1,19 @@
 'use client'
 import CreateFunnelPage from '@/components/forms/funnel-page'
 import CustomModal from '@/components/global/custom-modal'
+import { TemplatePickerModal } from '@/components/global/template-picker-modal'
 import { AlertDialog } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { toast } from '@/components/ui/use-toast'
-import { upsertFunnelPage } from '@/lib/queries'
+import { upsertFunnelPage, saveActivityLogsNotification } from '@/lib/queries'
+import { getTemplateElements, getBlankPageElements, StarterKit, getTemplateById } from '@/lib/funnel-templates'
 import { FunnelsForSubAccount } from '@/lib/types'
 import { useModal } from '@/providers/modal-provider'
 import { FunnelPage } from '@/generated/prisma/client'
 import { Check, ExternalLink, LucideEdit } from 'lucide-react'
 import React, { useState } from 'react'
+import { v4 } from 'uuid'
 
 import {
   DragDropContext,
@@ -19,6 +22,7 @@ import {
   Droppable,
 } from 'react-beautiful-dnd'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import FunnelPagePlaceholder from '@/components/icons/funnel-page-placeholder'
 
 import {
@@ -41,7 +45,140 @@ const FunnelSteps = ({ funnel, funnelId, pages, subaccountId }: Props) => {
     pages[0]
   )
   const { setOpen } = useModal()
+  const router = useRouter()
   const [pagesState, setPagesState] = useState(pages)
+  const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  
+  const handleCreateBlankPage = () => {
+    setOpen(
+      <CustomModal
+        title="Create a Funnel Page"
+        subheading="Funnel Pages allow you to create step by step processes for customers to follow"
+      >
+        <CreateFunnelPage
+          subaccountId={subaccountId}
+          funnelId={funnelId}
+          order={pagesState.length}
+        />
+      </CustomModal>
+    )
+  }
+
+  const handleCreateFromTemplate = async (templateId: string) => {
+    setIsCreating(true)
+    try {
+      const elements = getTemplateElements(templateId)
+      if (!elements) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Template not found',
+        })
+        return
+      }
+
+      const template = getTemplateById(templateId)
+      const pageName = template?.name || 'New Page'
+      const pageId = v4()
+      
+      const response = await upsertFunnelPage(
+        subaccountId,
+        {
+          id: pageId,
+          name: pageName,
+          pathName: pagesState.length === 0 ? '' : pageName.toLowerCase().replace(/\s+/g, '-'),
+          order: pagesState.length,
+          content: JSON.stringify(elements),
+        },
+        funnelId
+      )
+
+      if (response) {
+        await saveActivityLogsNotification({
+          agencyId: undefined,
+          description: `Created a funnel page from template | ${pageName}`,
+          subaccountId: subaccountId,
+        })
+
+        setPagesState([...pagesState, response])
+        setClickedPage(response)
+        router.refresh()
+        
+        toast({
+          title: 'Success',
+          description: 'Funnel page created from template',
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to create page from template',
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleCreateFromStarterKit = async (kit: StarterKit) => {
+    setIsCreating(true)
+    try {
+      const newPages: FunnelPage[] = []
+      
+      for (let i = 0; i < kit.pages.length; i++) {
+        const pageConfig = kit.pages[i]
+        const elements = getTemplateElements(pageConfig.templateId)
+        
+        if (!elements) continue
+        
+        const pageId = v4()
+        const response = await upsertFunnelPage(
+          subaccountId,
+          {
+            id: pageId,
+            name: pageConfig.name,
+            pathName: i === 0 && pagesState.length === 0 ? '' : pageConfig.pathName,
+            order: pagesState.length + i,
+            content: JSON.stringify(elements),
+          },
+          funnelId
+        )
+        
+        if (response) {
+          newPages.push(response)
+        }
+      }
+
+      if (newPages.length > 0) {
+        await saveActivityLogsNotification({
+          agencyId: undefined,
+          description: `Created ${newPages.length} funnel pages from ${kit.name}`,
+          subaccountId: subaccountId,
+        })
+
+        setPagesState([...pagesState, ...newPages])
+        setClickedPage(newPages[0])
+        router.refresh()
+        
+        toast({
+          title: 'Success',
+          description: `Created ${newPages.length} pages from ${kit.name}`,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to create pages from starter kit',
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   const onDragStart = (event: DragStart) => {
     //current chosen page
     const { draggableId } = event
@@ -137,6 +274,7 @@ const FunnelSteps = ({ funnel, funnelId, pages, subaccountId }: Props) => {
                           />
                         </div>
                       ))}
+                      {provided.placeholder}
                     </div>
                   )}
                 </Droppable>
@@ -149,26 +287,14 @@ const FunnelSteps = ({ funnel, funnelId, pages, subaccountId }: Props) => {
           </ScrollArea>
           <Button
             className="mt-4 w-full"
-            onClick={() => {
-              setOpen(
-                <CustomModal
-                  title=" Create or Update a Funnel Page"
-                  subheading="Funnel Pages allow you to create step by step processes for customers to follow"
-                >
-                  <CreateFunnelPage
-                    subaccountId={subaccountId}
-                    funnelId={funnelId}
-                    order={pagesState.length}
-                  />
-                </CustomModal>
-              )
-            }}
+            disabled={isCreating}
+            onClick={() => setIsTemplatePickerOpen(true)}
           >
-            Create New Steps
+            {isCreating ? 'Creating...' : 'Create New Steps'}
           </Button>
         </aside>
         <aside className="flex-[0.7] bg-muted p-4 ">
-          {!!pages.length ? (
+          {!!pagesState.length ? (
             <Card className="h-full flex justify-between flex-col">
               <CardHeader>
                 <p className="text-sm text-muted-foreground">Page name</p>
@@ -218,6 +344,13 @@ const FunnelSteps = ({ funnel, funnelId, pages, subaccountId }: Props) => {
           )}
         </aside>
       </div>
+      <TemplatePickerModal
+        isOpen={isTemplatePickerOpen}
+        onClose={() => setIsTemplatePickerOpen(false)}
+        onSelectBlank={handleCreateBlankPage}
+        onSelectTemplate={handleCreateFromTemplate}
+        onSelectStarterKit={handleCreateFromStarterKit}
+      />
     </AlertDialog>
   )
 }

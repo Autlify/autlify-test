@@ -6,7 +6,7 @@ import { auth } from '@/auth'
 import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { JournalEntryForm } from '../_components/journal-entry-form'
+import { JournalEntryForm } from '@/components/fi/general-ledger/journal-entries'
 import { listChartOfAccounts } from '@/lib/features/fi/general-ledger/actions/chart-of-accounts'
 import { listFinancialPeriods } from '@/lib/features/fi/general-ledger/actions/periods'
 
@@ -23,7 +23,7 @@ export default async function NewJournalEntryPage({ params }: Props) {
   }
 
   // Check create permission
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read') // TODO: replace with fi.general-ledger.journal.create
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.journal_entries.create')
   if (!hasPermission) {
     notFound()
   }
@@ -41,18 +41,18 @@ export default async function NewJournalEntryPage({ params }: Props) {
   const openPeriods = periods.filter((p: any) => p.status === 'OPEN')
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div>
-        <h1 className="text-3xl font-bold">New Journal Entry</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold">New Journal Entry</h1>
+        <p className="text-sm text-muted-foreground">
           Create a new journal entry with double-entry accounting
         </p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Journal Entry Details</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Journal Entry Details</CardTitle>
+          <CardDescription className="text-xs">
             Enter the entry details and add debit/credit lines. Total debits must equal total credits.
           </CardDescription>
         </CardHeader>

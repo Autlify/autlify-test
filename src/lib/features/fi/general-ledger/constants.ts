@@ -163,44 +163,79 @@ export const VALIDATION_RULES = {
   MIN_JOURNAL_ENTRY_LINES: 2,
 };
 
-// Permissions Map
+// ─────────────────────────────────────────────────────────────────────────────
+// GL Permissions - Re-export from Single Source of Truth (Registry)
+// ─────────────────────────────────────────────────────────────────────────────
+// DEPRECATED: Import directly from '@/lib/registry/keys/permissions' instead
+// or use the convenience exports from './core/permissions.ts'
+// ─────────────────────────────────────────────────────────────────────────────
+import { KEYS } from '@/lib/registry/keys/permissions'
+
+/** @deprecated Use KEYS.fi directly from '@/lib/registry/keys/permissions' */
 export const GL_PERMISSIONS = {
+  // Accounts (Master Data)
   COA: {
-    VIEW: 'fi.general-ledger.coa.view',
-    CREATE: 'fi.general-ledger.coa.create',
-    EDIT: 'fi.general-ledger.coa.edit',
-    DELETE: 'fi.general-ledger.coa.delete',
-    MANAGE_HIERARCHY: 'fi.general-ledger.coa.manage_hierarchy',
+    VIEW: KEYS.fi.master_data.accounts.view,
+    MANAGE: KEYS.fi.master_data.accounts.manage,
   },
+  // Journal Entries (Transactions)
   JOURNAL: {
-    VIEW: 'fi.general-ledger.journal.view',
-    CREATE: 'fi.general-ledger.journal.create',
-    EDIT_DRAFT: 'fi.general-ledger.journal.edit_draft',
-    SUBMIT: 'fi.general-ledger.journal.submit',
-    APPROVE: 'fi.general-ledger.journal.approve',
-    REJECT: 'fi.general-ledger.journal.reject',
-    POST: 'fi.general-ledger.journal.post',
-    REVERSE: 'fi.general-ledger.journal.reverse',
-    VOID: 'fi.general-ledger.journal.void',
+    VIEW: KEYS.fi.general_ledger.journal_entries.read,
+    CREATE: KEYS.fi.general_ledger.journal_entries.create,
+    EDIT: KEYS.fi.general_ledger.journal_entries.update,
+    DELETE: KEYS.fi.general_ledger.journal_entries.delete,
+    APPROVE: KEYS.fi.general_ledger.journal_entries.approve,
   },
+  // Periods (Configuration)
   PERIOD: {
-    VIEW: 'fi.general-ledger.period.view',
-    CREATE: 'fi.general-ledger.period.create',
-    EDIT: 'fi.general-ledger.period.edit',
-    OPEN: 'fi.general-ledger.period.open',
-    CLOSE: 'fi.general-ledger.period.close',
-    LOCK: 'fi.general-ledger.period.lock',
+    VIEW: KEYS.fi.configuration.fiscal_years.view,
+    MANAGE: KEYS.fi.configuration.fiscal_years.manage,
   },
+  // Reports
   REPORT: {
-    VIEW: 'fi.general-ledger.report.view',
-    GENERATE: 'fi.general-ledger.report.generate',
-    EXPORT: 'fi.general-ledger.report.export',
+    VIEW: KEYS.fi.general_ledger.reports.view,
+    GENERATE: KEYS.fi.general_ledger.reports.generate,
+    APPROVE: KEYS.fi.general_ledger.reports.approve,
   },
+  // Settings
   SETTINGS: {
-    VIEW: 'fi.general-ledger.settings.view',
-    EDIT: 'fi.general-ledger.settings.edit',
+    VIEW: KEYS.fi.general_ledger.settings.view,
+    MANAGE: KEYS.fi.general_ledger.settings.manage,
+    SETUP: KEYS.fi.general_ledger.settings.setup,
   },
-};
+  // Reconciliation
+  RECONCILIATION: {
+    VIEW: KEYS.fi.general_ledger.reconciliation.view,
+    MANAGE: KEYS.fi.general_ledger.reconciliation.manage,
+    CLEAR: KEYS.fi.general_ledger.reconciliation.clear,
+  },
+  // Consolidation
+  CONSOLIDATION: {
+    VIEW: KEYS.fi.general_ledger.consolidation.view,
+    MANAGE: KEYS.fi.general_ledger.consolidation.manage,
+  },
+  // Year-End Closing
+  YEAR_END: {
+    VIEW: KEYS.fi.general_ledger.year_end.view,
+    MANAGE: KEYS.fi.general_ledger.year_end.manage,
+    CLOSE: KEYS.fi.general_ledger.year_end.close,
+  },
+  // Currency (Configuration)
+  CURRENCY: {
+    VIEW: KEYS.fi.configuration.currencies.view,
+    MANAGE: KEYS.fi.configuration.currencies.manage,
+  },
+  // Tax (Configuration)
+  TAX: {
+    VIEW: KEYS.fi.configuration.tax_settings.view,
+    MANAGE: KEYS.fi.configuration.tax_settings.manage,
+  },
+  // Posting Rules (Configuration)
+  POSTING_RULES: {
+    VIEW: KEYS.fi.configuration.posting_rules.view,
+    MANAGE: KEYS.fi.configuration.posting_rules.manage,
+  },
+} as const;
 
 // Error Messages
 export const ERROR_MESSAGES = {

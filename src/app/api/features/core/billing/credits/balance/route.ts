@@ -17,13 +17,13 @@ import type { MeteringScope } from '@/generated/prisma/client'
  * Query Parameters:
  * - featureKey (optional): Filter by specific feature
  * 
- * Permissions: core.billing.credits.read
+ * Permissions: core.billing.credits.view
  */
 export async function GET(req: NextRequest) {
   try {
     const { scope } = await requireRequestAccess({
       req,
-      requiredKeys: ['core.billing.credits.read'],
+      requiredKeys: ['core.billing.credits.view'],
       requireActiveSubscription: false, // Can check credits even without active subscription
     })
 

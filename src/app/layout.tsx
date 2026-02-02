@@ -7,6 +7,7 @@ import ModalProvider from '@/providers/modal-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as SonnarToaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { SidebarProvider } from '@/components/sidebar-01/sidebar-context'
 
 const font = DM_Sans({ subsets: ['latin'] })
 
@@ -25,7 +26,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={`${font.className }`}>
+      <body className={`${font.className } w-full min-h-screen`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -36,9 +37,11 @@ export default function RootLayout({
           >
             <TooltipProvider>
               <ModalProvider>
-                {children}
-                <Toaster />
-                <SonnarToaster position="bottom-left" />
+                <SidebarProvider>
+                  {children}
+                  <Toaster />
+                  <SonnarToaster position="bottom-left" />
+                </SidebarProvider>
               </ModalProvider>
             </TooltipProvider>
           </ThemeProvider>

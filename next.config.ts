@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@uploadthing/mime-types'],
   allowedDevOrigins: [
     'http://localhost:3000',
+    'http://192.168.100.42:3000',
     'https://ipapi.co',
   ],
 }

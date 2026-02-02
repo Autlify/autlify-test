@@ -82,8 +82,8 @@ export const createOpenItem = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.create')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.create');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.manage');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to create open items' };
@@ -196,8 +196,8 @@ export const getOpenItem = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.view');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view open items' };
@@ -246,8 +246,8 @@ export const getOpenItems = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.view');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view open items' };
@@ -350,8 +350,8 @@ export const updateOpenItem = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.edit')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.edit');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.manage');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to edit open items' };
@@ -423,8 +423,8 @@ export const clearOpenItems = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.clear')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.clear');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.clear')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.clear');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to clear open items' };
@@ -588,8 +588,8 @@ export const partialClearOpenItem = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.clear')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.clear');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.clear')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.clear');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to clear open items' };
@@ -700,8 +700,8 @@ export const autoClearOpenItems = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.clear')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.clear');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.clear')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.clear');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to auto-clear open items' };
@@ -891,8 +891,8 @@ export const reverseClearing = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.reverse')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.reverse');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.reset')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.reset');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to reverse clearing' };
@@ -1012,8 +1012,8 @@ export const getPartnerOpenItemsSummary = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.view');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view open items' };
@@ -1100,8 +1100,8 @@ export const getOpenItemsAging = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.openitems.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.openitems.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.reconciliation.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.reconciliation.view');
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view open items' };

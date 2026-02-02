@@ -26,6 +26,9 @@
       "@/*": [
         "./src/*"
       ],
+      "@autlify/billing-sdk": [
+        "./packages/billing-sdk/src/index.ts"
+      ],
       "@autlify/billing-sdk/*": [
         "./packages/billing-sdk/src/*"
       ]
@@ -61,7 +64,9 @@
     "**/__tests__/**",
     "**/packages/database/src/generated/**",
     "packages/sdk/**",
-    "packages/autlify-mcp/**"
+    "packages/autlify-mcp/**",
+    "patches/ai-agent-builder",
+    "**/ai-agent-builder/**"
   ],
   "watchOptions": {
     "excludeDirectories": [
@@ -70,12 +75,14 @@
       "**/.next",
       "**/dist",
       "**/build",
-      "**/coverage"
+      "**/coverage",
+      "**/ai-agent-builder"
     ],
     "excludeFiles": [
       "**/node_modules/**/*.ts",
       "**/.turbo/**/*",
-      "**/.next/**/*"
+      "**/.next/**/*",
+      "**/ai-agent-builder/**/*"
     ]
   }
 }

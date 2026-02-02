@@ -12,6 +12,7 @@ import {
 import { logGLAudit } from './audit'
 import { AccountType } from '@/generated/prisma/client'
 import { GLNormalBalance as NormalBalance } from '@/lib/schemas/fi/general-ledger/balances'
+import { ActionKey } from '@/lib/registry'
 
 
 // ========== Types ==========
@@ -59,7 +60,7 @@ const getContext = async (): Promise<TemplateContext | null> => {
 
 const checkPermission = async (
   context: TemplateContext,
-  permissionKey: string
+  permissionKey: ActionKey
 ): Promise<boolean> => {
   if (context.subAccountId) {
     return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -749,7 +750,7 @@ export const applyTemplate = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.create')
+    const hasPermission = await checkPermission(context, 'fi.master_data.accounts.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -857,7 +858,7 @@ export const saveAsTemplate = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -922,7 +923,7 @@ export const exportCOA = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+    const hasPermission = await checkPermission(context, 'fi.master_data.accounts.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -994,7 +995,7 @@ export const importCOA = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.create')
+    const hasPermission = await checkPermission(context, 'fi.master_data.accounts.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }

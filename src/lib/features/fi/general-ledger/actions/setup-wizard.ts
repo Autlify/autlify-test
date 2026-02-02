@@ -205,8 +205,8 @@ export const completeSetup = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.settings.edit')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.settings.edit')
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.general_ledger.settings.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.general_ledger.settings.manage')
 
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }

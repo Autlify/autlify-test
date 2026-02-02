@@ -34,7 +34,7 @@ export type RequestAccessContext = {
     apiKeyId: string
     apiKeyKind: 'USER' | 'AGENCY' | 'SUBACCOUNT'
     ownerUserId: string
-    permissionKeys: string[]
+    permissionKeys: PermissionKey[]
   }
 }
 
@@ -55,16 +55,16 @@ const fail = (mode: FailMode, redirectTo: string, message: string): never => {
 }
 
 export const requirePermission = async (args: {
-  permissionKeys: string[]
-  requiredKeys: string[] // all required
+  permissionKeys: PermissionKey[]
+  requiredKeys: PermissionKey[] // all required
   failMode?: FailMode
   redirectTo?: string
 }) => {
   const failMode = args.failMode ?? 'redirect'
   const redirectTo = args.redirectTo ?? '/'
 
-  const keys = args.permissionKeys.map(normalize)
-  const required = args.requiredKeys.map(normalize).filter(Boolean)
+  const keys = args.permissionKeys.map(normalize) as PermissionKey[]
+  const required = args.requiredKeys.map(normalize).filter(Boolean) as PermissionKey[]
 
   const ok = required.every((k) => keys.includes(k))
   if (!ok) fail(failMode, redirectTo, `Missing permissions: ${required.join(', ')}`)
@@ -82,7 +82,7 @@ export const requireAgencyAccess = async (args: {
 }) => {
   const failMode = args.failMode ?? 'redirect'
   const redirectTo = args.redirectTo ?? '/agency/sign-in'
-  const billingPermissionKey = args.billingPermissionKey ?? 'core.billing.account.read'
+  const billingPermissionKey = args.billingPermissionKey ?? 'core.billing.account.view' as PermissionKey
 
   const ctx = await resolveCurrentAgencyContext({ agencyId: args.agencyId })
   if (!ctx) return fail(failMode, redirectTo, 'No agency membership')
@@ -92,7 +92,7 @@ export const requireAgencyAccess = async (args: {
       ? args.permissionKeys
       : args.permissionKey
         ? [args.permissionKey]
-        : ['core.agency.account.read']
+        : ['core.agency.account.read'] as PermissionKey[]
 
   await requirePermission({
     permissionKeys: ctx?.permissionKeys || [],
@@ -127,7 +127,7 @@ export const requireSubAccountAccess = async (args: {
 }) => {
   const failMode = args.failMode ?? 'redirect'
   const redirectTo = args.redirectTo ?? '/agency/sign-in'
-  const billingPermissionKey = args.billingPermissionKey ?? 'core.billing.account.read'
+  const billingPermissionKey = args.billingPermissionKey ?? 'core.billing.account.view' as PermissionKey
 
   const ctx = await resolveCurrentSubAccountContext({ subAccountId: args.subAccountId })
   if (!ctx) return fail(failMode, redirectTo, 'No subaccount membership')
@@ -137,7 +137,7 @@ export const requireSubAccountAccess = async (args: {
       ? args.permissionKeys
       : args.permissionKey
         ? [args.permissionKey]
-        : ['subaccount.account.read']
+        : ['core.subaccount.account.read'] as PermissionKey[]
 
   await requirePermission({
     permissionKeys: ctx.permissionKeys,
@@ -282,7 +282,7 @@ export const requireRequestAccess = async (args: {
 
     // Defense-in-depth: required keys must be allowed by BOTH the key and the user role.
     await requirePermission({
-      permissionKeys: principal.permissionKeys,
+      permissionKeys: principal.permissionKeys as PermissionKey[],
       requiredKeys: args.requiredKeys,
       failMode: 'throw',
       redirectTo: '/',
@@ -295,7 +295,7 @@ export const requireRequestAccess = async (args: {
     })
   } else {
     await requirePermission({
-      permissionKeys: principal.permissionKeys,
+      permissionKeys: principal.permissionKeys as PermissionKey[],
       requiredKeys: args.requiredKeys,
       failMode: 'throw',
       redirectTo: '/',
@@ -322,7 +322,7 @@ export const requireRequestAccess = async (args: {
       apiKeyId: principal.apiKeyId,
       apiKeyKind: principal.apiKeyKind,
       ownerUserId: principal.ownerUserId,
-      permissionKeys: principal.permissionKeys,
+      permissionKeys: principal.permissionKeys as PermissionKey[],
     },
   }
 }

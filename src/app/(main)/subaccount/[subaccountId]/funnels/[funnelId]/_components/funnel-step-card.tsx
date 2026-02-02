@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { FunnelPage } from '@/generated/prisma/client'
 import { ArrowDown, Mail } from 'lucide-react'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 import { createPortal } from 'react-dom'
 
@@ -12,7 +12,11 @@ type Props = {
 }
 
 const FunnelStepCard = ({ activePage, funnelPage, index }: Props) => {
-  let portal = document.getElementById('blur-page')
+  const [portal, setPortal] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    setPortal(document.getElementById('blur-page'))
+  }, [])
 
   return (
     <Draggable

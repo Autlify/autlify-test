@@ -188,6 +188,10 @@ export {
     // Alerts
     TrialBanner,
     DunningAlerts,
+    // Dialogs
+    PlanSelectorDialog,
+    CancelSubscriptionDialog,
+    UpdatePlanDialog,
     // UI Primitives
     Button,
     Card,
@@ -230,6 +234,7 @@ export type {
     TrialBannerProps,
     DunningAlertsProps,
     PlanSelectorDialogProps,
+    PlanOption,
     CancelSubscriptionDialogProps,
     PaymentFormProps,
     CouponInputProps,

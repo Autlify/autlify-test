@@ -13,7 +13,7 @@ import {
   PostalCodeInput,
   PhoneCodeSelector,
   AddressAutocomplete
-} from '../global/location'
+} from '@/components/global/location'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../ui/alert-dialog'
+} from '@/components/ui/alert-dialog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Card,
@@ -32,7 +32,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -41,14 +41,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Label } from '../ui/label'
-import { useToast } from '../ui/use-toast'
-
+} from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 import * as z from 'zod'
-import FileUpload from '../global/file-upload'
-import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
+import FileUpload from '@/components/global/file-upload'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import {
   deleteAgency,
   initUser,
@@ -56,8 +55,8 @@ import {
   updateAgencyDetails,
   upsertAgency,
 } from '@/lib/queries'
-import { Button } from '../ui/button'
-import Loading from '../global/loading'
+import { Button } from '@/components/ui/button'
+import Loading from '@/components/global/loading'
 import Stripe from 'stripe'
 import { StripeCustomerType } from '@/lib/types'
 import { Plan } from '@/generated/prisma/client'
@@ -176,11 +175,6 @@ const AgencyDetails = ({ data, selectedPlan }: Props) => {
       setPhoneNumber(phoneNumberFromMatch || data.companyPhone || '')
     }
   }, [data, form])
-
-
-
-
-
 
   const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
     try {

@@ -28,7 +28,7 @@ export default async function ReportsPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read');
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.reports.view');
   if (!hasPermission) {
     notFound();
   }
@@ -97,11 +97,11 @@ export default async function ReportsPage({ params }: Props) {
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Financial Reports</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold">Financial Reports</h1>
+          <p className="text-sm text-muted-foreground">
             Generate and view financial statements and analysis reports
           </p>
         </div>
@@ -115,16 +115,16 @@ export default async function ReportsPage({ params }: Props) {
 
       {/* Primary Financial Reports */}
       <div>
-        <h2 className="mb-4 text-xl font-semibold">Financial Statements</h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <h2 className="mb-3 text-lg font-semibold">Financial Statements</h2>
+        <div className="grid gap-3 md:grid-cols-2">
           {financialReports.map((report) => (
-            <Card key={report.id} className="transition-all hover:shadow-md">
-              <CardHeader>
+            <Card key={report.id} className="transition-all hover:shadow-md hover:border-primary/50">
+              <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-lg ${report.bgColor}`}
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${report.bgColor}`}
                   >
-                    <report.icon className={`h-6 w-6 ${report.color}`} />
+                    <report.icon className={`h-5 w-5 ${report.color}`} />
                   </div>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={report.href}>
@@ -132,10 +132,10 @@ export default async function ReportsPage({ params }: Props) {
                     </Link>
                   </Button>
                 </div>
-                <CardTitle className="mt-4">{report.title}</CardTitle>
-                <CardDescription>{report.description}</CardDescription>
+                <CardTitle className="mt-2 text-base">{report.title}</CardTitle>
+                <CardDescription className="text-xs">{report.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="flex gap-2">
                   <Button size="sm" asChild>
                     <Link href={report.href}>Generate</Link>
@@ -153,8 +153,8 @@ export default async function ReportsPage({ params }: Props) {
 
       {/* Additional Reports */}
       <div>
-        <h2 className="mb-4 text-xl font-semibold">Additional Reports</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <h2 className="mb-3 text-lg font-semibold">Additional Reports</h2>
+        <div className="grid gap-3 md:grid-cols-3">
           {additionalReports.map((report) => (
             <Card key={report.id} className="transition-all hover:shadow-md">
               <CardHeader className="pb-2">
@@ -218,7 +218,7 @@ export default async function ReportsPage({ params }: Props) {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Period Comparison</CardTitle>

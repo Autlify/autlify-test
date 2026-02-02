@@ -12,13 +12,13 @@ import { resolveEffectiveEntitlements, inferScopeFromIds } from '@/lib/features/
  * - x-autlify-agency: <agencyId>
  * - x-autlify-subaccount: <subAccountId> (optional)
  * 
- * Permissions: core.features.experimental.manage
+ * Permissions: core.features.preference.toggle
  */
 export async function POST(request: Request) {
   try {
     const { scope, principal } = await requireRequestAccess({
       req: request,
-      requiredKeys: ['core.features.experimental.manage'],
+      requiredKeys: ['core.features.preference.toggle'],
       requireActiveSubscription: true,
     })
 

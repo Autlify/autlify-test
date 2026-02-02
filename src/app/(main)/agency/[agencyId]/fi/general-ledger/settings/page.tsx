@@ -3,8 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions'
 import { getGLConfiguration, getGLSetupStatus } from '@/lib/features/fi/general-ledger/actions/configuration'
-import { GLSettingsForm } from './_components/gl-configuration-form'
-import { GLSetupWizard } from './_components/setup-wizard'
+import { GLSettingsForm, GLSetupWizard } from '@/components/fi/general-ledger/settings'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Settings, Building, DollarSign, Calendar, Globe, Lock, Database } from 'lucide-react'
@@ -22,21 +21,21 @@ export default async function GLSettingsPage({ params }: Props) {
     redirect('/sign-in')
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read') // TODO: to replace with fi.general-ledger.settings.view
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.settings.view')
   if (!hasPermission) {
     notFound()
   }
 
-  const canEdit = await hasAgencyPermission(agencyId, 'core.agency.account.read') // TODO: to replace with fi.general-ledger.settings.edit
+  const canEdit = await hasAgencyPermission(agencyId, 'fi.general_ledger.settings.manage')
 
   // Check setup status
   const setupStatus = await getGLSetupStatus()
 
   if (!setupStatus.success || !setupStatus.data?.isConfigured) {
     return (
-      <div className="flex flex-col gap-6 p-6">
+      <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center gap-2">
-          <Settings className="h-6 w-6" />
+          <Settings className="h-5 w-5" />
           <h1 className="text-2xl font-bold">GL Settings</h1>
         </div>
         <GLSetupWizard agencyId={agencyId} />
@@ -48,11 +47,11 @@ export default async function GLSettingsPage({ params }: Props) {
   const config = configResult.data
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Settings className="h-6 w-6" />
+          <Settings className="h-5 w-5" />
           <h1 className="text-2xl font-bold">GL Settings</h1>
         </div>
       </div>

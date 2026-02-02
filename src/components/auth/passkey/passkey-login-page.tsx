@@ -144,7 +144,7 @@ export function PasskeyLoginPage() {
               {/* Forgot Password Link */}
               <div className="text-center">
                 <a
-                  href="/forgot-password"
+                  href="/password"
                   className="text-sm text-primary hover:text-primary/90 underline"
                 >
                   Forgot your password?

@@ -69,7 +69,7 @@ const Checkout = (props: Props) => {
           )
           const responseJson = await response.json()
           console.log(responseJson)
-          if (!responseJson) throw new Error('somethign went wrong')
+          if (!responseJson) throw new Error('something went wrong')
           if (responseJson.error) {
             throw new Error(responseJson.error)
           }
@@ -81,9 +81,8 @@ const Checkout = (props: Props) => {
             open: true,
             className: 'z-[100000]',
             variant: 'destructive',
-            title: 'Oppse!',
-            //@ts-ignore
-            description: error.message,
+            title: 'Oops!',
+            description: error instanceof Error ? error.message : 'An error occurred',
           })
         }
       }
@@ -133,7 +132,7 @@ const Checkout = (props: Props) => {
     <div
       style={styles}
       draggable
-      onDragStart={(e) => handleDragStart(e, 'contactForm')}
+      onDragStart={(e) => handleDragStart(e, 'paymentForm')}
       onClick={handleOnClickBody}
       className={clsx(
         'p-[2px] w-full m-[5px] relative text-[16px] transition-all flex items-center justify-center',

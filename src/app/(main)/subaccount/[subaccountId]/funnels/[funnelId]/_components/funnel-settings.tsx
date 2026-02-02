@@ -32,8 +32,8 @@ const FunnelSettings: React.FC<FunnelSettingsProps> = async ({
     },
   })
 
-  if (!subaccountDetails) return
-  if (!subaccountDetails.connectAccountId) return
+  if (!subaccountDetails) return null
+  if (!subaccountDetails.connectAccountId) return null
   const products = await getConnectAccountProducts(
     subaccountDetails.connectAccountId
   )

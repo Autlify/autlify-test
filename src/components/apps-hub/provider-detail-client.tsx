@@ -50,7 +50,7 @@ export default function ProviderDetailClient(props: ScopeProps) {
   }, [qs, props.provider])
 
   const connectUrl = useMemo(() => {
-    const back = encodeURIComponent(`${basePath}/apps/integrations/providers/${props.provider}`)
+    const back = encodeURIComponent(`${basePath}/apps/webhooks/providers/${props.provider}`)
     return `/api/features/core/webhooks/providers/${props.provider}/oauth?${qs}&back=${back}`
   }, [basePath, props.provider, qs])
 

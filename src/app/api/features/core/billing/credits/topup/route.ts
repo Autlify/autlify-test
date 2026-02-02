@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
   // Guard: billing manage
   const canBilling =
-    (await hasPermission('core.billing.account.read')) ||
+    (await hasPermission('core.billing.account.view')) ||
     (await hasPermission('core.billing.account.manage')) ||
     (await hasPermission('core.billing.account.manage'))
   if (!canBilling) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })

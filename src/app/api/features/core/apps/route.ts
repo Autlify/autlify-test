@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   try {
     const ctx = await requireRequestAccess({
       req,
-      requiredKeys: [KEYS.core.apps.app.read],
+      requiredKeys: [KEYS.core.apps.app.view],
       requireActiveSubscription: true,
     })
 

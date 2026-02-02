@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions';
+import type { ActionKey } from '@/lib/registry';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read'); // TODO: to replace with fi.general-ledger.overview.view
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.master_data.accounts.view');
   if (!hasPermission) {
     notFound();
   }
@@ -58,7 +59,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
       icon: BookOpen,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-950',
-      permission: 'core.agency.account.read', // TODO: to replace with fi.general-ledger.coa.view
+      permission: 'fi.master_data.accounts.view',
     },
     {
       title: 'Journal Entries',
@@ -67,7 +68,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
       icon: FileText,
       color: 'text-green-600',
       bgColor: 'bg-green-50 dark:bg-green-950',
-      permission: 'core.agency.account.read', // TODO: to replace with fi.general-ledger.journal.view
+      permission: 'fi.general_ledger.journal_entries.read',
     },
     {
       title: 'Financial Periods',
@@ -76,7 +77,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
       icon: Calendar,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-950',
-      permission: 'core.agency.account.read', // TODO: to replace with fi.general-ledger.periods.view
+      permission: 'fi.configuration.fiscal_years.view',
     },
     {
       title: 'Reports',
@@ -85,7 +86,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
       icon: BarChart3,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50 dark:bg-orange-950',
-      permission: 'core.agency.account.read', // TODO: to replace with fi.general-ledger.reports.view
+      permission: 'fi.general_ledger.reports.view',
     },
     {
       title: 'Settings',
@@ -94,7 +95,7 @@ export default async function GeneralLedgerPage({ params }: Props) {
       icon: Settings,
       color: 'text-gray-600',
       bgColor: 'bg-gray-50 dark:bg-gray-950',
-      permission: 'core.agency.account.read', // TODO: to replace with fi.general-ledger.settings.view
+      permission: 'fi.general_ledger.settings.view',
     },
   ];
 
@@ -102,21 +103,23 @@ export default async function GeneralLedgerPage({ params }: Props) {
   const accessibleLinks = await Promise.all(
     quickLinks.map(async (link) => ({
       ...link,
-      hasAccess: await hasAgencyPermission(agencyId, link.permission),
+      hasAccess: await hasAgencyPermission(agencyId, link.permission as ActionKey),
     }))
   );
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">General Ledger</h1>
-        <p className="text-muted-foreground">
-          Manage your financial accounting and reporting
-        </p>
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">General Ledger</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your financial accounting and reporting
+          </p>
+        </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
@@ -157,21 +160,21 @@ export default async function GeneralLedgerPage({ params }: Props) {
 
       {/* Quick Links */}
       <div>
-        <h2 className="mb-4 text-xl font-semibold">Quick Access</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <h2 className="mb-3 text-lg font-semibold">Quick Access</h2>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {accessibleLinks
             .filter((link) => link.hasAccess)
             .map((link) => (
               <Link key={link.href} href={link.href}>
-                <Card className="transition-all hover:shadow-md">
-                  <CardHeader>
+                <Card className="transition-all hover:shadow-md hover:border-primary/50">
+                  <CardHeader className="p-4">
                     <div
-                      className={`mb-2 flex h-12 w-12 items-center justify-center rounded-lg ${link.bgColor}`}
+                      className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg ${link.bgColor}`}
                     >
-                      <link.icon className={`h-6 w-6 ${link.color}`} />
+                      <link.icon className={`h-5 w-5 ${link.color}`} />
                     </div>
-                    <CardTitle>{link.title}</CardTitle>
-                    <CardDescription>{link.description}</CardDescription>
+                    <CardTitle className="text-base">{link.title}</CardTitle>
+                    <CardDescription className="text-xs">{link.description}</CardDescription>
                   </CardHeader>
                 </Card>
               </Link>
@@ -180,13 +183,13 @@ export default async function GeneralLedgerPage({ params }: Props) {
       </div>
 
       {/* Recent Activity / Helpful Resources */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
-            <CardDescription>Quick setup guide for FI-GL</CardDescription>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Getting Started</CardTitle>
+            <CardDescription className="text-xs">Quick setup guide for FI-GL</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-1.5 pt-0">
             <div className="flex items-start gap-2">
               <div className="mt-1 h-2 w-2 rounded-full bg-blue-600" />
               <div>
@@ -235,11 +238,11 @@ export default async function GeneralLedgerPage({ params }: Props) {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Key Features</CardTitle>
-            <CardDescription>What you can do with FI-GL</CardDescription>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Key Features</CardTitle>
+            <CardDescription className="text-xs">What you can do with FI-GL</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="space-y-1.5 pt-0 text-sm">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-green-600" />
               <span>Multi-currency transaction support</span>

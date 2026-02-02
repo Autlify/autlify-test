@@ -11,11 +11,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '../ui/sheet'
-import { Bell } from 'lucide-react'
+import { Accessibility, Bell } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Switch } from '../ui/switch'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { ModeToggle } from './mode-toggle'
+import { IconLayoutNavbarCollapse } from '@tabler/icons-react'
+import { Button } from '../ui/button'
+import { useSidebar } from '@/components/sidebar-01/sidebar-context'
+import { TbLayoutSidebarLeftExpand } from 'react-icons/tb'
+import { AccessibilityPanel } from '@/components/panels' 
+import { motion } from 'motion/react'
+import { cn } from '../../lib/utils'
 
 type Props = {
   notifications: NotificationWithUser | []
@@ -26,7 +33,9 @@ type Props = {
 
 const InfoBar = ({ notifications, subAccountId, className, canFilterBySubAccount }: Props) => {
   const [allNotifications, setAllNotifications] = useState(notifications)
+  const [showA11y, setShowA11y] = useState(false)
   const [showAll, setShowAll] = useState(true)
+  const { isCollapsed, toggle, title } = useSidebar()
 
   const handleClick = () => {
     if (!showAll) {
@@ -44,14 +53,32 @@ const InfoBar = ({ notifications, subAccountId, className, canFilterBySubAccount
 
   return (
     <>
+    
       <div
         className={twMerge(
-          'fixed z-[20] md:left-[300px] left-0 right-0 top-0 p-4 bg-background/80 backdrop-blur-md flex  gap-4 items-center border-b-[1px] ',
+          'fixed z-[20] left-0 right-0 top-0 py-4 pr-4 bg-background/80 backdrop-blur-md flex gap-4 items-center border-b-[1px] transition-all duration-300',
+          isCollapsed ? 'md:left-[80px]' : 'md:left-[300px]',
           className
         )}
       >
+        <Button variant="ghost" size="icon" onClick={toggle} className='bg-transparent hover:bg-muted/50'>
+          <TbLayoutSidebarLeftExpand className={twMerge(isCollapsed ? '' : 'rotate-180', 'bg-transparent w-6 h-6')} />
+        </Button>
+        {title && (() => {
+          const [pageTitle, pageDescription] = title.split('|')
+          return (
+            <div className="flex-1 min-w-0">
+              <span className="font-semibold text-2xl">{pageTitle}</span>
+              {/* {pageDescription && (
+                <span className="hidden sm:inline text-sm text-muted-foreground ml-2">{pageDescription}</span>
+              )} */}
+            </div>
+          )
+        })()}
         <div className="flex items-center gap-2 ml-auto">
+
           <UserButton />
+
           <Sheet>
             <SheetTrigger>
               <div className="rounded-full w-9 h-9 bg-primary flex items-center justify-center text-white">
@@ -119,6 +146,8 @@ const InfoBar = ({ notifications, subAccountId, className, canFilterBySubAccount
             </SheetContent>
           </Sheet>
           <ModeToggle />
+
+        
         </div>
       </div>
     </>

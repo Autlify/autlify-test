@@ -1,22 +1,23 @@
 import BlurPage from '@/components/global/blur-page'
 import InfoBar from '@/components/global/infobar'
-import Sidebar from '@/components/sidebar'
+import Sidebar from '@/components/sidebar-01'
+import { LayoutWrapper } from '@/components/sidebar-01/layout-wrapper'
 import Unauthorized from '@/components/unauthorized'
 import {
   getNotificationAndUser,
   verifyAndAcceptInvitation,
 } from '@/lib/queries'
-import { hasPermission } from '@/lib/features/iam/authz/permissions'
+import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import React from 'react'
+import React from 'react' 
 
 type Props = {
   children: React.ReactNode
   params: Promise<{ agencyId: string }>
 }
 
-const layout = async ({ children, params }: Props) => {
+const Layout = async ({ children, params }: Props) => {
   const { agencyId: paramsAgencyId } = await params
   const agencyId = await verifyAndAcceptInvitation()
   const session = await auth()
@@ -34,7 +35,7 @@ const layout = async ({ children, params }: Props) => {
   }
 
   // Check if user has agency access permission
-  const hasAgencyAccess = await hasPermission('core.agency.account.read')
+  const hasAgencyAccess = await hasAgencyPermission(paramsAgencyId, 'core.agency.account.read')
 
   if (!hasAgencyAccess) {
     return <Unauthorized />
@@ -45,24 +46,22 @@ const layout = async ({ children, params }: Props) => {
   if (notifications) allNoti = notifications
 
   // Check permission for filtering notifications
-  const canFilterBySubAccount = await hasPermission(
-    'core.subaccount.account.read'
-  )
+  const canFilterBySubAccount = await hasAgencyPermission(paramsAgencyId,'core.subaccount.account.read')
 
   return (
-    <div className="h-screen overflow-hidden">
-      <Sidebar id={paramsAgencyId} type="agency" />
-      <div className="md:pl-[300px]">
+    <LayoutWrapper
+      sidebar={<Sidebar id={paramsAgencyId} type="agency" />}
+      infobar={
+        //  <Navbar16 />
         <InfoBar
           notifications={allNoti}
           canFilterBySubAccount={canFilterBySubAccount}
         />
-        <div className="relative">
-          <BlurPage>{children}</BlurPage>
-        </div>
-      </div>
-    </div>
+      }
+    >
+      <BlurPage>{children}</BlurPage>
+    </LayoutWrapper>
   )
 }
 
-export default layout
+export default Layout

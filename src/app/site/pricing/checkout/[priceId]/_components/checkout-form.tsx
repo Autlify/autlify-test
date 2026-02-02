@@ -291,6 +291,7 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
         'firstName', 'lastName', 'userEmail',
         'agencyName',
         'agencyEmail',
+        'phoneCode',
         'companyPhone',
         'line1',
         'line2',
@@ -1167,9 +1168,9 @@ export function CheckoutForm({ priceId, planConfig, user, agencyEmail, existingC
                                             colorDanger: 'var(--warning-text)',
                                             fontFamily: 'system-ui, sans-serif',
                                             borderRadius: '0.75rem',
-                                            spacingUnit: '4px', 
+                                            spacingUnit: '4px',
                                           },
-                                         
+
                                         },
                                       }}
                                     >

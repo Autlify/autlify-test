@@ -6,6 +6,7 @@ import { Prisma } from '@/generated/prisma/client'
 import { verifyIntegrationApiKey } from './apiKeys'
 import { requirePermission } from '@/lib/features/iam/authz/require'
 import { resolveAgencyContextForUser, resolveSubAccountContextForUser, getAgencySubscriptionState } from '@/lib/features/iam/authz/resolver'
+import { ActionKey } from '@/lib/registry'
 
 export type IntegrationScope =
   | { type: 'AGENCY'; agencyId: string }
@@ -33,7 +34,7 @@ export type IntegrationAuthResult = {
  */
 export async function requireIntegrationAuth(
   req: Request,
-  opts?: { requiredKeys?: string[]; requireActiveSubscription?: boolean; requireWrite?: boolean }
+  opts?: { requiredKeys?: ActionKey[]; requireActiveSubscription?: boolean; requireWrite?: boolean }
 ): Promise<IntegrationAuthResult> {
   const apiKey = getApiKeyFromRequest(req)
   if (apiKey) {
@@ -124,7 +125,7 @@ async function requireApiKeyAuth(
 
 async function requireSessionAuth(
   req: Request,
-  opts?: { requiredKeys?: string[]; requireActiveSubscription?: boolean; requireWrite?: boolean }
+  opts?: { requiredKeys?: ActionKey[]; requireActiveSubscription?: boolean; requireWrite?: boolean }
 ): Promise<IntegrationAuthResult> {
   const session = await auth()
   const userId = session?.user?.id
@@ -143,7 +144,7 @@ async function requireSessionAuth(
     url.searchParams.get('subAccountId') ||
     undefined
 
-  const requiredKeys = opts?.requiredKeys ?? []
+  const requiredKeys = opts?.requiredKeys  ?? []
   const requireActive = opts?.requireActiveSubscription ?? true
 
   if (subAccountId) {

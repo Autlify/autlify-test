@@ -56,6 +56,6 @@ export type ResolveEntitlementsArgs = {
   subAccountId: string | null
   scope: MeteringScope
   // Optional override: if you already know the planId (Stripe recurring priceId)
-  planId?: Plan | null
+  planId?: Plan | string | null
   now?: Date | null
 }

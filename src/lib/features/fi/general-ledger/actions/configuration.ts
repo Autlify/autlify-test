@@ -17,6 +17,7 @@ import {
 } from '@/lib/schemas/fi/general-ledger/configuration';
 import { logGLAudit } from './audit';
 import { ConsolidationMethod } from '../../../../../generated/prisma/enums';
+import { ActionKey } from '@/lib/registry';
 
 type ActionResult<T> = {
     success: boolean
@@ -50,7 +51,7 @@ const getContext = async (): Promise<ConfigContext | null> => {
 
 const checkPermission = async (
     context: ConfigContext,
-    permissionKey: string
+    permissionKey: ActionKey
 ): Promise<boolean> => {
     if (context.subAccountId) {
         return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -76,7 +77,7 @@ export const getGLConfiguration = async (): Promise<ActionResult<any>> => {
             return { success: false, error: 'Agency context required' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -139,7 +140,7 @@ export const initializeGLConfiguration = async (
             return { success: false, error: 'Agency context required' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -200,7 +201,7 @@ export const updateGLConfiguration = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -294,7 +295,7 @@ export const createGLConfiguration = async (
         }
 
         // Check permission
-        const hasPermission = await hasAgencyPermission(context.agencyId, 'fi.general-ledger.settings.edit');
+        const hasPermission = await hasAgencyPermission(context.agencyId, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to edit GL settings' };
         }
@@ -357,7 +358,7 @@ export const initializeGLModule = async (): Promise<ActionResult<any>> => {
         }
 
         // Check permission
-        const hasPermission = await hasAgencyPermission(context.agencyId, 'fi.general-ledger.settings.edit');
+        const hasPermission = await hasAgencyPermission(context.agencyId, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission to initialize GL module' };
         }
@@ -495,7 +496,7 @@ export const updateBaseCurrency = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -548,7 +549,7 @@ export const updateFiscalYear = async (
             return { success: false, error: 'Agency context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -595,7 +596,7 @@ export const updateApprovalSettings = async (input: {
             return { success: false, error: 'Agency context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -641,7 +642,7 @@ export const updateConsolidationSettings = async (input: {
             return { success: false, error: 'Consolidation settings can only be configured at agency level' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -682,7 +683,7 @@ export const updateAccountCodeFormat = async (input: {
             return { success: false, error: 'Agency context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -756,7 +757,7 @@ export const updateERPIntegration = async (input: {
             return { success: false, error: 'Agency context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -896,7 +897,7 @@ export const getSubAccountConfiguration = async (
             return { success: false, error: 'SubAccount context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.view');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.view');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -997,7 +998,7 @@ export const updateSubAccountConfiguration = async (
             return { success: false, error: 'SubAccount context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }
@@ -1071,7 +1072,7 @@ export const toggleSubAccountIndependence = async (
             return { success: false, error: 'SubAccount context required' };
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.settings.edit');
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.settings.manage');
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' };
         }

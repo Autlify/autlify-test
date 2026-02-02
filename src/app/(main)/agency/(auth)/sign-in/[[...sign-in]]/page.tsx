@@ -155,6 +155,12 @@ export default function SignInPage() {
                 required
                 disabled={isLoading}
               />
+
+            </div>
+            <div className="flex justify-end mb-2">
+              <Button variant="link" size="sm" asChild>
+                <Link href="/agency/password?scope=reset-request">Forgot password?</Link>
+              </Button>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -9,7 +9,7 @@ type Props = { params: Promise<{ id: string }> }
 
 export async function DELETE(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const { id } = await props.params
     const ok = await apiKeyInScope(id, scope)
     if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

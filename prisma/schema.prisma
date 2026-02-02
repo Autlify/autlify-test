@@ -83,6 +83,20 @@ enum Icon {
   category
   contact
   clipboardIcon
+  finance
+  apps
+  dashboard
+  rocket
+  users
+  building
+  creditCard
+  listTree
+  fileText
+  sparkles
+  layers
+  gitBranch
+  barChart3
+  image
 
   @@schema("public")
 }
@@ -103,7 +117,8 @@ model User {
   customerId String? @unique
 
   // Subscription info (false = already used trial)
-  trialEligible Boolean @default(true)
+  trialEligible  Boolean         @default(true)
+  TermsAgreement TermsAgreement?
 
   AgencyMemberships     AgencyMembership[]
   SubAccountMemberships SubAccountMembership[]
@@ -117,10 +132,44 @@ model User {
   MFAChallenges      MFAChallenge[]
   MFAMethods         MFAMethod[]
   SSOUserMappings    SSOUserMapping[]
-  featurePreferences FeaturePreference[]
+  FeaturePreferences FeaturePreference[]
 
   ApiKeys            ApiKey[]
   IntegrationApiKeys IntegrationApiKey[]
+
+  @@schema("public")
+}
+
+// ========================================
+// Terms of Service, Cookie Consent, Privacy Policy, Subscription Agreements, Data Processing Agreements
+// ======================================
+// Additional User Models
+model TermsAgreement {
+  id                         String    @id @default(uuid())
+  userId                     String    @unique
+  agreedToThirdPartyServices Boolean   @default(false)
+  thirdPartyServicesAgreedAt DateTime?
+  consentToCookies           Boolean   @default(false)
+  cookiesConsentAt           DateTime?
+  agreedToPrivacy            Boolean   @default(false)
+  privacyAgreedAt            DateTime?
+  agreedToServiceTerms       Boolean   @default(false)
+  serviceTermsAgreedAt       DateTime?
+  agreedToMarketing          Boolean   @default(false)
+  marketingAgreedAt          DateTime?
+  agreedToTermsConditions    Boolean   @default(false)
+  termsConditionsAgreedAt    DateTime?
+  agreedToDataProcessing     Boolean   @default(false)
+  dataProcessingAgreedAt     DateTime?
+  agreedToRetentionPolicy    Boolean   @default(false)
+  andRetentionPolicyAgreedAt DateTime?
+  agreedToRefundPolicy       Boolean   @default(false)
+  refundPolicyAgreedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@schema("public")
 }
@@ -667,6 +716,49 @@ model SubAccountSidebarOption {
   subAccountId String?
 
   @@index([subAccountId])
+  @@schema("public")
+}
+
+model SidebarOption {
+  id        String   @id @default(uuid())
+  name      String   @default("Menu")
+  link      String   @default("#")
+  icon      Icon     @default(info)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Module as a sidebar grouping label
+  module    String?
+  subModule String?
+
+  // Scope flags
+  agency     Boolean @default(false)
+  subaccount Boolean @default(false)
+  user       Boolean @default(false)
+
+  OptionLinks SidebarOptionLink[]
+
+  @@schema("public")
+}
+
+model SidebarOptionLink {
+  id        String   @id @default(uuid())
+  name      String   @default("Menu")
+  link      String   @default("#")
+  icon      Icon?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  feature String?
+
+  // Scope flags
+  agency     Boolean @default(false)
+  subaccount Boolean @default(false)
+  user       Boolean @default(false)
+
+  sidebarOptionId String
+  SidebarOption   SidebarOption @relation(fields: [sidebarOptionId], references: [id], onDelete: Cascade)
+
   @@schema("public")
 }
 
@@ -2541,11 +2633,11 @@ model Reconciliation {
   description          String?
 
   // Balances
-  bookBalance         Decimal @db.Decimal(18, 6)
-  statementBalance    Decimal @db.Decimal(18, 6)
+  bookBalance         Decimal  @db.Decimal(18, 6)
+  statementBalance    Decimal  @db.Decimal(18, 6)
   statementDate       DateTime
-  adjustedBookBalance Decimal @db.Decimal(18, 6)
-  difference          Decimal @db.Decimal(18, 6)
+  adjustedBookBalance Decimal  @db.Decimal(18, 6)
+  difference          Decimal  @db.Decimal(18, 6)
 
   // Status
   status ReconciliationStatus @default(IN_PROGRESS)

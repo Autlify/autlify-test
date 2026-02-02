@@ -113,7 +113,7 @@ const Container = ({ element }: Props) => {
             elementDetails: {
               content: [],
               id: v4(),
-              name: 'Contact Form',
+              name: 'Payment Form',
               styles: {},
               type: 'paymentForm',
             },

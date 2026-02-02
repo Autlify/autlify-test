@@ -13,6 +13,7 @@ import { logGLAudit } from './audit'
 import { Decimal } from 'decimal.js'
 import { ReconciliationStatus, ReconciliationItemStatus } from '@/generated/prisma/client'
 import { ReconciliationInput, reconciliationSchema, MatchTransactionsInput, matchTransactionsSchema } from '../../../../schemas/fi/general-ledger/reconciliation'
+import { ActionKey } from '@/lib/registry'
 
 // ========== Types ==========
 
@@ -48,7 +49,7 @@ const getContext = async (): Promise<ReconciliationContext | null> => {
 
 const checkPermission = async (
   context: ReconciliationContext,
-  permissionKey: string
+  permissionKey: ActionKey
 ): Promise<boolean> => {
   if (context.subAccountId) {
     return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -73,7 +74,7 @@ export const getReconciliation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -125,7 +126,7 @@ export const listReconciliations = async (options?: {
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -184,7 +185,7 @@ export const createReconciliation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.create')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -255,7 +256,7 @@ export const importUnclearedTransactions = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -328,7 +329,7 @@ export const matchTransactions = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -374,7 +375,7 @@ export const completeReconciliation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.complete')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -449,7 +450,7 @@ export const getReconciliationSummary = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.view')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.view')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -507,7 +508,7 @@ export const autoMatchTransactions = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }
@@ -576,7 +577,7 @@ export const updateReconciliation = async (
       return { success: false, error: 'Unauthorized: No session found' }
     }
 
-    const hasPermission = await checkPermission(context, 'fi.general-ledger.reconciliation.edit')
+    const hasPermission = await checkPermission(context, 'fi.general_ledger.reconciliation.manage')
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission' }
     }

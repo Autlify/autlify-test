@@ -36,6 +36,7 @@ export {
     // Tables
     DetailedUsageTable,
     // Dialogs
+    PlanSelectorDialog,
     CancelSubscriptionDialog,
     UpdatePlanDialog,
     // Complex Components
@@ -95,7 +96,6 @@ export type {
     BillingOverviewProps,
     TrialBannerProps,
     DunningAlertsProps,
-    PlanSelectorDialogProps,
     PaymentFormProps,
     CouponInputProps,
     AllocationManagerProps,
@@ -105,6 +105,7 @@ export type {
 // Export types from new components
 export type { UsageResource, DetailedUsageTableProps } from "./billing/detailed-usage-table";
 export type { UpdatePlanDialogProps } from "./billing/update-plan-dialog";
+export type { PlanSelectorDialogProps, PlanOption } from "./billing/plan-selector-dialog";
 export type { CancelSubscriptionDialogProps } from "./billing/cancel-subscription-dialog";
 export type { SubscriptionManagementProps } from "./billing/subscription-management";
 export type { UsageClientProps, UsagePeriod, UsageRow, UsageEventRow, UsageWindow } from "./billing/usage-client";

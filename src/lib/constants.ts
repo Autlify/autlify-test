@@ -1,15 +1,27 @@
 import BarChart from '@/components/icons/bar_chart'
+import BarChart3 from '@/components/icons/bar-chart-3'
+import Building from '@/components/icons/building'
 import Calendar from '@/components/icons/calendar'
 import CheckCircle from '@/components/icons/check_circled'
 import Chip from '@/components/icons/chip'
 import ClipboardIcon from '@/components/icons/clipboardIcon'
 import Compass from '@/components/icons/compass'
+import Contact from '@/components/icons/contact'
+import CreditCard from '@/components/icons/credit-card'
+import Dashboard from '@/components/icons/dashboard'
 import Database from '@/components/icons/database'
+import FileText from '@/components/icons/file-text'
+import Finance from '@/components/icons/finance'
 import Flag from '@/components/icons/flag'
+import GitBranch from '@/components/icons/git-branch'
+import Apps from '@/components/icons/apps'
 import Headphone from '@/components/icons/headphone'
 import Home from '@/components/icons/home'
+import ImageIcon from '@/components/icons/image'
 import Info from '@/components/icons/info'
+import Layers from '@/components/icons/layers'
 import LinkIcon from '@/components/icons/link'
+import ListTree from '@/components/icons/list-tree'
 import Lock from '@/components/icons/lock'
 import Message from '@/components/icons/messages'
 import Notification from '@/components/icons/notification'
@@ -19,9 +31,11 @@ import Pipelines from '@/components/icons/pipelines'
 import AutlifyCategory from '@/components/icons/autlify-category'
 import Power from '@/components/icons/power'
 import Receipt from '@/components/icons/receipt'
+import Rocket from '@/components/icons/rocket'
 import Send from '@/components/icons/send'
 import Settings from '@/components/icons/settings'
 import Shield from '@/components/icons/shield'
+import Sparkles from '@/components/icons/sparkles'
 import Star from '@/components/icons/star'
 import Tune from '@/components/icons/tune'
 import Video from '@/components/icons/video_recorder'
@@ -122,7 +136,10 @@ export const pricingCards = [
   {
     title: 'Starter',
     description: 'Perfect for trying out plura',
+    currency: 'MYR',
     price: 'RM 79',
+    monthlyPrice: 79,
+    discountRate: null, // null = no yearly plan
     duration: 'month',
     highlight: 'Key features',
     features: ['3 Sub-Accounts', '2 Team Members', 'Unlimited Pipelines'],
@@ -133,7 +150,10 @@ export const pricingCards = [
   {
     title: 'Basic',
     description: 'For serious agency owners',
+    currency: 'MYR',
     price: 'RM 149',
+    monthlyPrice: 149,
+    discountRate: null, // null = no yearly plan
     duration: 'month',
     highlight: 'Everything in Starter, plus',
     features: ['Unlimited Sub-Accounts', 'Unlimited Team Members'],
@@ -144,7 +164,10 @@ export const pricingCards = [
   {
     title: 'Advanced',
     description: 'The ultimate agency kit',
+    currency: 'MYR',
     price: 'RM 399',
+    monthlyPrice: 399,
+    discountRate: null, // null = no yearly plan
     duration: 'month',
     highlight: 'Key features',
     features: ['Rebilling', '24/7 Support Team'],
@@ -158,6 +181,7 @@ export const addOnProducts = [
   { 
     title: 'Priority Support', 
     description: '24/7 priority support with dedicated account manager',
+    currency: 'MYR',
     price: 'RM 99',
     duration: 'month',
     id: 'prod_Tn5ZVynuKgwkQ9',
@@ -310,6 +334,71 @@ export const icons = [
     value: 'clipboardIcon',
     label: 'Clipboard Icon',
     path: ClipboardIcon,
+  },
+  {
+    value: 'finance',
+    label: 'Finance',
+    path: Finance,
+  },
+  {
+    value: 'apps',
+    label: 'Apps',
+    path: Apps,
+  },
+  {
+    value: 'dashboard',
+    label: 'Dashboard',
+    path: Dashboard,
+  },
+  {
+    value: 'rocket',
+    label: 'Rocket',
+    path: Rocket,
+  },
+  {
+    value: 'building',
+    label: 'Building',
+    path: Building,
+  },
+  {
+    value: 'credit-card',
+    label: 'Credit Card',
+    path: CreditCard,
+  },
+  {
+    value: 'sparkles',
+    label: 'Sparkles',
+    path: Sparkles,
+  },
+  {
+    value: 'list-tree',
+    label: 'List Tree',
+    path: ListTree,
+  },
+  {
+    value: 'git-branch',
+    label: 'Git Branch',
+    path: GitBranch,
+  },
+  {
+    value: 'layers',
+    label: 'Layers',
+    path: Layers,
+  },
+  {
+    value: 'contact',
+    label: 'Contact',
+    path: Contact,
+  },
+  {
+    value: 'bar-chart-3',
+    label: 'Bar Chart 3',
+    path: BarChart3,
+  },
+  {
+    value: 'image',
+    label: 'Image',
+    path: ImageIcon,
   },
 ]
 

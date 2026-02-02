@@ -12,6 +12,15 @@ packages/**/build/**
 packages/**/.next/**
 packages/**/out/**
 
+# Local environment files
+_app/
+_app/**
+/ai-agent-builder/
+/ai-agent-builder
+ai-agent-builder/
+/patches/
+/patches
+patches/
 
 # Prisma
 prisma/migrations/**
@@ -41,9 +50,6 @@ public/assets/**
 # Documentation (optional - remove if you want Copilot to read docs)
 # docs/**
 
-# Local environment files
-_app/
-_app/**
 
 # MacOS system files
 .DS_Store

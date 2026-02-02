@@ -11,12 +11,12 @@ import { installAppSubAccountAction, uninstallAppSubAccountAction } from '@/lib/
 import { getDeliveryDetail } from '@/lib/features/core/integrations/store'
 import { requireSubAccountAccess } from '@/lib/features/iam/authz/require'
 import { KEYS } from '@/lib/registry/keys/permissions'
-import { AppsIntegrationsNav } from '@/components/apps-hub/apps-integrations-nav'
-import { IntegrationsProvidersPanel } from '@/components/apps-hub/integrations/providers-panel'
-import { IntegrationsConnectionsPanel } from '@/components/apps-hub/integrations/connections-panel'
-import { IntegrationsApiKeysPanel } from '@/components/apps-hub/integrations/api-keys-panel'
-import { IntegrationsWebhooksPanel } from '@/components/apps-hub/integrations/webhooks-panel'
-import { IntegrationsDeliveriesPanel } from '@/components/apps-hub/integrations/deliveries-panel'
+import { WebhooksNav } from '@/components/apps-hub/webhooks/nav'
+import { WebhooksProvidersPanel } from '@/components/apps-hub/webhooks/providers'
+import { WebhooksConnectionsPanel } from '@/components/apps-hub/webhooks/connections'
+import { WebhooksApiKeysPanel } from '@/components/apps-hub/webhooks/api-keys'
+import { WebhooksSubscriptionsPanel } from '@/components/apps-hub/webhooks'
+import { WebhooksDeliveriesPanel } from '@/components/apps-hub/webhooks/deliveries'
 import ProviderDetailClient from '@/components/apps-hub/provider-detail-client'
 
 type Props = { params: Promise<{ subaccountId: string; path?: string[] }> }
@@ -37,10 +37,7 @@ function AppsHubMenu({
   const core = apps.filter((a) => !!a.isCore)
   const addons = apps.filter((a) => !a.isCore)
 
-  const integrations = core.find((a) => a.key === 'integrations')
   const webhooks = core.find((a) => a.key === 'webhooks')
-
-  const integrationsMeta = describeInstallState(integrations?.state ?? 'AVAILABLE')
   const webhooksMeta = describeInstallState(webhooks?.state ?? 'AVAILABLE')
 
   return (
@@ -54,35 +51,20 @@ function AppsHubMenu({
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between gap-2">
-              <CardTitle>Integrations</CardTitle>
-              <Badge variant={integrationsMeta.tone}>{integrationsMeta.label}</Badge>
-            </div>
-            <CardDescription>Connect providers and manage API keys.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-2">
-            <Button asChild disabled={(integrations?.state ?? 'AVAILABLE') !== 'INSTALLED'}>
-              <Link href={`/subaccount/${subaccountId}/apps/integrations`}>Open</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/subaccount/${subaccountId}/apps/integrations/api-keys`}>API Keys</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-2">
               <CardTitle>Webhooks</CardTitle>
               <Badge variant={webhooksMeta.tone}>{webhooksMeta.label}</Badge>
             </div>
-            <CardDescription>Subscriptions, deliveries, and replay.</CardDescription>
+            <CardDescription>Providers, connections, API keys, subscriptions, and deliveries.</CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
             <Button asChild disabled={(webhooks?.state ?? 'AVAILABLE') !== 'INSTALLED'}>
-              <Link href={`/subaccount/${subaccountId}/apps/integrations/webhooks`}>Manage</Link>
+              <Link href={`/subaccount/${subaccountId}/apps/webhooks`}>Open</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={`/subaccount/${subaccountId}/apps/integrations/deliveries`}>Deliveries</Link>
+              <Link href={`/subaccount/${subaccountId}/apps/webhooks/api-keys`}>API Keys</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/subaccount/${subaccountId}/apps/webhooks/deliveries`}>Deliveries</Link>
             </Button>
           </CardContent>
         </Card>
@@ -143,30 +125,30 @@ function AppsHubMenu({
 }
 
 // ============================================================================
-// Integrations Module Router
+// Webhooks Module Router
 // ============================================================================
 
-function IntegrationsLayout({ 
+function WebhooksLayout({ 
   subaccountId, 
   children 
 }: { 
   subaccountId: string
   children: React.ReactNode 
 }) {
-  const basePath = `/subaccount/${subaccountId}/apps/integrations`
+  const basePath = `/subaccount/${subaccountId}/apps/webhooks`
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Integrations</h1>
-        <p className="text-sm text-muted-foreground">Providers, connections, API keys, webhooks, and deliveries.</p>
+        <h1 className="text-2xl font-semibold">Webhooks</h1>
+        <p className="text-sm text-muted-foreground">Providers, connections, API keys, subscriptions, and deliveries.</p>
       </div>
-      <AppsIntegrationsNav basePath={basePath} />
+      <WebhooksNav basePath={basePath} />
       <div className="space-y-6">{children}</div>
     </div>
   )
 }
 
-async function IntegrationsRouter({ 
+async function WebhooksRouter({ 
   subaccountId, 
   agencyId,
   segments 
@@ -177,9 +159,9 @@ async function IntegrationsRouter({
 }) {
   const [section, id] = segments
 
-  // /apps/integrations → redirect to providers
+  // /apps/webhooks → redirect to providers
   if (!section || section === '') {
-    redirect(`/subaccount/${subaccountId}/apps/integrations/providers`)
+    redirect(`/subaccount/${subaccountId}/apps/webhooks/providers`)
   }
 
   let content: React.ReactNode
@@ -188,19 +170,19 @@ async function IntegrationsRouter({
     case 'providers':
       content = id 
         ? <ProviderDetailClient subAccountId={subaccountId} provider={id} />
-        : <IntegrationsProvidersPanel subAccountId={subaccountId} />
+        : <WebhooksProvidersPanel subAccountId={subaccountId} />
       break
 
     case 'connections':
-      content = <IntegrationsConnectionsPanel subAccountId={subaccountId} />
+      content = <WebhooksConnectionsPanel subAccountId={subaccountId} />
       break
 
     case 'api-keys':
-      content = <IntegrationsApiKeysPanel subAccountId={subaccountId} />
+      content = <WebhooksApiKeysPanel subAccountId={subaccountId} />
       break
 
-    case 'webhooks':
-      content = <IntegrationsWebhooksPanel subAccountId={subaccountId} />
+    case 'subscriptions':
+      content = <WebhooksSubscriptionsPanel subAccountId={subaccountId} />
       break
 
     case 'deliveries':
@@ -210,16 +192,16 @@ async function IntegrationsRouter({
         if (!detail) return notFound()
         content = <DeliveryDetailView subaccountId={subaccountId} detail={detail} />
       } else {
-        content = <IntegrationsDeliveriesPanel subAccountId={subaccountId} />
+        content = <WebhooksDeliveriesPanel subAccountId={subaccountId} />
       }
       break
 
     default:
-      // Unknown section - could be a provider key like /integrations/github
+      // Unknown section - could be a provider key like /webhooks/github
       content = <ProviderDetailClient subAccountId={subaccountId} provider={section} />
   }
 
-  return <IntegrationsLayout subaccountId={subaccountId}>{content}</IntegrationsLayout>
+  return <WebhooksLayout subaccountId={subaccountId}>{content}</WebhooksLayout>
 }
 
 function DeliveryDetailView({ 
@@ -276,7 +258,7 @@ function DeliveryDetailView({
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/subaccount/${subaccountId}/apps/integrations/deliveries`}>Back to Deliveries</Link>
+            <Link href={`/subaccount/${subaccountId}/apps/webhooks/deliveries`}>Back to Deliveries</Link>
           </Button>
         </div>
       </CardContent>
@@ -285,25 +267,29 @@ function DeliveryDetailView({
 }
 
 // ============================================================================
-// Webhooks Module Router (aliases to integrations)
+// Integrations Redirect (legacy alias to webhooks)
 // ============================================================================
 
-function webhooksRedirect(subaccountId: string, segments: string[]): never {
+function integrationsRedirect(subaccountId: string, segments: string[]): never {
   const [section] = segments
 
-  // /apps/webhooks → /apps/integrations/webhooks
+  // /apps/integrations → /apps/webhooks/providers
   if (!section || section === '') {
-    redirect(`/subaccount/${subaccountId}/apps/integrations/webhooks`)
+    redirect(`/subaccount/${subaccountId}/apps/webhooks/providers`)
   }
 
-  // /apps/webhooks/deliveries → /apps/integrations/deliveries
-  if (section === 'deliveries') {
-    const deliveryId = segments[1]
-    redirect(`/subaccount/${subaccountId}/apps/integrations/deliveries${deliveryId ? `/${deliveryId}` : ''}`)
+  // Map old integrations sections to webhooks
+  const sectionMap: Record<string, string> = {
+    'providers': 'providers',
+    'connections': 'connections',
+    'api-keys': 'api-keys',
+    'webhooks': 'subscriptions',
+    'deliveries': 'deliveries',
   }
 
-  // Unknown - redirect to webhooks
-  redirect(`/subaccount/${subaccountId}/apps/integrations/webhooks`)
+  const mappedSection = sectionMap[section] || section
+  const id = segments[1]
+  redirect(`/subaccount/${subaccountId}/apps/webhooks/${mappedSection}${id ? `/${id}` : ''}`)
 }
 
 // ============================================================================
@@ -393,7 +379,7 @@ export default async function SubAccountAppsCatchAllPage({ params }: Props) {
   // Validate access (needed for all routes including menu)
   const ctx = await requireSubAccountAccess({
     subAccountId: subaccountId,
-    permissionKeys: [KEYS.core.apps.app.read],
+    permissionKeys: [KEYS.core.apps.app.view],
     requireActiveAgencySubscription: true,
     redirectTo: `/subaccount/${subaccountId}/apps`,
   })
@@ -428,11 +414,12 @@ export default async function SubAccountAppsCatchAllPage({ params }: Props) {
 
   // Route to app-specific module
   switch (appKey) {
-    case 'integrations':
-      return <IntegrationsRouter subaccountId={subaccountId} agencyId={ctx.agencyId} segments={rest} />
-
     case 'webhooks':
-      webhooksRedirect(subaccountId, rest)
+      return <WebhooksRouter subaccountId={subaccountId} agencyId={ctx.agencyId} segments={rest} />
+
+    case 'integrations':
+      // Legacy: redirect integrations to webhooks
+      integrationsRedirect(subaccountId, rest)
 
     // Future: Add more apps here
     // case 'fi-gl':

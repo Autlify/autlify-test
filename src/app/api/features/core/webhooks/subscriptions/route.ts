@@ -15,7 +15,7 @@ const CreateSchema = z.object({
 
 export async function GET(req: Request) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     const url = new URL(req.url)
     const connectionId = url.searchParams.get('connectionId')
     if (!connectionId) {
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
     const body = await req.json()
     const parsed = CreateSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })

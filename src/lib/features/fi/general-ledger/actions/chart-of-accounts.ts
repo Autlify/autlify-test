@@ -57,8 +57,8 @@ export const getAccount = async (accountId: string): Promise<ActionResult<any>> 
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.view');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view COA' };
@@ -109,8 +109,8 @@ export const listChartOfAccounts = async (): Promise<ActionResult<any>> => {
 
     // Build permission check based on context
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.view')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.view');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.view')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.view');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to view COA' };
@@ -152,8 +152,8 @@ export const createAccount = async (input: CreateAccountInput): Promise<ActionRe
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.create')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.create');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to create accounts' };
@@ -246,8 +246,8 @@ export const updateAccount = async (input: UpdateAccountInput): Promise<ActionRe
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.edit')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.edit');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to edit accounts' };
@@ -327,8 +327,8 @@ export const archiveAccount = async (accountId: string, reason: string): Promise
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.delete')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.delete');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to delete accounts' };
@@ -419,8 +419,8 @@ export const moveAccountInHierarchy = async (
     }
 
     const hasPermission = context.subAccountId
-      ? await hasSubAccountPermission(context.subAccountId, 'fi.general-ledger.coa.manage_hierarchy')
-      : await hasAgencyPermission(context.agencyId!, 'fi.general-ledger.coa.manage_hierarchy');
+      ? await hasSubAccountPermission(context.subAccountId, 'fi.master_data.accounts.manage')
+      : await hasAgencyPermission(context.agencyId!, 'fi.master_data.accounts.manage');
     
     if (!hasPermission) {
       return { success: false, error: 'Unauthorized: Missing permission to manage hierarchy' };

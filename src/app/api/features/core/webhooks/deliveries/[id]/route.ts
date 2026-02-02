@@ -10,7 +10,7 @@ type Props = { params: Promise<{ id: string }> }
 
 export async function GET(req: Request, props: Props) {
   try {
-    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.integrations.read] })
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
     const { id } = await props.params
     const detail = await getDeliveryDetail(id, scope)
     if (!detail) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -41,7 +41,7 @@ export async function POST(req: Request, props: Props) {
 }
 
 async function handleReplay(req: Request, props: Props) {
-  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.integrations.manage] })
+  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
   const { id } = await props.params
   const detail = await getDeliveryDetail(id, scope)
   if (!detail) return NextResponse.json({ error: 'Not found' }, { status: 404 })

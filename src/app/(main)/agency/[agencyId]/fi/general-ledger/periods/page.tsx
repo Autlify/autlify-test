@@ -39,7 +39,7 @@ export default async function PeriodsPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read');
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.configuration.fiscal_years.view');
   if (!hasPermission) {
     notFound();
   }
@@ -61,11 +61,11 @@ export default async function PeriodsPage({ params }: Props) {
   }, {});
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Financial Periods</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold">Financial Periods</h1>
+          <p className="text-sm text-muted-foreground">
             Manage accounting periods for your fiscal years
           </p>
         </div>
@@ -122,7 +122,7 @@ export default async function PeriodsPage({ params }: Props) {
       )}
 
       {/* Periods by Fiscal Year */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {Object.entries(periodsByYear)
           .sort(([a], [b]) => parseInt(b) - parseInt(a))
           .map(([year, yearPeriods]) => (

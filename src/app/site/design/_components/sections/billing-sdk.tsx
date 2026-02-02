@@ -12,23 +12,86 @@ import {
     CreditBalanceCard,
     CreditHistory,
     DunningAlerts,
-    BillingOverview,
-} from "@/components/billing-sdk";
+} from "@autlify/billing-sdk";
+import type { PlanOption } from "@autlify/billing-sdk";
 import { Button } from "@/components/ui/button";
-import type { SubscriptionPlan, BillingInfo } from "@/components/billing-sdk/subscription-card";
-import type { UsageMetric } from "@/components/billing-sdk/usage-display";
-import type { Invoice } from "@/components/billing-sdk/invoice-list";
-import type { PlanOption } from "@/components/billing-sdk/plan-selector-dialog";
-import type { Plan } from "@/generated/prisma/client";
-import type {
-    PaymentMethodCard,
-    CreditBalance,
-    CreditTransaction,
-    DunningStrike,
-    BillingOverview as BillingOverviewType,
-    SubscriptionState,
-    PricingPlan,
-} from "@/components/billing-sdk/types";
+
+// Local types for showcase data
+interface SubscriptionPlan {
+    name: string;
+    price: string;
+    billingCycle: string;
+    description: string;
+    status: "active" | "inactive" | "trialing" | "past_due" | "cancelled";
+    features: string[];
+}
+
+interface BillingInfo {
+    nextBillingDate: string;
+    paymentMethod: string;
+}
+
+interface Invoice {
+    id: string;
+    date: string;
+    amount: string;
+    status: "paid" | "pending" | "failed" | "void";
+    description: string;
+    downloadUrl?: string;
+}
+
+interface UsageMetric {
+    name: string;
+    current: number;
+    limit: number;
+    unit: string;
+    unlimited?: boolean;
+}
+
+interface PaymentMethodCard {
+    id: string;
+    cardNumber: string;
+    cardholderName: string;
+    expiryMonth: string;
+    expiryYear: string;
+    brand: string;
+    variant: string;
+    isDefault: boolean;
+}
+
+interface CreditBalance {
+    total: number;
+    used: number;
+    remaining: number;
+    expiresAt?: Date;
+    currency: string;
+}
+
+interface CreditTransaction {
+    id: string;
+    amount: number;
+    type: "PURCHASE" | "DEDUCTION" | "REFUND" | "BONUS" | "EXPIRY";
+    description: string;
+    createdAt: Date;
+    expiresAt?: Date;
+}
+
+interface DunningStrike {
+    id: string;
+    agencyId: string;
+    level: number;
+    createdAt: Date;
+    failedPayments: Array<{
+        id: string;
+        invoiceId: string;
+        attemptedAt: Date;
+        amount: number;
+        currency: string;
+        failureReason: string;
+        nextRetryAt?: Date;
+        attemptsRemaining: number;
+    }>;
+}
 
 export function BillingSDKSection() {
     // State for controlling dialogs
@@ -247,41 +310,18 @@ export function BillingSDKSection() {
         },
     ];
 
-    const currentPricingPlan: PricingPlan = {
-        title: "Professional Plan",
-        description: "Perfect for growing teams and businesses",
-        price: "$49",
-        duration: "month",
-        trialPeriod: 14,
-        highlight: "Most Popular",
-        features: [
-            "Unlimited Sub Accounts",
-            "Advanced Analytics",
-            "Priority Support",
-            "Custom Integrations",
-        ],
-        priceId: "price_professional",
-        popular: true,
-    };
-
-    const subscriptionState: SubscriptionState = {
-        state: "ACTIVE",
-        subscription: null,
-    };
-
-    const billingOverview: BillingOverviewType = {
-        currentPlan: currentPricingPlan,
-        subscription: subscriptionState,
-        paymentMethod: paymentMethods[0],
-        upcomingInvoice: {
-            amount: 49.00,
-            currency: "USD",
-            dueDate: new Date("2026-02-27"),
-        },
-        credits: creditBalance,
-        usage: usageMetrics,
-        recentInvoices: [],
-    };
+    // Convert local dunningStrikes to SDK's expected alerts format
+    const dunningAlerts = dunningStrikes.flatMap(strike => 
+        strike.failedPayments.map(fp => ({
+            id: fp.id,
+            level: strike.level as 1 | 2 | 3,
+            message: fp.failureReason,
+            invoiceId: fp.invoiceId,
+            amount: fp.amount,
+            currency: fp.currency,
+            dueDate: fp.nextRetryAt,
+        }))
+    );
 
     return (
         <section className="space-y-8">
@@ -293,17 +333,12 @@ export function BillingSDKSection() {
             </div>
 
             <div className="space-y-8">
-                {/* Billing Overview */}
-                <div className="space-y-3">
-                    <h3 className="text-lg font-semibold">Billing Overview</h3>
-                    <BillingOverview overview={billingOverview} />
-                </div>
 
                 {/* Trial Banner */}
                 <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Trial Banner</h3>
                     <TrialBanner
-                        daysRemaining={5}
+                        trialEndDate={new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)}
                         onUpgrade={async () => {
                             console.log("Upgrade clicked");
                             await new Promise(resolve => setTimeout(resolve, 500));
@@ -317,8 +352,8 @@ export function BillingSDKSection() {
                 <div className="space-y-3">
                     <h3 className="text-lg font-semibold">Dunning Alerts</h3>
                     <DunningAlerts
-                        strikes={dunningStrikes}
-                        onRetryPayment={async (invoiceId) => {
+                        alerts={dunningAlerts}
+                        onRetryPayment={async (invoiceId: string) => {
                             console.log("Retry payment:", invoiceId);
                             // Simulate payment retry API call
                             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -347,7 +382,7 @@ export function BillingSDKSection() {
                             onOpenChange={setPlanDialogOpen}
                             currentPlanId="professional"
                             plans={plans}
-                            onSelectPlan={async (planId, billingCycle) => {
+                            onSelectPlan={async (planId: string, billingCycle: "monthly" | "yearly") => {
                                 console.log("Selected plan:", planId, billingCycle);
                                 await new Promise(resolve => setTimeout(resolve, 1000));
                                 alert(`Plan changed to ${planId} (${billingCycle})`);
@@ -364,7 +399,7 @@ export function BillingSDKSection() {
                                     monthlyPrice: plans[1].monthlyPrice,
                                     yearlyPrice: plans[1].yearlyPrice,
                                     buttonText: "Select Plan",
-                                    features: plans[1].features.map(f => ({
+                                    features: plans[1].features.map((f: string) => ({
                                         name: f,
                                         icon: "check",
                                         iconColor: "text-green-500"
@@ -404,7 +439,7 @@ export function BillingSDKSection() {
                     <PlanSelectorDialog
                         currentPlanId="professional"
                         plans={plans}
-                        onSelectPlan={async (planId, billingCycle) => {
+                        onSelectPlan={async (planId: string, billingCycle: "monthly" | "yearly") => {
                             console.log("Selected plan:", planId, billingCycle);
                             // Simulate API call
                             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -433,7 +468,7 @@ export function BillingSDKSection() {
                             monthlyPrice: plans[1].monthlyPrice,
                             yearlyPrice: plans[1].yearlyPrice,
                             buttonText: "Select Plan",
-                            features: plans[1].features.map(f => ({
+                            features: plans[1].features.map((f: string) => ({
                                 name: f,
                                 icon: "check",
                                 iconColor: "text-green-500"

@@ -8,6 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { postcodeValidator, type CountryCode } from "postcode-validator";
+import { Country as ICountry, State as IState, City as ICity } from "country-state-city";
 
 // Dynamic imports for heavy dependencies
 let countries: any;
@@ -44,6 +45,107 @@ const formatPhoneNumber = (phoneNumber: string) => {
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
 };
 
+const formatPhoneNumberByCountryFormat = (phoneNumber: string, countryCode: string): string => {
+    const country = Country.getAllCountries().find((c: any) => c.isoCode === countryCode);
+    if (!country) return phoneNumber;
+    const format = country.phoneNumberFormat || "###-###-####";
+    let cleaned = phoneNumber.replace(/\D/g, "");
+    let formatted = "";
+    let formatIndex = 0;
+    for (let i = 0; i < format.length; i++) {
+      if (format[i] === "#") {
+        if (formatIndex < cleaned.length) {
+          formatted += cleaned[formatIndex];
+          formatIndex++;
+        } else {
+          break;
+        }
+      } else {
+        formatted += format[i];
+      }
+    }
+    return formatted;
+  }
+
+
+
+
+// Add utility function for validating postal code
+const validatePostalCode = (postalCode: string, countryCode: CountryCode) => {
+  return postcodeValidator(postalCode, countryCode);
+};
+
+const getLocationCodes = (countryName: string, stateName: string) => {
+  const country = ICountry.getAllCountries().find((c) => c.name === countryName);
+  const countryCode = country ? country.isoCode : null;
+  let stateCode = null;
+  if (countryCode) {
+    const state = IState.getStatesOfCountry(country?.isoCode).find(s => s.name === stateName);
+    stateCode = state ? state.isoCode : null;
+  }
+  return { countryCode, stateCode };
+};
+
+const getCountryCodeByName = (countryName: string): string | null => {
+  const country = ICountry.getAllCountries().find((c) => c.name === countryName);
+  return country ? country.isoCode : null;
+};
+
+
+
+abstract class LocationUtils {
+  static getCountryCodeByName(countryName: string): string | null {
+    const country = Country.getAllCountries().find((c: any) => c.name === countryName);
+    return country ? country.isoCode : null;
+  }
+
+  static getCountryNameByCode(countryCode: string): string | null {
+    const country = Country.getAllCountries().find((c: any) => c.isoCode === countryCode);
+    return country ? country.name : null;
+  }
+
+  static formatPhoneNumberByCountryFormat(phoneNumber: string, countryCode: string): string {
+    const country = Country.getAllCountries().find((c: any) => c.isoCode === countryCode);
+    if (!country) return phoneNumber;
+    const format = country.phoneNumberFormat || "###-###-####";
+    let cleaned = phoneNumber.replace(/\D/g, "");
+    let formatted = "";
+    let formatIndex = 0;
+    for (let i = 0; i < format.length; i++) {
+      if (format[i] === "#") {
+        if (formatIndex < cleaned.length) {
+          formatted += cleaned[formatIndex];
+          formatIndex++;
+        } else {
+          break;
+        }
+      } else {
+        formatted += format[i];
+      }
+    }
+    return formatted;
+  }
+
+  static getStateCodeByName(countryCode: string, stateName: string): string | null {
+    const state = State.getStatesOfCountry(countryCode).find((s: any) => s.name === stateName);
+    return state ? state.isoCode : null;
+  }
+
+  static getOrMatchPhoneCode(phoneNumber: string, countryCode: string): { phoneCode: string | null; phoneNumber: string | null } {
+    const country = Country.getAllCountries().find((c: any) => c.isoCode === countryCode);
+    let phoneCodeMatch;
+    phoneCodeMatch = phoneNumber.match(new RegExp(`^(\\+${country.phonecode})(.*)$`));
+    if (phoneCodeMatch) {
+      const phoneCodeFromMatch = phoneCodeMatch[1];
+      const phoneNumberFromMatch = phoneCodeMatch[2].toString().trim();
+      return { phoneCode: phoneCodeFromMatch, phoneNumber: phoneNumberFromMatch };
+    }
+    return {
+      phoneCode: null, phoneNumber: null
+    };
+  }
+}
+
 interface LocationData {
   country?: string;
   state?: string;
@@ -58,6 +160,7 @@ interface CountrySelectorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  readonly?: boolean;
   styleVariant?: 'default' | 'plain';
 }
 
@@ -69,6 +172,7 @@ interface PhoneSelectorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  readonly?: boolean;
   countryCode?: string;
   styleVariant?: 'default' | 'plain';
 }
@@ -79,6 +183,7 @@ interface StateSelectorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  readonly?: boolean;
   countryCode?: string;
   styleVariant?: 'default' | 'plain';
 }
@@ -89,6 +194,7 @@ interface CitySelectorProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  readonly?: boolean;
   countryCode?: string;
   stateCode?: string;
   styleVariant?: 'default' | 'plain';
@@ -114,6 +220,8 @@ interface AddressAutocompleteProps {
     state?: string;
     postalCode?: string;
     country?: string;
+    countryCode?: string;
+    stateCode?: string;
   }) => void;
   countryCode?: string;
   placeholder?: string;
@@ -123,7 +231,7 @@ interface AddressAutocompleteProps {
 }
 
 const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps>(
-  ({ value, onValueChange, placeholder = "Select country...", className, disabled, styleVariant = 'default', ...props }, ref) => {
+  ({ value, onValueChange, placeholder = "Select country...", className, disabled, readonly, styleVariant = 'default', ...props }, ref) => {
     const [open, setOpen] = React.useState(false);
     const [searchValue, setSearchValue] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(true);
@@ -163,12 +271,13 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "w-full justify-between h-10 px-4 py-2 rounded-md border-2 bg-background hover:bg-secondary hover:text-secondary-foreground border-line-secondary text-sm transition-all duration-200",
+              styleVariant === 'default' ? "bg-background border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
               "text-fg-primary",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
-              disabled && "opacity-50 cursor-not-allowed",
+              styleVariant === 'default' ? "focus:ring-1 focus:ring-accent-base/20 focus:border-accent-base" : "",
+              disabled && "opacity-50 bg-bg-secondary/50 cursor-not-allowed",
               !selectedCountry && "text-fg-tertiary",
+              readonly && "cursor-not-allowed focus-visible:ring-0 bg-bg-secondary/50 text-fg-tertiary",
               className,
             )}
             {...props}
@@ -194,25 +303,19 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
           aria-label="Select country"
         >
           <Command>
-            <div className="flex items-center border-b border-line-secondary px-3">
+            <div className="flex items-center border-b border-line-secondary">
               {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
               <CommandInput
                 placeholder="Search countries..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                
-               className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+
+                className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search countries"
               />
             </div>
             <CommandList
-              className="dropdown-scrollable"
-              style={{
-                maxHeight: '240px',
-                overflowY: 'auto',
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent'
-              }}
+              className="max-h-[240px] overflow-y-auto overflow-x-hidden"
             >
               <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No country found.
@@ -227,7 +330,7 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-accent aria-selected:bg-accent focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === country.isoCode}
                   >
@@ -253,7 +356,7 @@ const CountrySelector = React.forwardRef<HTMLButtonElement, CountrySelectorProps
 CountrySelector.displayName = "CountrySelector";
 
 const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps>(
-  ({ value, onValueChange, onCountryCodeChange, placeholder = "Enter phone number", className, disabled, countryCode, styleVariant = "default", ...props }, ref) => {
+  ({ value, onValueChange, onCountryCodeChange, placeholder = "Enter phone number", className, disabled, readonly, countryCode, styleVariant = "default", ...props }, ref) => {
     const [open, setOpen] = React.useState(false);
     const [searchValue, setSearchValue] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(true);
@@ -310,14 +413,15 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
               role="combobox"
               aria-expanded={open}
               disabled={disabled}
-              className={cn(
-                "min-w-[155px] items-center justify-between left-4 h-10 px-4 text-sm transition-all duration-200 rounded-r-none border-r-0",
-                styleVariant === 'default' ? "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
-                "text-fg-primary",
-                styleVariant === 'default' ? "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base" : "",
-                !disabled && "hover:bg-surface-secondary hover:border-line-primary",
-                disabled && "opacity-50 cursor-not-allowed",
-                !selectedPhoneCode && "text-fg-tertiary",
+              className={cn( 
+                "min-w-[155px] cursor-pointer focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-primary focus-visible:border-primary border-2 border-r-1  h-10 px-4 py-2 rounded-r-none ml-2 py-2 bg-background",
+              styleVariant === 'default' ? "bg-background border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
+              "text-fg-primary",
+              styleVariant === 'default' ? "focus:ring-1 focus:ring-primary focus:border-primary" : "",
+              disabled && "opacity-50 bg-bg-secondary/50 cursor-not-allowed",
+              !selectedPhoneCode && "text-fg-tertiary",
+              readonly && "cursor-not-allowed focus-visible:ring-0 bg-bg-secondary/50 text-fg-tertiary",
+              className,
               )}
               {...props}
             >
@@ -340,7 +444,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
                 ) : (
                   <span className="truncate">Dial Code</span>
                 )}
-{/* 
+                {/* 
 
                 <span className="text-lg">
                   {selectedPhoneCode ? ( selectedPhoneCode.flag ) : ("🌐")}
@@ -354,29 +458,26 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
           </PopoverTrigger>
 
           <PopoverContent
-            className="w-[260px] p-0 border bg-surface-primary border-line-secondary"
+            className="w-[200px]  p-0 border bg-surface-primary border-line-secondary"
+            // className="w-[calc(var(--radix-popover-trigger-width)+50px)] p-0 border bg-surface-primary border-line-secondary"
             align="start"
             role="dialog"
             aria-label="Select country code"
           >
             <Command>
-              <div className="flex items-center border-b border-line-secondary px-3">
-                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+              <div className="flex items-center border-b border-line-secondary w-full">
+                {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
                 <CommandInput
-                  placeholder="Search countries..."
+                  placeholder="Search Calling Code..."
                   value={searchValue}
                   onValueChange={setSearchValue}
-                  className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
-                  aria-label="Search countries for phone code"
+
+                  className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+                  aria-label="Search Phone Codes"
                 />
               </div>
               <CommandList
-                className="dropdown-scrollable"
-                style={{
-                  maxHeight: '240px',
-                  overflowY: 'auto',
-                  scrollbarWidth: 'thin'
-                }}
+                className="max-h-[240px] overflow-y-auto overflow-x-hidden"
               >
                 <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                   No country found.
@@ -426,12 +527,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
             onChange={handlePhoneChange}
             disabled={disabled}
             className={cn(
-              "pl-2 rounded-l-none border-l-0 focus:border-l-0 h-10",
-              "bg-surface-primary border-line-secondary",
-              "text-fg-primary placeholder:text-fg-tertiary",
-              "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
-              !disabled && "hover:bg-surface-secondary hover:border-line-primary",
-              disabled && "opacity-50 cursor-not-allowed",
+              "pl-2 rounded-l-none border-l-0 focus:border-l-0",
             )}
           />
         </div>
@@ -442,7 +538,7 @@ const PhoneCodeSelector = React.forwardRef<HTMLButtonElement, PhoneSelectorProps
 PhoneCodeSelector.displayName = "PhoneCodeSelector";
 
 const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
-  ({ value, onValueChange, placeholder = "Select state...", className, disabled, countryCode, styleVariant = 'default', ...props }, ref) => {
+  ({ value, onValueChange, placeholder = "Select state...", className, disabled, readonly, countryCode, styleVariant = 'default', ...props }, ref) => {
     const [open, setOpen] = React.useState(false);
     const [searchValue, setSearchValue] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(true);
@@ -484,19 +580,20 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-readonly={readonly}
             disabled={disabled || !countryCode}
             className={cn(
-              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "w-full justify-between h-10 px-4 py-2 rounded-md border-2 border-line-secondary text-sm transition-all duration-200",
+              styleVariant === 'default' ? "bg-background border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
               "text-fg-primary",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
-              styleVariant === 'default' && !disabled &&
-              countryCode &&
-              "hover:bg-surface-secondary hover:border-line-primary",
-              (disabled || !countryCode) && "opacity-50 cursor-not-allowed",
+              styleVariant === 'default' ? "focus:ring-1 focus:ring-accent-base/20 focus:border-accent-base" : "",
+              disabled && readonly && "opacity-50 cursor-not-allowed",
+              countryCode && 'bg-background hover:bg-secondary hover:text-secondary-foreground',
+              !countryCode && "opacity-50 cursor-not-allowed",
               !selectedState && "text-fg-tertiary",
               className,
             )}
+            {...props}
           >
             <div className="flex items-center space-x-3">
               <MapPin className="h-4 w-4 opacity-60" />
@@ -514,23 +611,19 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
           aria-label="Select state"
         >
           <Command className="text-fg-primary">
-            <div className="flex items-center border-b border-line-secondary px-3">
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+            <div className="flex items-center border-b border-line-secondary">
+              {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
               <CommandInput
                 placeholder="Search states..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+
+                className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search states"
               />
             </div>
             <CommandList
-              className="dropdown-scrollable"
-              style={{
-                maxHeight: '240px',
-                overflowY: 'auto',
-                scrollbarWidth: 'thin'
-              }}
+              className="max-h-[240px] overflow-y-auto overflow-x-hidden"
             >
               <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No state found.
@@ -545,7 +638,7 @@ const StateSelector = React.forwardRef<HTMLButtonElement, StateSelectorProps>(
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-accent aria-selected:bg-accent focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === state.isoCode}
                   >
@@ -568,7 +661,7 @@ StateSelector.displayName = "StateSelector";
 
 const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
   (
-    { value, onValueChange, placeholder = "Select city...", className, disabled, countryCode, stateCode, styleVariant = 'default', ...props },
+    { value, onValueChange, placeholder = "Select city...", className, disabled, readonly, countryCode, stateCode, styleVariant = 'default', ...props },
     ref,
   ) => {
     const [open, setOpen] = React.useState(false);
@@ -610,18 +703,17 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
             aria-expanded={open}
             disabled={disabled || !countryCode || !stateCode}
             className={cn(
-              "w-full justify-between h-10 px-4 py-2 text-sm transition-all duration-200",
-              styleVariant === 'default' && "bg-surface-primary border-line-secondary hover:border-line-primary hover:bg-surface-secondary",
+              "w-full justify-between h-10 px-4 py-2 rounded-md border-2 border-line-secondary text-sm transition-all duration-200",
+              styleVariant === 'default' ? "bg-background border-line-secondary hover:border-line-primary hover:bg-surface-secondary" : "",
               "text-fg-primary",
-              styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
-              styleVariant === 'default' && !disabled &&
-              countryCode &&
-              stateCode &&
-              "hover:bg-surface-secondary hover:border-line-primary",
-              (disabled || !countryCode || !stateCode) && "opacity-50 cursor-not-allowed",
+              styleVariant === 'default' ? "focus:ring-1 focus:ring-accent-base/20 focus:border-accent-base" : "",
+              (readonly || disabled || !countryCode || !stateCode) && "opacity-50 cursor-not-allowed",
+              countryCode && stateCode && 'bg-background hover:bg-secondary hover:text-secondary-foreground',
               !selectedCity && "text-fg-tertiary",
               className,
             )}
+            {...props}
+
           >
             <div className="flex items-center space-x-3">
               <Building2 className="h-4 w-4 opacity-60" />
@@ -639,23 +731,19 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
           aria-label="Select city"
         >
           <Command className="text-fg-primary">
-            <div className="flex items-center border-b border-line-secondary px-3">
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+            <div className="flex items-center border-b border-line-secondary">
+              {/* <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" /> */}
               <CommandInput
                 placeholder="Search cities..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
+
+                className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none text-fg-primary placeholder:text-fg-tertiary disabled:cursor-not-allowed disabled:opacity-50 border-0 focus:ring-0"
                 aria-label="Search cities"
               />
             </div>
             <CommandList
-              className="dropdown-scrollable"
-              style={{
-                maxHeight: '240px',
-                overflowY: 'auto',
-                scrollbarWidth: 'thin'
-              }}
+              className="max-h-[240px] overflow-y-auto overflow-x-hidden"
             >
               <CommandEmpty className="py-6 text-center text-sm text-fg-tertiary">
                 No city found.
@@ -670,7 +758,7 @@ const CitySelector = React.forwardRef<HTMLButtonElement, CitySelectorProps>(
                       setOpen(false);
                       setSearchValue("");
                     }}
-                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-surface-secondary aria-selected:bg-surface-secondary focus:bg-surface-secondary focus:outline-none"
+                    className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer rounded-lg transition-colors text-fg-primary hover:bg-accent aria-selected:bg-accent focus:bg-surface-secondary focus:outline-none"
                     role="option"
                     aria-selected={value === city.name}
                   >
@@ -765,10 +853,10 @@ const PostalCodeInput = React.forwardRef<HTMLInputElement, PostalCodeInputProps>
           aria-label="Postal code"
           aria-description="Enter your postal code"
           className={cn(
-            "flex items-center justify-between h-10 px-3 text-sm transition-all duration-200 rounded-r-none border-r-0",
+            "flex items-center justify-between h-10 px-3 text-sm transition-all duration-200",
             styleVariant === 'default' ? "bg-surface-primary border-line-secondary" : "",
             "text-fg-primary",
-            styleVariant === 'default' ? "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base" : "",
+            styleVariant === 'default' ? "focus:ring-1 focus:ring-accent-base/20 focus:border-accent-base" : "",
             !disabled && "hover:bg-surface-secondary hover:border-line-primary",
             disabled && "opacity-50 cursor-not-allowed",
             !isValid && "text-fg-tertiary",
@@ -904,6 +992,9 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
         street = addr.neighbourhood || suggestion.display_name.split(',')[0].trim();
       }
 
+
+      const iLocationCodes = getLocationCodes(addr.country, addr.state) || undefined;
+
       setSearchValue(street);
       onValueChange?.(street);
 
@@ -911,8 +1002,10 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
         street,
         city: addr.city || addr.town || addr.village || addr.municipality,
         state: addr.state,
+        stateCode: iLocationCodes.stateCode || '',
         postalCode: addr.postcode,
         country: addr.country,
+        countryCode: addr.country_code ? addr.country_code.toUpperCase() : iLocationCodes.countryCode || '',
       });
 
       setOpen(false);
@@ -942,14 +1035,7 @@ const AddressAutocomplete = React.forwardRef<HTMLInputElement, AddressAutocomple
           onClick={handleInputFocus}
           placeholder={placeholder}
           disabled={disabled}
-          className={cn(
-            styleVariant === 'default' && "bg-surface-primary border-line-secondary",
-            "text-fg-primary placeholder:text-fg-tertiary",
-            styleVariant === 'default' && "focus:ring-2 focus:ring-accent-base/20 focus:border-accent-base",
-            !disabled && "hover:bg-surface-secondary hover:border-line-primary",
-            disabled && "opacity-50 cursor-not-allowed",
-            className,
-          )}
+          className={cn(className)}
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -1018,5 +1104,7 @@ export {
   PostalCodeInput,
   PhoneCodeSelector,
   AddressAutocomplete,
+  formatPhoneNumberByCountryFormat,
   type LocationData,
-};
+  LocationUtils,
+}

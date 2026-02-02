@@ -17,7 +17,7 @@ const CheckoutPlaceholder = (props: Props) => {
       className=" h-14 w-14 bg-muted rounded-lg flex items-center justify-center"
     >
       <Image
-        src="/stripelogo.png"
+        src={'/logos/stripe.svg'}
         height={40}
         width={40}
         alt="stripe logo"

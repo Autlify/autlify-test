@@ -8,18 +8,21 @@ import {
   Check,
   CreditCard as CreditCardIcon,
   MoreVertical,
+  Plus,
   Shield,
   Wifi,
   X,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AspectRatio } from "./aspect-ratio"
 
 type BankCardTone = "default" | "premium" | "platinum" | "black"
 
@@ -477,7 +480,7 @@ const contentPaddingVariants = cva(
 const numberVariants = cva("font-mono tabular-nums", {
   variants: {
     size: {
-      regular: "text-xl font-bold tracking-[0.22em]",
+      regular: "sm:text-[14px] md:text-auto font-bold tracking-[0.22em]",
       compact: "text-[11px] font-semibold tracking-[0.20em]",
     },
   },
@@ -501,7 +504,7 @@ const labelVariants = cva("opacity-60", {
 const valueVariants = cva("", {
   variants: {
     size: {
-      regular: "text-sm font-medium tracking-wide uppercase",
+      regular: "text-[14px] font-medium tracking-wide uppercase",
       compact: "text-[11px] font-medium tracking-wide uppercase",
     },
   },
@@ -525,7 +528,7 @@ const expiryVariants = cva("font-mono tabular-nums", {
 const chipVariants = cva("rounded-md border flex items-center justify-center", {
   variants: {
     size: {
-      regular: "w-12 h-8",
+      regular: "w-10 h-6",
       compact: "w-9 h-5",
     },
   },
@@ -549,7 +552,7 @@ const chipGridVariants = cva("grid grid-cols-3 gap-0.5", {
 const chipDotVariants = cva("rounded-sm", {
   variants: {
     size: {
-      regular: "w-1 h-1",
+      regular: "w-0.75 h-0.75",
       compact: "w-0.5 h-0.5",
     },
   },
@@ -561,8 +564,8 @@ const chipDotVariants = cva("rounded-sm", {
 const contactlessVariants = cva("rotate-90 opacity-60", {
   variants: {
     size: {
-      regular: "w-6 h-6",
-      compact: "w-5 h-5",
+      regular: "w-5 h-5",
+      compact: "w-4 h-4",
     },
   },
   defaultVariants: {
@@ -585,7 +588,7 @@ const hologramPosVariants = cva("absolute", {
 const hologramSizeVariants = cva("relative rounded-full overflow-hidden", {
   variants: {
     size: {
-      regular: "w-12 h-12",
+      regular: "w-11 h-11",
       compact: "w-8 h-8",
     },
   },
@@ -609,7 +612,7 @@ const hologramIconVariants = cva("text-white/80", {
 const logoVisaVariants = cva("font-bold tracking-wider", {
   variants: {
     size: {
-      regular: "text-2xl",
+      regular: "md:text-lg lg:text-xl xl:text-2xl",
       compact: "text-md",
     },
   },
@@ -910,24 +913,7 @@ const BankCard = React.forwardRef<HTMLDivElement, BankCardProps>(
       chipDot: baseTone.chipDot,
       hologram: baseTone.hologram,
     } : baseTone
-
-        // ref={ref}
-        // className={cn(
-        //   "relative w-full max-w-sm mx-auto cursor-pointer group",
-        //   className,
-        // )}
-        // style={{ perspective: "1000px", aspectRatio: "1.586" }}
-        // onClick={onClick}
-        // whileHover={{ scale: isSelected ? 1.05 : 1.02 }}
-        // whileTap={{ scale: 0.98 }}
-        // animate={isSelected ? { 
-        //   scale: [1, 1.03, 1],
-        // } : {}}
-        // transition={isSelected ? {
-        //   scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-        // } : {}}
-        // {...props}
-
+ 
 
     return (
       <motion.div
@@ -1112,18 +1098,23 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
 
     return (
       <div ref={ref} className={cn("space-y-4", className)} {...props}>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-content-primary">Saved Payment Methods</h3>
-          <button
-            type="button"
-            onClick={onAddCard}
-            className="text-sm text-brand hover:text-content-primary font-medium transition-colors"
-          >
-            + Add New Card
-          </button>
-        </div>
+        {onAddCard && (
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-content-primary">Saved Payment Methods</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onAddCard}
+              className="gap-1.5"
+            >
+              <Plus className="h-4 w-4" />
+              Add New Card
+            </Button>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                <AspectRatio ratio={1.586} >
           <AnimatePresence>
             {cards.map((card) => (
               <motion.div
@@ -1146,21 +1137,22 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                   onClick={() => onCardSelect?.(card.id)}
                   size={resolvedSize}
                 />
+              
 
-                {/* Default badge */}
+                {/* Default badge - inside card */}
                 {card.isDefault && (
-                  <div className="absolute -top-3 -left-3 z-20">
-                    <motion.div initial={{ scale: 0, rotate: -180 }} animate={{ scale: 1, rotate: 0 }} className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 rounded-full blur-md opacity-60" />
-                      <div className="relative flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-lg border border-white/80">
-                        <span className="text-[10px] font-bold text-white leading-none">Default</span>
+                  <div className="absolute -top-2 -left-4 z-20">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="relative">
+                      <div className="relative flex items-center gap-1 px-2 py-1.5 rounded-md bg-green-500/90 shadow-sm backdrop-blur-sm">
+                        <Check className="h-3 w-3 text-white" />
+                        <span className="text-[10px] font-semibold text-white leading-none">Default</span>
                       </div>
                     </motion.div>
                   </div>
                 )}
 
-                {/* Ellipsis menu */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                {/* Ellipsis menu - inside card */}
+                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
@@ -1172,17 +1164,18 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onSetDefault?.(card.id)
-                        }}
-                        disabled={card.isDefault}
-                        className="cursor-pointer"
-                      >
-                        <Check className="mr-2 h-4 w-4" />
-                        Set as Default
-                      </DropdownMenuItem>
+                      {!card.isDefault && (
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onSetDefault?.(card.id)
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          Set as Default
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation()
@@ -1209,6 +1202,7 @@ const SavedBankCardsGallery = React.forwardRef<HTMLDivElement, SavedBankCardsPro
               </motion.div>
             ))}
           </AnimatePresence>
+            </AspectRatio>
         </div>
       </div>
     )

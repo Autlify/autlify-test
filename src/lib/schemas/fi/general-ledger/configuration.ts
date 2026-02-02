@@ -1,5 +1,6 @@
 
 import { z } from 'zod';
+import { taxSettingsSchema } from './tax';
 
 export const glConfigurationSchema = z.object({
   // General settings
@@ -28,6 +29,9 @@ export const glConfigurationSchema = z.object({
   accountCodeFormat: z.string().max(20).default('####-####'),
   accountCodeLength: z.number().int().min(4).max(20).default(8),
   accountCodeSeparator: z.string().max(1).default('-'),
+  
+  // Tax settings (new)
+  taxSettings: taxSettingsSchema.optional(),
   
   // ERP Integrations
   erpIntegrationEnabled: z.boolean().default(false),

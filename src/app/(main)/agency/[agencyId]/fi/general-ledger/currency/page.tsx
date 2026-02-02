@@ -31,7 +31,7 @@ export default async function CurrencyPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read');
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.configuration.currencies.view');
   if (!hasPermission) {
     notFound();
   }

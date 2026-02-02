@@ -41,7 +41,7 @@ export default async function ReconciliationPage({ params }: Props) {
     redirect('/sign-in');
   }
 
-  const hasPermission = await hasAgencyPermission(agencyId, 'core.agency.account.read');
+  const hasPermission = await hasAgencyPermission(agencyId, 'fi.general_ledger.reconciliation.view');
   if (!hasPermission) {
     notFound();
   }

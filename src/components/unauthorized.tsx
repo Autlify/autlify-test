@@ -12,7 +12,7 @@ export default function Unauthorized({
   showBackButton = true 
 }: UnauthorizedProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center justify-start pt-[22vh] min-h-screen p-4">
       <div className="max-w-md w-full space-y-6 text-center">
         {/* Icon */}
         <div className="flex justify-center">

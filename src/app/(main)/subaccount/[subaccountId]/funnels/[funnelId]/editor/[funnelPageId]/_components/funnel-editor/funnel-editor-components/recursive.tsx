@@ -17,6 +17,8 @@ const Recursive = ({ element }: Props) => {
       return <TextComponent element={element} />
     case 'container':
       return <Container element={element} />
+    case 'section':
+      return <Container element={element} />
     case 'video':
       return <VideoComponent element={element} />
     case 'contactForm':
@@ -24,6 +26,8 @@ const Recursive = ({ element }: Props) => {
     case 'paymentForm':
       return <Checkout element={element} />
     case '2Col':
+      return <Container element={element} />
+    case '3Col':
       return <Container element={element} />
     case '__body':
       return <Container element={element} />

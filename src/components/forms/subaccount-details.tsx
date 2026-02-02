@@ -1,11 +1,37 @@
 'use client'
-
+import { Agency, SubAccount } from '@/generated/prisma/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
+import React, { useEffect, useState } from 'react'
 import { v4 } from 'uuid'
-
-import { Button } from '@/components/ui/button'
+import { useSession } from 'next-auth/react'
+import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import {
+  CountrySelector,
+  StateSelector,
+  CitySelector,
+  PostalCodeInput,
+  PhoneCodeSelector,
+  AddressAutocomplete
+} from '@/components/global/location'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -14,27 +40,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useRouter } from 'next/navigation'
-
+import { useToast } from '@/components/ui/use-toast'
+import * as z from 'zod'
+import FileUpload from '@/components/global/file-upload'
 import { Input } from '@/components/ui/input'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card'
-
-import FileUpload from '../global/file-upload'
-import { Agency, SubAccount } from '@/generated/prisma/client'
-import { useToast } from '../ui/use-toast'
+import { Switch } from '@/components/ui/switch'
 import { saveActivityLogsNotification, upsertSubAccount } from '@/lib/queries'
-import { useEffect, useState } from 'react'
-import Loading from '../global/loading'
+import { Button } from '@/components/ui/button'
+import Loading from '@/components/global/loading'
 import { useModal } from '@/providers/modal-provider'
-import { AddressAutocomplete } from '../global/location'
+import { City, Country, State } from 'country-state-city'
 
-const formSchema = z.object({
+const FormSchema = z.object({
   name: z.string().min(1, 'Account name is required'),
   companyEmail: z.string().min(1, 'Email is required'),
   companyPhone: z.string().min(1, 'Phone number is required'),
@@ -45,11 +62,14 @@ const formSchema = z.object({
   postalCode: z.string().min(1, 'Postal code is required'),
   state: z.string().min(1, 'State is required'),
   country: z.string().min(1, 'Country is required'),
+  countryCode: z.string().optional(),
+  stateCode: z.string().optional(),
+  phoneCode: z.string().optional(),
 })
 
 //CHALLENGE Give access for Subaccount Guest they should see a different view maybe a form that allows them to create tickets
 
-//CHALLENGE layout.tsx oonly runs once as a result if you remove permissions for someone and they keep navigating the layout.tsx wont fire again. solution- save the data inside metadata for current user.
+//CHALLENGE layout.tsx only runs once as a result if you remove permissions for someone and they keep navigating the layout.tsx wont fire again. solution- save the data inside metadata for current user.
 
 interface SubAccountDetailsProps {
   //To add the sub account to the agency
@@ -68,9 +88,18 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
   const { toast } = useToast()
   const { setClose } = useModal()
   const router = useRouter()
-  const [countryCode, setCountryCode] = useState<string>('')
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [countryCode, setCountryCode] = useState(details?.country || '')
+  const [phoneCode, setPhoneCode] = useState(details?.companyPhone || '')
+  const [stateCode, setStateCode] = useState(details?.state || '')
+  const [city, setCity] = useState(details?.city || '')
+  const [phoneNumber, setPhoneNumber] = useState(details?.companyPhone || '')
+
+
+
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    mode: 'onSubmit',
+    resolver: zodResolver(FormSchema),
     defaultValues: {
       name: details?.name || '',
       companyEmail: details?.companyEmail || '',
@@ -81,22 +110,48 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
       postalCode: details?.postalCode || '',
       state: details?.state || '',
       country: details?.country || '',
+      countryCode: details?.country || '',
+      stateCode: details?.state || '',
+      phoneCode: details?.companyPhone || '',
       subAccountLogo: details?.subAccountLogo || '',
     },
   })
+  const isLoading = form.formState.isSubmitting
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Use form.getValues() to get complete form data
-    const formData = form.getValues()
+  useEffect(() => {
+    if (details) {
+      const country = Country.getAllCountries().find(c => c.name === details?.country)
+      const state = State.getStatesOfCountry(country?.isoCode).find(s => s.name === details?.state)
+      const city = City.getCitiesOfState(state?.countryCode || '', state?.isoCode || '').find(c => c.name === details?.city)
+      const phoneCodeMatch = details?.companyPhone && country ? details.companyPhone.match(new RegExp(`^(\\+${country.phonecode})(.*)$`)) : null
+      const phoneCodeFromMatch = phoneCodeMatch ? phoneCodeMatch[1] : null
+      const phoneNumberFromMatch = phoneCodeMatch ? phoneCodeMatch[2].toString().trim() : null
 
+      setCountryCode(country ? country.isoCode : '')
+      form.setValue('country', country ? country.name : details.country || '')
+      form.setValue('countryCode', country ? country.isoCode : '')
+      setStateCode(state ? state.isoCode : '')
+      form.setValue('state', state ? state.name : details.state || '')
+      form.setValue('stateCode', state ? state.isoCode : '')
+      setCity(city ? city.name : '')
+      form.setValue('city', city ? city.name : details.city || '')
+      form.setValue('postalCode', details.postalCode || '')
+      setPhoneCode(phoneCodeFromMatch || '')
+      form.setValue('phoneCode', phoneCodeFromMatch || '')
+      setPhoneNumber(phoneNumberFromMatch || details.companyPhone || '')
+    }
+  }, [details, form])
+
+  const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
     try {
-      const subaccountData = {
+      const formData = form.getValues()
+      const bodyData = {
         id: details?.id ? details.id : v4(),
         line1: formData.line1,
         line2: formData.line2 || '',
         subAccountLogo: formData.subAccountLogo,
         city: formData.city,
-        companyPhone: formData.companyPhone,
+        companyPhone: `${formData.phoneCode} ${formData.companyPhone}`,
         country: formData.country,
         name: formData.name,
         state: formData.state,
@@ -106,48 +161,42 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
         companyEmail: formData.companyEmail,
         agencyId: agencyDetails.id,
         connectAccountId: '',
-        goal: 5000,
-        taxProfileId: null,
+        goal: 5,
         taxIdentityId: null,
       }
-
-      const response = await upsertSubAccount(subaccountData)
-
+      const response = await upsertSubAccount(bodyData)
       if (!response) throw new Error('No response from server')
       await saveActivityLogsNotification({
         agencyId: response.agencyId,
-        description: `${userName} | updated sub account | ${response.name}`,
+        description: `${userName} | ${details?.id ? 'updated' : 'created'} sub-account | ${response.name}`,
         subaccountId: response.id,
       })
-
       toast({
-        title: 'Subaccount details saved',
-        description: 'Successfully saved your subaccount details.',
+        title: `Sub-Account ${details?.id ? 'updated' : 'created'}`,
+        description: `Successfully ${details?.id ? 'updated' : 'created'} your sub-account.`,
       })
-
       setClose()
       router.refresh()
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Oppse!',
-        description: 'Could not save sub account details.',
+        description: 'Could not create sub account.',
       })
     }
   }
 
-  const isLoading = form.formState.isSubmitting
   //CHALLENGE Create this form.
   return (
-    <Card className="w-full">
+    <Card className="w-full min-w-[400px] h-screen md:h-fit">
       <CardHeader>
-        <CardTitle>Sub Account Information</CardTitle>
+        <CardTitle>Sub-Account Information</CardTitle>
         <CardDescription>Please enter business details</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
             <FormField
@@ -179,7 +228,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                     <FormControl>
                       <Input
                         required
-                        placeholder="Your agency name"
+                        placeholder="Account name"
                         {...field}
                       />
                     </FormControl>
@@ -193,7 +242,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 name="companyEmail"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Acount Email</FormLabel>
+                    <FormLabel>CompanyEmail</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Email"
@@ -211,13 +260,21 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 control={form.control}
                 name="companyPhone"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Acount Phone Number</FormLabel>
+                  <FormItem>
+                    <FormLabel>Company Phone</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Phone"
-                        required
-                        {...field}
+                      <PhoneCodeSelector
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        countryCode={countryCode}
+                        onCountryCodeChange={(code, countryData) => {
+                          setCountryCode(code)
+                          form.setValue('phoneCode', countryData?.phonecode || '')
+                          
+                        }}
+                        placeholder="Enter phone number"
+                        disabled={isLoading}
+                        styleVariant="plain"
                       />
                     </FormControl>
                     <FormMessage />
@@ -254,12 +311,21 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
 
                         // Auto-fill state if available
                         if (address.state) {
+                          setStateCode(address.stateCode || '')
                           form.setValue('state', address.state);
+                          form.setValue('stateCode', address.stateCode || '');
+                          form.setValue('city', ''); // Reset city when state changes
                         }
 
                         // Auto-fill country if available
                         if (address.country) {
+                          setCountryCode(address.countryCode || '')
+                          setStateCode('') // Reset state when country changes
                           form.setValue('country', address.country);
+                          form.setValue('countryCode', address.countryCode || '');
+                          form.setValue('state', '');
+                          form.setValue('stateCode', '');
+                          form.setValue('city', '');
                         }
                       }}
                       countryCode={countryCode}
@@ -272,37 +338,71 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
               )}
             />
 
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="line2"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Address Line 2 (Optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Apartment, suite, unit, building, floor, etc."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex md:flex-row gap-4">
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="line2"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Address Line 2 (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="italic text-sm"
+                        placeholder="Apartment, suite, unit, building, floor, etc."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="postalCode"
+                render={({ field }) => (
+                  <FormItem className="w-40">
+                    <FormLabel>Postal Code</FormLabel>
+                    <FormControl>
+                      <PostalCodeInput
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        countryCode={countryCode}
+                        placeholder="Enter postal code"
+                        disabled={isLoading}
+                        styleVariant="plain"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex md:flex-row gap-4">
               <FormField
                 disabled={isLoading}
                 control={form.control}
-                name="city"
+                name="country"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input
-                        required
-                        placeholder="City"
-                        {...field}
+                      <CountrySelector
+                        value={countryCode}
+                        onValueChange={(code, countryData) => {
+                          setCountryCode(code)
+                          setStateCode('') // Reset state when country changes
+                          form.setValue('country', countryData?.name || '')
+                          form.setValue('countryCode', code)
+                          form.setValue('state', '')
+                          form.setValue('stateCode', '')
+                          form.setValue('city', '')
+                        }}
+                        placeholder="Select country"
+                        disabled={isLoading}
+                        styleVariant="plain"
                       />
                     </FormControl>
                     <FormMessage />
@@ -317,10 +417,18 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                   <FormItem className="flex-1">
                     <FormLabel>State</FormLabel>
                     <FormControl>
-                      <Input
-                        required
-                        placeholder="State"
-                        {...field}
+                      <StateSelector
+                        value={stateCode}
+                        onValueChange={(code, stateData) => {
+                          setStateCode(code)
+                          form.setValue('state', stateData?.name || '')
+                          form.setValue('stateCode', code)
+                          form.setValue('city', '')
+                        }}
+                        countryCode={countryCode}
+                        placeholder="Select state"
+                        disabled={isLoading}
+                        styleVariant="plain"
                       />
                     </FormControl>
                     <FormMessage />
@@ -330,15 +438,21 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
               <FormField
                 disabled={isLoading}
                 control={form.control}
-                name="postalCode"
+                name="city"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Postal Code</FormLabel>
+                    <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input
-                        required
-                        placeholder="Postal Code"
-                        {...field}
+                      <CitySelector
+                        value={field.value}
+                        onValueChange={(cityName) => {
+                          form.setValue('city', cityName)
+                        }}
+                        countryCode={countryCode}
+                        stateCode={stateCode}
+                        placeholder="Select city"
+                        disabled={isLoading}
+                        styleVariant="plain"
                       />
                     </FormControl>
                     <FormMessage />
@@ -346,24 +460,6 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 )}
               />
             </div>
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input
-                      required
-                      placeholder="Country"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button
               type="submit"
               disabled={isLoading}

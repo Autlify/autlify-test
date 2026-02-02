@@ -14,6 +14,7 @@ import { CheckCircleIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import { redirect } from 'next/navigation'
 
 type Props = {
   searchParams: Promise<{
@@ -65,12 +66,21 @@ const LaunchPad = async ({ params, searchParams }: Props) => {
           where: { id: subaccountId },
           data: { connectAccountId: response.stripe_user_id },
         })
-        connectedStripeAccount = true
+        // Redirect to remove code from URL and prevent re-processing
+        return redirect(`/subaccount/${subaccountId}/launchpad`)
       } catch (error) {
         console.log('🔴 Could not connect stripe account', error)
+        // Redirect to remove invalid/used code from URL
+        return redirect(`/subaccount/${subaccountId}/launchpad`)
       }
+    } else {
+      // Already connected, redirect to remove code from URL
+      return redirect(`/subaccount/${subaccountId}/launchpad`)
     }
   }
+
+  // Check if already connected (for display purposes)
+  connectedStripeAccount = !!subaccountDetails.connectAccountId
 
   return (
     <BlurPage>

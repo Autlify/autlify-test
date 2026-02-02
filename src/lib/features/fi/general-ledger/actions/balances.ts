@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache'
 import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions'
 import { logGLAudit } from './audit'
 import { Decimal } from 'decimal.js'
+import { ActionKey } from '@/lib/registry'
 
 // ========== Types ==========
 
@@ -71,7 +72,7 @@ const getContext = async (): Promise<BalanceContext | null> => {
 
 const checkPermission = async (
     context: BalanceContext,
-    permissionKey: string
+    permissionKey: ActionKey
 ): Promise<boolean> => {
     if (context.subAccountId) {
         return hasSubAccountPermission(context.subAccountId, permissionKey)
@@ -97,7 +98,7 @@ export const getAccountBalance = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -179,7 +180,7 @@ export const listAccountBalances = async (options: {
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -251,7 +252,7 @@ export const getPeriodBalanceSummary = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -340,7 +341,7 @@ export const recalculateBalances = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.balances.recalculate')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -485,7 +486,7 @@ export const rollForwardBalances = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.balances.rollforward')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.rollforward')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -567,7 +568,7 @@ export const getAccountBalanceHistory = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -632,7 +633,7 @@ export const getRealTimeBalance = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.accounts.view')
+        const hasPermission = await checkPermission(context, 'fi.general_ledger.balances.view')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }
@@ -710,7 +711,7 @@ export const closeIncomeExpenseAccounts = async (
             return { success: false, error: 'Unauthorized: No session found' }
         }
 
-        const hasPermission = await checkPermission(context, 'fi.general-ledger.period.close')
+        const hasPermission = await checkPermission(context, 'fi.configuration.fiscal_years.manage')
         if (!hasPermission) {
             return { success: false, error: 'Unauthorized: Missing permission' }
         }

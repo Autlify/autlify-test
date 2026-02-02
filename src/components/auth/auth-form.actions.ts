@@ -124,7 +124,7 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
       return { success: true }
     }
 
-    const resetToken = await createVerificationToken(normalizedEmail, 'pwd-reset', 60 * 60 * 1000) // 1 hour
+    const resetToken = await createVerificationToken(normalizedEmail, 'reset-request', 60 * 60 * 1000) // 1 hour
     await sendPasswordResetEmail({ email: normalizedEmail, token: resetToken.token, name: user.name || undefined })
 
     return { success: true }

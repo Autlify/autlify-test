@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const hasPermission = await hasAgencyPermission(
       dbSession.activeAgencyId,
-      'fi.general-ledger.reports.export'
+      'fi.general_ledger.reports.export'
     )
     if (!hasPermission) {
       return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
@@ -93,12 +93,72 @@ export async function GET(request: NextRequest) {
     }
 
     if (format === 'pdf') {
-      // For PDF, we'd typically use a library like pdfkit or puppeteer
-      // Return error for now
-      return NextResponse.json(
-        { error: 'PDF export not yet implemented' },
-        { status: 501 }
-      )
+      // Dynamic import for server-side PDF generation
+      const jsPDF = (await import('jspdf')).default
+      const autoTable = (await import('jspdf-autotable')).default
+      
+      // Create PDF document
+      const doc = new jsPDF()
+      
+      // Header
+      doc.setFontSize(20)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Trial Balance', 14, 22)
+      
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Period: ${periodId ?? asOfDate ?? 'Current'}`, 14, 32)
+      doc.text(`Currency: ${currency ?? 'Base Currency'}`, 14, 38)
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 44)
+      
+      // Table with autoTable
+      autoTable(doc, {
+        startY: 52,
+        head: [['Account Code', 'Account Name', 'Type', 'Debit', 'Credit']],
+        body: data.accounts.map((a: any) => [
+          a.accountCode,
+          a.accountName,
+          a.accountType,
+          a.debit.toFixed(2),
+          a.credit.toFixed(2),
+        ]),
+        foot: [['', 'TOTAL', '', data.totals.debit.toFixed(2), data.totals.credit.toFixed(2)]],
+        theme: 'striped',
+        headStyles: { fillColor: [66, 66, 66], textColor: 255 },
+        footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 60 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 30, halign: 'right' },
+          4: { cellWidth: 30, halign: 'right' },
+        },
+      })
+      
+      // Footer
+      const pageCount = (doc as any).internal.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i)
+        doc.setFontSize(8)
+        doc.setTextColor(128)
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        )
+      }
+      
+      // Output as buffer
+      const pdfBuffer = doc.output('arraybuffer')
+      
+      return new NextResponse(pdfBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="trial-balance-${periodId ?? asOfDate ?? 'report'}.pdf"`,
+        },
+      })
     }
 
     return NextResponse.json({ error: 'Invalid format' }, { status: 400 })

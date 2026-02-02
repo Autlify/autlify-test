@@ -1,16 +1,18 @@
 import InfoBar from '@/components/global/infobar'
-import Sidebar from '@/components/sidebar'
+import Sidebar from '@/components/sidebar-01'
+import { LayoutWrapper } from '@/components/sidebar-01/layout-wrapper'
 import Unauthorized from '@/components/unauthorized'
 import {
-  getAuthUserDetails,
   getNotificationAndUser,
   verifyAndAcceptInvitation,
-  hasPermission,
 } from '@/lib/queries'
+import { hasPermission } from '@/lib/features/iam/authz/permissions'
 import { auth } from '@/auth'
-import { Role } from '@/generated/prisma/client'
 import { redirect } from 'next/navigation'
 import React from 'react'
+import BlurPage from '@/components/global/blur-page'
+import { headers } from 'next/headers';
+
 
 type Props = {
   children: React.ReactNode
@@ -20,6 +22,9 @@ type Props = {
 const SubaccountLayout = async ({ children, params }: Props) => {
   const { subaccountId } = await params
   const agencyId = await verifyAndAcceptInvitation()
+  const pathname = (await headers()).get('x-pathname') || '';
+  const hideInfobar = pathname.includes('/funnels/') && pathname.includes('/editor')
+
   if (!agencyId) return <Unauthorized />
   const session = await auth()
   if (!session?.user) {
@@ -29,7 +34,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
   let notifications: any = []
 
   // Check if user has subaccount access permission
-  const hasSubaccountAccess = await hasPermission('subaccount.account.read')
+  const hasSubaccountAccess = await hasPermission('core.subaccount.account.read')
 
   if (!hasSubaccountAccess) {
     return <Unauthorized />
@@ -51,18 +56,22 @@ const SubaccountLayout = async ({ children, params }: Props) => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <Sidebar id={subaccountId} type="subaccount" />
+      <LayoutWrapper
+        sidebar={<Sidebar id={subaccountId} type="subaccount" />}
+        infobar={
+          hideInfobar ? null :
+          <InfoBar
+            notifications={notifications}
+            canFilterBySubAccount={canViewAllNotifications}
+            subAccountId={subaccountId}
+          />
+        }
+      >
+        <BlurPage>{children}</BlurPage>
+      </LayoutWrapper>
 
-      <div className="md:pl-[300px]">
-        <InfoBar
-          notifications={notifications}
-          canFilterBySubAccount={canViewAllNotifications}
-          subAccountId={subaccountId}
-        />
-        <div className="relative">{children}</div>
-      </div>
     </div>
   )
-} 
+}
 
 export default SubaccountLayout

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { hasAgencyPermission } from '@/lib/features/iam/authz/permissions';
 import { redirect } from 'next/navigation';
+import PageTitle from '@/components/global/page-title';
+import Unauthorized from '../../../../../../components/unauthorized';
 
 export default async function GeneralLedgerLayout({
   children,
@@ -22,16 +24,30 @@ export default async function GeneralLedgerLayout({
   // Check permissions for tabs
   const [canViewCOA, canViewJournal, canViewPeriods, canViewReports, canViewSettings] =
     await Promise.all([
-        hasAgencyPermission(agencyId, 'core.agency.account.read'),
-        hasAgencyPermission(agencyId, 'core.agency.account.read'), // to replace with fi.general-ledger.coa.view
-        hasAgencyPermission(agencyId, 'core.agency.account.read'), // to replace with fi.general-ledger.journal.view
-        hasAgencyPermission(agencyId, 'core.agency.account.read'), // to replace with fi.general-ledger.periods.view
-        hasAgencyPermission(agencyId, 'core.agency.account.read'), // to replace with fi.general-ledger.reports.view
-        hasAgencyPermission(agencyId, 'core.agency.account.read'), // to replace with fi.general-ledger.settings.view
+      hasAgencyPermission(agencyId, 'fi.master_data.accounts.view'),
+      hasAgencyPermission(agencyId, 'fi.general_ledger.journal_entries.read'),
+      hasAgencyPermission(agencyId, 'fi.configuration.fiscal_years.view'),
+      hasAgencyPermission(agencyId, 'fi.general_ledger.reports.view'),
+      hasAgencyPermission(agencyId, 'fi.general_ledger.settings.view'),
     ]);
+
+  if (
+    !canViewCOA &&
+    !canViewJournal &&
+    !canViewPeriods &&
+    !canViewReports &&
+    !canViewSettings
+  ) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Unauthorized />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
+      <PageTitle title="General Ledger" description="" />
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center px-6">
           <Tabs defaultValue="overview" className="w-full">

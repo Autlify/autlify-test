@@ -8,16 +8,17 @@ type Props = {
   apiEndpoint: 'agencyLogo' | 'avatar' | 'subaccountLogo'
   onChange: (url?: string) => void
   value?: string
+  className?: string
 }
 
-const FileUpload = ({ apiEndpoint, onChange, value }: Props) => {
+const FileUpload = ({ apiEndpoint, onChange, value, className }: Props) => {
   const type = value?.split('.').pop()
 
   if (value) {
     return (
       <div className="flex flex-col justify-center items-center">
         {type !== 'pdf' ? (
-          <div className="relative w-40 h-40">
+          <div className={`relative ${className} w-40 h-40`}>
             <Image
               src={value}
               alt="uploaded image"

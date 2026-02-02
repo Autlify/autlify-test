@@ -14,21 +14,26 @@ type Props = {
   subheading: string
   children: React.ReactNode
   defaultOpen?: boolean
+  className?: string
 }
 
-const CustomModal = ({ children, defaultOpen, subheading, title }: Props) => {
+const CustomModal = ({ children, defaultOpen, subheading, title, className }: Props) => {
   const { isOpen, setClose } = useModal()
   return (
     <Dialog
       open={isOpen || defaultOpen}
       onOpenChange={setClose}
     >
-      <DialogContent className="overflow-scroll md:max-h-[700px] md:h-fit h-screen bg-card">
+      <DialogContent className={`md:max-h-[800px] md:h-fit h-screen bg-card ${className}`}>
         <DialogHeader className="pt-8 text-left">
           <DialogTitle className="text-2xl font-bold">{title}</DialogTitle>
           <DialogDescription>{subheading}</DialogDescription>
-          {children}
         </DialogHeader>
+        <div className="overflow-y-auto max-h-[calc(100vh-200px)] md:max-h-[650px] pr-2 overscroll-contain"
+          style={{ scrollbarGutter: 'stable' }}
+        >
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   )

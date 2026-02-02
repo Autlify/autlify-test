@@ -15,13 +15,13 @@ import { resolveEffectiveEntitlements } from '@/lib/features/core/billing/entitl
  * - x-autlify-agency: <agencyId>
  * - x-autlify-subaccount: <subAccountId> (optional)
  * 
- * Permissions: core.billing.entitlements.read
+ * Permissions: core.billing.entitlements.view
  */
 export async function GET(req: NextRequest) {
   try {
     const { scope } = await requireRequestAccess({
       req,
-      requiredKeys: ['core.billing.entitlements.read'],
+      requiredKeys: ['core.billing.entitlements.view'],
       requireActiveSubscription: true,
     })
 

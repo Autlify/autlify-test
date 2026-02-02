@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -10,139 +10,146 @@ import { Loader2, CheckCircle2, XCircle, Mail } from 'lucide-react'
 import Image from 'next/image'
 import { useSession, signIn } from 'next-auth/react'
 import { cn } from '@/lib/utils'
+import { getVerificationToken } from '../../../../../lib/queries'
 
-export default function VerifyEmailPage() {
+// Password reset scopes should not trigger redirect when authenticated
+const RESET_SCOPES = ['reset-request', 'reset-password']
+
+// Error messages for URL error params
+const ERROR_MESSAGES: Record<string, string> = {
+  'expired-token': 'Your verification link has expired. Please request a new one.',
+  'invalid-token': 'Invalid verification link. Please request a new one.',
+  'missing-token': 'Verification link is incomplete. Please request a new one.',
+  'server-error': 'An error occurred. Please try again.',
+}
+
+const Page = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
+  
+  // URL params
   const email = searchParams.get('email')
   const error = searchParams.get('error')
   const verified = searchParams.get('verified')
   const autoLoginToken = searchParams.get('token')
-  
+  const urlScope = searchParams.get('scope')
+
+  // State
   const [isResending, setIsResending] = useState(false)
   const [isAutoLoggingIn, setIsAutoLoggingIn] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
   const [resendError, setResendError] = useState('')
   const [cooldownSeconds, setCooldownSeconds] = useState(0)
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false)
   const autoLoginAttempted = useRef(false)
 
-  // Handle auto-login after verification
+  // Derive if this is a password reset flow from URL scope
+  const isResetFlow = urlScope ? RESET_SCOPES.includes(urlScope) : false
+
+  // Set initial error from URL params
   useEffect(() => {
-    if (verified === 'true' && autoLoginToken && email && !autoLoginAttempted.current) {
-      autoLoginAttempted.current = true
-      const performAutoLogin = async () => {
-        setIsAutoLoggingIn(true)
-        try {
-          // Sign out first if there's an existing session to force fresh JWT
-          if (session) {
-            await fetch('/api/auth/signout', { method: 'POST' })
-            await new Promise(resolve => setTimeout(resolve, 500))
-          }
-          
-          // Use authN token directly as password
-          const result = await signIn('credentials', {
-            email,
-            password: autoLoginToken, // authN token (hex format)
-            redirect: false,
-          })
-
-          if (result?.ok) {
-            // Force full page reload to get fresh session
-            window.location.href = '/agency'
-            return
-          } else {
-            setResendError('Verification successful! Please sign in to continue.')
-          }
-        } catch (error) {
-          setResendError('Verification successful! Please sign in to continue.')
-        } finally {
-          setIsAutoLoggingIn(false)
-        }
-      }
-
-      performAutoLogin()
+    if (error && ERROR_MESSAGES[error]) {
+      setResendError(ERROR_MESSAGES[error])
     }
-  }, [verified, autoLoginToken, email, session])
+  }, [error])
 
-  // Redirect if already verified and logged in
+  // Redirect if already verified and logged in (skip for password reset flows)
   useEffect(() => {
-    if (status === 'authenticated' && session?.user?.emailVerified) {
+    if (!isResetFlow && status === 'authenticated' && session?.user?.emailVerified) {
       router.push('/agency')
     }
-  }, [status, session, router])
+  }, [status, session?.user?.emailVerified, router, isResetFlow])
 
-  // Check cooldown status on mount
+  // Auto-login after email verification
   useEffect(() => {
-    const checkCooldown = async () => {
-      const emailToCheck = email || session?.user?.email
-      if (!emailToCheck) return
+    if (verified !== 'true' || !autoLoginToken || !email || autoLoginAttempted.current) return
+    
+    const performAutoLogin = async () => {
+      // First check if token is authN type
+      const tokenData = await getVerificationToken(autoLoginToken)
+      if (tokenData?.scope !== 'authN') return
 
+      autoLoginAttempted.current = true
+      setIsAutoLoggingIn(true)
+      
+      try {
+        // Sign out first if there's an existing session to force fresh JWT
+        if (session) {
+          await fetch('/api/auth/signout', { method: 'POST' })
+          await new Promise(resolve => setTimeout(resolve, 500))
+        }
+
+        const result = await signIn('credentials', {
+          email,
+          password: autoLoginToken,
+          redirect: false,
+        })
+
+        if (result?.ok) {
+          window.location.href = '/agency'
+          return
+        }
+        setResendError('Verification successful! Please sign in to continue.')
+      } catch {
+        setResendError('Verification successful! Please sign in to continue.')
+      } finally {
+        setIsAutoLoggingIn(false)
+      }
+    }
+
+    performAutoLogin()
+  }, [verified, autoLoginToken, email, session])
+
+  // Check cooldown on mount (only for email verification, not password reset)
+  useEffect(() => {
+    if (isResetFlow) return
+
+    const emailToCheck = email || session?.user?.email
+    if (!emailToCheck) return
+
+    const checkCooldown = async () => {
       try {
         const response = await fetch(
-          `/api/auth/register/verify?email=${encodeURIComponent(emailToCheck)}`
+          `/api/auth/token/verify?email=${encodeURIComponent(emailToCheck)}`
         )
         const data = await response.json()
-        
+
         if (data.cooldownActive && data.remainingSeconds > 0) {
           setCooldownSeconds(data.remainingSeconds)
-          setIsButtonDisabled(true)
         }
-      } catch (error) {
-        console.error('Failed to check cooldown:', error)
+      } catch (err) {
+        console.error('Failed to check cooldown:', err)
       }
     }
 
     checkCooldown()
-  }, [email, session?.user?.email])
-
-  // Show error from URL params
-  useEffect(() => {
-    const errorMessages: Record<string, string> = {
-      'expired-token': 'Your verification link has expired. Please request a new one.',
-      'invalid-token': 'Invalid verification link. Please request a new one.',
-      'missing-token': 'Verification link is incomplete. Please request a new one.',
-      'server-error': 'An error occurred. Please try again.',
-    }
-
-    if (error && errorMessages[error]) {
-      setResendError(errorMessages[error])
-    }
-  }, [error])
+  }, [email, session?.user?.email, isResetFlow])
 
   // Cooldown timer
   useEffect(() => {
-    if (cooldownSeconds > 0) {
-      const timer = setInterval(() => {
-        setCooldownSeconds((prev) => {
-          if (prev <= 1) {
-            setIsButtonDisabled(false)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
+    if (cooldownSeconds <= 0) return
 
-      return () => clearInterval(timer)
-    }
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => Math.max(0, prev - 1))
+    }, 1000)
+
+    return () => clearInterval(timer)
   }, [cooldownSeconds])
 
-  const handleResendEmail = async () => {
-    setIsResending(true)
-    setResendMessage('')
-    setResendError('')
-
+  const handleResendEmail = useCallback(async () => {
     const emailToUse = email || session?.user?.email
 
     if (!emailToUse) {
       setResendError('Email address not found. Please sign up again.')
-      setIsResending(false)
       return
     }
 
+    setIsResending(true)
+    setResendMessage('')
+    setResendError('')
+
     try {
-      const response = await fetch('/api/auth/register/verify', {
+      const response = await fetch('/api/auth/token/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailToUse }),
@@ -153,7 +160,6 @@ export default function VerifyEmailPage() {
       if (!response.ok) {
         if (response.status === 429) {
           setCooldownSeconds(data.remainingSeconds || 300)
-          setIsButtonDisabled(true)
           throw new Error(data.error || 'Please wait before requesting again.')
         }
         throw new Error(data.error || 'Failed to resend verification email')
@@ -162,16 +168,19 @@ export default function VerifyEmailPage() {
       setResendMessage(data.message || 'Verification email sent! Please check your inbox.')
       if (data.cooldownSeconds) {
         setCooldownSeconds(data.cooldownSeconds)
-        setIsButtonDisabled(true)
       }
-    } catch (error: any) {
-      setResendError(error.message || 'Failed to resend email. Please try again.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to resend email. Please try again.'
+      setResendError(message)
     } finally {
       setIsResending(false)
     }
-  }
+  }, [email, session?.user?.email])
 
-  // Show auto-login loading state
+  // Derived state
+  const isButtonDisabled = isResending || cooldownSeconds > 0
+
+  // Auto-login loading state
   if (isAutoLoggingIn) {
     return (
       <div className="w-full flex min-h-screen items-center justify-center p-4">
@@ -192,10 +201,10 @@ export default function VerifyEmailPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <Image 
-              src="/assets/autlify-logo.svg" 
-              alt="Autlify Logo" 
-              width={40} 
+            <Image
+              src="/assets/autlify-logo.svg"
+              alt="Autlify Logo"
+              width={40}
               height={40}
               style={{ height: 'auto' }}
             />
@@ -211,7 +220,7 @@ export default function VerifyEmailPage() {
             We've sent a verification link to your email address
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {email && (
             <div className="p-3 bg-muted rounded-lg text-center">
@@ -244,18 +253,20 @@ export default function VerifyEmailPage() {
           <Button
             onClick={handleResendEmail}
             variant="outline"
-            className={cn(`w-full`,
+            className={cn(
+              'w-full',
               !cooldownSeconds && 'cursor-pointer hover:bg-primary/10',
-              cooldownSeconds && 'disabled:!pointer-events-auto disabled:!cursor-not-allowed',
+              cooldownSeconds > 0 && 'disabled:!pointer-events-auto disabled:!cursor-not-allowed'
             )}
-
-            disabled={isResending || isButtonDisabled}
+            disabled={isButtonDisabled}
           >
             {isResending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {!isResending && isButtonDisabled && cooldownSeconds > 0 && (
-              <>Resend in {Math.floor(cooldownSeconds / 60)} minute{Math.floor(cooldownSeconds / 60) !== 1 ? 's' : ''} {cooldownSeconds % 60} second{cooldownSeconds % 60 !== 1 ? 's' : ''}</>
+            {!isResending && cooldownSeconds > 0 && (
+              <>
+                Resend in {Math.floor(cooldownSeconds / 60)}m {cooldownSeconds % 60}s
+              </>
             )}
-            {!isResending && !isButtonDisabled && 'Resend Verification Email'}
+            {!isResending && cooldownSeconds === 0 && 'Resend Verification Email'}
           </Button>
         </CardContent>
 
@@ -271,3 +282,5 @@ export default function VerifyEmailPage() {
     </div>
   )
 }
+
+export default Page

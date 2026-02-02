@@ -63,7 +63,7 @@ export default function FunnelsDataTable<TData, TValue>({
           />
         </div>
         <Button
-          className="flex- gap-2"
+          className="flex gap-2"
           onClick={() => {
             if (modalChildren)
               setOpen(
