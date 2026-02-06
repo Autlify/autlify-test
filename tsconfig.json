@@ -1,0 +1,91 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@autlify/billing-sdk": [
+        "./packages/billing-sdk/src/index.ts"
+      ],
+      "@autlify/billing-sdk/*": [
+        "./packages/billing-sdk/src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/app/(main)/subaccount/[subaccountId]/launchpad",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/**",
+    "generated",
+    "**/generated/**",
+    "dist",
+    "**/dist/**",
+    "build",
+    "**/build/**",
+    ".next",
+    "**/.next/**",
+    ".turbo",
+    "**/.turbo/**",
+    "coverage",
+    "**/coverage/**",
+    "*.test.ts",
+    "*.test.tsx",
+    "*.spec.ts",
+    "*.spec.tsx",
+    "**/__tests__/**",
+    "**/packages/database/src/generated/**",
+    "packages/sdk/**",
+    "packages/autlify-mcp/**",
+    "patches/ai-agent-builder",
+    "**/ai-agent-builder/**",
+    "**/docs/backup/**"
+  ],
+  "watchOptions": {
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/.turbo",
+      "**/.next",
+      "**/dist",
+      "**/build",
+      "**/coverage",
+      "**/ai-agent-builder",
+      "**/docs/backup/*"
+    ],
+    "excludeFiles": [
+      "**/node_modules/**/*.ts",
+      "**/.turbo/**/*",
+      "**/.next/**/*",
+      "**/ai-agent-builder/**/*",
+      "**/docs/backup/**/*"
+    ]
+  }
+}

@@ -1,0 +1,3298 @@
+@import "tailwindcss";
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant premium (&:is(.premium *));
+@custom-variant glass (&:is(.glass *));
+
+html,
+body {
+  height: 100vh;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 
+R (0)
+G (110)
+B (255 */
+
+@layer base {
+  :root {
+    /* Core semantic tokens - Light theme */
+
+    --ease-in-quad: cubic-bezier(.55, .085, .68, .53);
+    --ease-in-cubic: cubic-bezier(.55, .055, .675, .19);
+    --ease-in-quart: cubic-bezier(.895, .03, .685, .22);
+    --ease-in-quint: cubic-bezier(.755, .05, .855, .06);
+    --ease-in-expo: cubic-bezier(.95, .05, .795, .035);
+    --ease-in-circ: cubic-bezier(.6, .04, .98, .335);
+    --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
+    --ease-out-cubic: cubic-bezier(.215, .61, .355, 1);
+    --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+    --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
+    --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+    --ease-out-circ: cubic-bezier(.075, .82, .165, 1);
+    --ease-in-out-quad: cubic-bezier(.455, .03, .515, .955);
+    --ease-in-out-cubic: cubic-bezier(.645, .045, .355, 1);
+    --ease-in-out-quart: cubic-bezier(.77, 0, .175, 1);
+    --ease-in-out-quint: cubic-bezier(.86, 0, .07, 1);
+    --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
+    --ease-in-out-circ: cubic-bezier(.785, .135, .15, .86);
+
+    /* Shadow System (Linear-inspired) */
+    --shadow-tiny: 0px 1px 1px 0px rgb(0 0 0 / 0.09);
+    --shadow-sm: 0px 1px 4px -1px rgb(0 0 0 / 0.09);
+    --shadow-md: 0px 3px 12px rgb(0 0 0 / 0.09);
+    --shadow-lg: 0px 7px 24px rgb(0 0 0 / 0.06);
+    --shadow-xl: 0px -1px 1px 0px rgb(0 0 0 / 0.11) inset,
+      0px 8px 2px 0px transparent,
+      0px 5px 2px 0px rgb(0 0 0 / 0.01),
+      0px 3px 2px 0px rgb(0 0 0 / 0.04),
+      0px 1px 1px 0px rgb(0 0 0 / 0.07),
+      0px 0px 1px 0px rgb(0 0 0 / 0.08);
+    /* Background Gradients */
+
+    /* Button States - Primary */
+    --button-primary-bg: 213.65 100% 50%;
+    /* #0070ff */
+    --button-primary-bg-hover: 214 100% 44%;
+    /* Darker on hover */
+    --button-primary-bg-active: 214 100% 40%;
+    /* Even darker on active */
+    --button-primary-bg-disabled: 214 30% 85%;
+    /* Muted disabled */
+
+    /* Note: --button-primary-bg-gradient defined via brand-gradient alias below */
+    --button-primary-bg-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+    /* Matches bg */
+    --button-primary-border-hover: 240 100% 44%;
+    --button-primary-text: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-hover: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-disabled: 240 20% 60%;
+    /* Muted text */
+
+    /* Button States - Secondary */
+    --button-secondary-bg: 300 3% 93.3%;
+    /* #eeedef - Subtle bg */
+    --button-secondary-bg-hover: 300 3% 89%;
+    /* Darker on hover */
+    --button-secondary-bg-active: 300 3% 85%;
+    /* Even darker */
+    --button-secondary-bg-disabled: 0 0% 96%;
+    /* Very light disabled */
+    --button-secondary-bg-gradient: linear-gradient(to bottom right, #e9e8ea, #dcdbdd);
+    --button-secondary-bg-gradient-hover: linear-gradient(to bottom right, #e4e2e4, #d4d4d6);
+    --button-secondary-border: 300 3% 86.3%;
+    /* #dcdbdd */
+    --button-secondary-border-hover: 240 2% 83.3%;
+    /* #d4d4d6 */
+    --button-secondary-text: 210 13% 16.9%;
+    /* #282a2f - Primary text */
+    --button-secondary-text-hover: 210 13% 16.9%;
+    --button-secondary-text-disabled: 270 3% 43.5%;
+    /* Tertiary text */
+    /* Semantic Color Scales - Hierarchical Naming */
+    /* Red - Error/Destructive */
+    --red-header: var(--color-red-900);
+    --red-subheader: var(--color-red-800);
+    --red-header-gradient: linear-gradient(90deg, var(--color-red-900), var(--color-red-500));
+    --red-fg-primary: var(--color-red-700);
+    --red-fg-secondary: var(--color-red-600);
+    --red-fg-tertiary: var(--color-red-500);
+    --red-bg-subtle: var(--color-red-50);
+    --red-bg-muted: var(--color-red-100);
+    --red-bg-solid: var(--color-red-500);
+    --red-bg-solid-hover: var(--color-red-600);
+    --red-border: var(--color-red-300);
+    --red-border-hover: var(--color-red-400);
+
+    /* Blue - Info/Primary */
+    --blue-header: var(--color-blue-900);
+    --blue-subheader: var(--color-blue-800);
+    --blue-header-gradient: linear-gradient(90deg, var(--color-blue-900), var(--color-blue-500));
+    --blue-fg-secondary: var(--color-blue-600);
+    --blue-fg-tertiary: var(--color-blue-500);
+    --blue-bg-subtle: var(--color-blue-50);
+    --blue-bg-muted: var(--color-blue-100);
+    --blue-bg-solid: var(--color-blue-500);
+    --blue-bg-solid-hover: var(--color-blue-600);
+    --blue-border: var(--color-blue-300);
+    --blue-border-hover: var(--color-blue-400);
+
+    /* Green - Success */
+    --green-header: var(--color-green-900);
+    --green-subheader: var(--color-green-800);
+    --green-header-gradient: linear-gradient(90deg, var(--color-green-900), var(--color-green-500));
+    --green-fg-primary: var(--color-green-700);
+    --green-fg-secondary: var(--color-green-600);
+    --green-fg-tertiary: var(--color-green-500);
+    --green-bg-subtle: var(--color-green-50);
+    --green-bg-muted: var(--color-green-100);
+    --green-bg-solid: var(--color-green-500);
+    --green-bg-solid-hover: var(--color-green-600);
+    --green-border: var(--color-green-300);
+    --green-border-hover: var(--color-green-400);
+
+    /* Amber - Warning */
+    --amber-header: var(--color-amber-900);
+    --amber-subheader: var(--color-amber-800);
+    --amber-header-gradient: linear-gradient(90deg, var(--color-amber-900), var(--color-amber-500));
+    --amber-fg-primary: var(--color-amber-700);
+    --amber-fg-secondary: var(--color-amber-600);
+    --amber-fg-tertiary: var(--color-amber-500);
+    --amber-bg-subtle: var(--color-amber-50);
+    --amber-bg-muted: var(--color-amber-100);
+    --amber-bg-solid: var(--color-amber-500);
+    --amber-bg-solid-hover: var(--color-amber-600);
+    --amber-border: var(--color-amber-300);
+    --amber-border-hover: var(--color-amber-400);
+
+    /* Zinc - Neutral */
+    --zinc-header: var(--color-zinc-900);
+    --zinc-subheader: var(--color-zinc-800);
+    --zinc-header-gradient: linear-gradient(90deg, var(--color-zinc-900), var(--color-zinc-500));
+    --zinc-fg-primary: var(--color-zinc-700);
+    --zinc-fg-secondary: var(--color-zinc-600);
+    --zinc-fg-tertiary: var(--color-zinc-500);
+    --zinc-bg-subtle: var(--color-zinc-50);
+    --zinc-bg-muted: var(--color-zinc-100);
+    --zinc-bg-solid: var(--color-zinc-500);
+    --zinc-bg-solid-hover: var(--color-zinc-600);
+    --zinc-border: var(--color-zinc-300);
+    --zinc-border-hover: var(--color-zinc-400);
+
+    /* Neutral */
+    --neutral-header: var(--color-neutral-900);
+    --neutral-subheader: var(--color-neutral-800);
+    --neutral-header-gradient: linear-gradient(90deg, var(--color-neutral-900), var(--color-neutral-500));
+    --neutral-fg-primary: var(--color-neutral-700);
+    --neutral-fg-secondary: var(--color-neutral-600);
+    --neutral-fg-tertiary: var(--color-neutral-500);
+    --neutral-bg-subtle: var(--color-neutral-50);
+    --neutral-bg-muted: var(--color-neutral-100);
+    --neutral-bg-solid: var(--color-neutral-500);
+    --neutral-bg-solid-hover: var(--color-neutral-600);
+    --neutral-border: var(--color-neutral-300);
+    --neutral-border-hover: var(--color-neutral-400);
+
+    --radius: 0.5rem;
+
+    /* ---------------------------------------------------------
+     Brand gradient set (Blue) + component aliases
+     --------------------------------------------------------- */
+    --brand-bg: 213.65 100% 50%;
+    /* #0070ff - Main brand */
+    --brand-bg-hover: 214 100% 60%;
+    /* Lighter */
+    --brand-bg-active: 214 100% 45%;
+    /* Darker */
+    --brand-border: 213.65 100% 50%;
+    /* #0070ff */
+    --brand-border-hover: 214 100% 60%;
+    --brand-text: 0 0% 100%;
+    /* #fff */
+    --brand-gradient: linear-gradient(135deg, color-mix(in lch, #60A5FA 0%, #1D4ED8 40%), color-mix(in lch, #2E8CFF 0%, #0080ff 80%), #1D4ED8 100%);
+    --brand-gradient-hover: linear-gradient(135deg, color-mix(in lch, #1758D6 0%, #2D8CFF 100%), color-mix(in lch, #0050ef 0%, #0080ff 100%));
+    --brand-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+    --brand-gradient-border: linear-gradient(to left, color-mix(in lch, #6FE3FF 0%, #2D8CFF 100%), color-mix(in lch, #2D8CFF 0%, #0050EF 100%), color-mix(in lch, #0050EF 0%, #6FE3FF 100%));
+
+    /* Button - brand aliases (maps to existing primary where present) */
+    --button-brand-bg: var(--button-primary-bg);
+    --button-brand-bg-hover: var(--button-primary-bg-hover);
+    --button-brand-bg-active: var(--button-primary-bg-active);
+    --button-brand-bg-disabled: var(--button-primary-bg-disabled);
+
+    --button-brand-border: var(--button-primary-border);
+    --button-brand-border-hover: var(--button-primary-border-hover);
+
+    --button-brand-text: var(--button-primary-text);
+    --button-brand-text-hover: var(--button-primary-text-hover);
+    --button-brand-text-disabled: var(--button-primary-text-disabled);
+
+    --button-brand-bg-gradient: var(--brand-gradient);
+    --button-brand-bg-gradient-hover: var(--brand-gradient-hover);
+    --button-brand-border-gradient: var(--brand-gradient-border);
+
+    /* Primary button gradients (aligned with brand) */
+    --button-primary-bg-gradient: var(--brand-gradient);
+    --button-primary-bg-gradient-hover: var(--brand-gradient-hover);
+
+    /* Glass effect defaults (for .glass component) */
+    --glass-bg: 0 0% 100% / 0.55;
+    --glass-border: 0 0% 0% / 0.08;
+    --glass-blur: 16px;
+
+  }
+
+  .dark {
+    /* Core semantic tokens - Dark theme */
+    --gradient: linear-gradient(to top left, #007adf, #00ecbc);
+
+    --background: 220 65% 3.52%;
+    --foreground: 220 10% 97.2%;
+
+    --muted: 220 50% 13.2%;
+    --muted-foreground: 220 10% 54.4%;
+
+    --popover: 220 45% 5.72%;
+    --popover-foreground: 220 10% 97.2%;
+
+    --card: 220 45% 5.72%;
+    --card-foreground: 220 10% 97.2%;
+
+    --border: 220 50% 13.2%;
+    --input: 220 50% 13.2%;
+
+    --primary: 220 100% 44%;
+    --primary-foreground: 220 10% 97.2%;
+
+    --secondary: 220 50% 13.2%;
+    --secondary-foreground: 220 10% 97.2%;
+
+    --accent: 220 50% 13.2%;
+    --accent-foreground: 220 10% 97.2%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 220 10% 97.2%;
+
+    --ring: 220 100% 44%;
+
+    --success-bg: 142 47.3% 52.9%;
+    --success-text: 142 47.3% 9.8%;
+    --warning-bg: 42 100% 57%;
+    --warning-text: 42 100% 11.8%;
+    --error-bg: 0 84.2% 60.2%;
+    --error-text: 0 84.2% 9.8%;
+
+    --sidebar: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* ============================================
+       LINEAR-INSPIRED SEMANTIC DESIGN TOKENS
+       Dark theme with inverted hierarchy
+       ============================================ */
+
+    /* Background Hierarchy (Visual Depth) */
+    --bg-primary: 222 20% 3.5%;
+    /* #08090a - Main surface */
+    --bg-secondary: 220 12% 11%;
+    /* #1c1c1f - Elevated */
+    --bg-tertiary: 220 8% 13.7%;
+    /* #232326 - More elevated */
+    --bg-quaternary: 220 10% 15.7%;
+    /* #28282c - Highest */
+    --bg-quinary: 0 0% 15.7%;
+    /* #282828 - Accent bg */
+    --bg-translucent: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --bg-tint: 220 12% 8%;
+    /* #141516 - Subtle tint */
+
+    /* Visual depth levels for layered UIs */
+    --bg-level-0: 222 20% 3.5%;
+    /* #08090a - Base layer */
+    --bg-level-1: 222 20% 5.9%;
+    /* #0f1011 - Layer 1 */
+    --bg-level-2: 220 12% 8%;
+    /* #141516 - Layer 2 */
+    --bg-level-3: 220 10% 10%;
+    /* #191a1b - Layer 3 */
+
+    /* Foreground/Text Hierarchy */
+    --fg-primary: 210 10% 97%;
+    /* #f7f8f8 - Primary text */
+    --fg-secondary: 220 18% 81.6%;
+    /* #d0d6e0 - Secondary text */
+    --fg-tertiary: 220 10% 58%;
+    /* #8a8f98 - Tertiary text */
+    --fg-quaternary: 225 6% 39.6%;
+    /* #62666d - Disabled/placeholder */
+
+    /* Border/Line Hierarchy */
+    --line-primary: 225 8% 21.6%;
+    /* #37393a - Default border */
+    --line-secondary: 210 3% 12.5%;
+    /* #202122 - Subtle border */
+    --line-tertiary: 210 5% 9.6%;
+    /* #18191a - Very subtle */
+    --line-quaternary: 210 3% 8%;
+    /* #141515 - Barely visible */
+    --line-tint: 220 12% 8%;
+    /* #141516 - Tinted line */
+
+    --border-primary: 220 15% 14%;
+    /* #23252a - Default */
+    --border-secondary: 225 9% 20.4%;
+    /* #34343a - Subtle */
+    --border-tertiary: 225 7% 26.3%;
+    /* #3e3e44 - Emphasized */
+    --border-translucent: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+
+    /* Interactive States - Accent/Link */
+    --accent-base: 213.65 100% 50%;
+    --accent-hover: 209.09 100% 54.71%;
+    --accent-tint: 209.36 100% 9.22%;
+
+    --link-primary: 209.09 100% 54.71%;
+    /* #0070ff */
+    --link-hover: 0 0% 100%;
+    /* White on hover */
+
+    /* Brand Colors - Unified Linear Blue */
+    --brand-bg: 213.65 100% 50%;
+    /* #0070ff - Main brand */
+    --brand-bg-hover: 214 100% 60%;
+    /* Lighter */
+    --brand-bg-active: 214 100% 45%;
+    /* Darker */
+    --brand-border: 213.65 100% 50%;
+    /* #0070ff */
+    --brand-border-hover: 214 100% 60%;
+    --brand-text: 0 0% 100%;
+    /* #fff */
+    --brand-gradient: linear-gradient(135deg, color-mix(in lch, #60A5FA 0%, #1D4ED8 40%), color-mix(in lch, #2E8CFF 0%, #0080ff 80%), #1D4ED8 100%);
+    --brand-gradient-hover: linear-gradient(135deg, color-mix(in lch, #1758D6 0%, #2D8CFF 100%), color-mix(in lch, #0050ef 0%, #0080ff 100%));
+    --brand-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+    --brand-gradient-border: linear-gradient(to left, color-mix(in lch, #6FE3FF 0%, #2D8CFF 100%), color-mix(in lch, #2D8CFF 0%, #0050EF 100%), color-mix(in lch, #0050EF 0%, #6FE3FF 100%));
+
+    /* Selection */
+    --selection-text: 0 0% 100%;
+    --selection-bg: 214 100% 50% / 0.9;
+    /* Brand blue with transparency */
+    --selection-dim: 214 100% 50% / 0.2;
+    /* Dimmed selection */
+
+    /* Shadow System */
+    --shadow-tiny: 0px 2px 4px rgb(0 0 0 / 0.1);
+    --shadow-sm: 0px 2px 4px rgb(0 0 0 / 0.1);
+    --shadow-md: 0px 4px 24px rgb(0 0 0 / 0.2);
+    --shadow-lg: 0px 7px 32px rgb(0 0 0 / 0.35);
+    --shadow-xl: 0px 8px 2px 0px transparent,
+      0px 5px 2px 0px rgb(0 0 0 / 0.01),
+      0px 3px 2px 0px rgb(0 0 0 / 0.04),
+      0px 1px 1px 0px rgb(0 0 0 / 0.07),
+      0px 0px 1px 0px rgb(0 0 0 / 0.08);
+
+    /* Background Gradients */
+    --bg-primary-gradient: linear-gradient(135deg, #08090a 0%, #0f1011 100%);
+    --bg-secondary-gradient: linear-gradient(135deg, #1a1a1d 0%, #1f1f22 100%);
+    --bg-tertiary-gradient: linear-gradient(135deg, #20202a 0%, #25252a 100%);
+
+    /* Button States - Primary */
+    --button-primary-bg: 213.65 100% 50%;
+    /* #0070ff */
+    --button-primary-bg-hover: 214 100% 60%;
+    /* Lighter on hover */
+    --button-primary-bg-active: 214 100% 45%;
+    /* Darker on active */
+    --button-primary-bg-disabled: 214 30% 25%;
+    /* Muted disabled */
+
+    --button-primary-bg-gradient: linear-gradient(135deg, color-mix(in lch, #60A5FA 0%, #1D4ED8 40%), color-mix(in lch, #2E8CFF 0%, #0080ff 80%), #1D4ED8 100%);
+    --button-primary-bg-gradient-hover: linear-gradient(135deg, color-mix(in lch, #1758D6 0%, #2D8CFF 100%), color-mix(in lch, #0050ef 0%, #0080ff 100%));
+    --button-primary-bg-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+
+    --button-primary-border: 213.65 100% 50%;
+    /* Matches bg */
+    --button-primary-border-hover: 214 100% 60%;
+    --button-primary-text: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-hover: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-disabled: 220 10% 40%;
+    /* Muted text */
+
+    /* Button States - Secondary */
+    --button-secondary-bg: 220 10% 16%;
+    /* #28282c - Elevated bg */
+    --button-secondary-bg-hover: 220 10% 20%;
+    /* Lighter on hover */
+    --button-secondary-bg-active: 220 10% 24%;
+    /* Even lighter */
+    --button-secondary-bg-disabled: 220 10% 10%;
+    /* Darker disabled */
+    --button-secondary-bg-gradient: linear-gradient(to bottom right, #34343a, #23252a);
+    --button-secondary-bg-gradient-hover: linear-gradient(to bottom right, #3e3e44, #28282c);
+    --button-secondary-border: 220 15% 14%;
+    /* #23252a */
+    --button-secondary-border-hover: 225 9% 20.4%;
+    /* #34343a */
+    --button-secondary-text: 210 10% 97%;
+    /* #f7f8f8 */
+    --button-secondary-text-hover: 210 10% 97%;
+    --button-secondary-text-disabled: 220 10% 54%;
+    /* Tertiary text */
+
+    /* Semantic Color Scales - Dark theme uses lighter shades */
+    /* Red - Error/Destructive */
+    --red-fg-primary: var(--color-red-300);
+    --red-fg-secondary: var(--color-red-400);
+    --red-fg-tertiary: var(--color-red-500);
+    --red-bg-subtle: var(--color-red-950);
+    --red-bg-muted: var(--color-red-900);
+    --red-bg-solid: var(--color-red-500);
+    --red-bg-solid-hover: var(--color-red-400);
+    --red-border: var(--color-red-700);
+    --red-border-hover: var(--color-red-600);
+
+    /* Blue - Info/Primary */
+    --blue-fg-primary: var(--color-blue-300);
+    --blue-fg-secondary: var(--color-blue-400);
+    --blue-fg-tertiary: var(--color-blue-500);
+    --blue-bg-subtle: var(--color-blue-950);
+    --blue-bg-muted: var(--color-blue-900);
+    --blue-bg-solid: var(--color-blue-500);
+    --blue-bg-solid-hover: var(--color-blue-400);
+    --blue-border: var(--color-blue-700);
+    --blue-border-hover: var(--color-blue-600);
+
+    /* Green - Success */
+    --green-fg-primary: var(--color-green-300);
+    --green-fg-secondary: var(--color-green-400);
+    --green-fg-tertiary: var(--color-green-500);
+    --green-bg-subtle: var(--color-green-950);
+    --green-bg-muted: var(--color-green-900);
+    --green-bg-solid: var(--color-green-500);
+    --green-bg-solid-hover: var(--color-green-400);
+    --green-border: var(--color-green-700);
+    --green-border-hover: var(--color-green-600);
+
+    /* Amber - Warning */
+    --amber-fg-primary: var(--color-amber-300);
+    --amber-fg-secondary: var(--color-amber-400);
+    --amber-fg-tertiary: var(--color-amber-500);
+    --amber-bg-subtle: var(--color-amber-950);
+    --amber-bg-muted: var(--color-amber-900);
+    --amber-bg-solid: var(--color-amber-500);
+    --amber-bg-solid-hover: var(--color-amber-400);
+    --amber-border: var(--color-amber-700);
+    --amber-border-hover: var(--color-amber-600);
+
+    /* Zinc - Neutral */
+    --zinc-fg-primary: var(--color-zinc-300);
+    --zinc-fg-secondary: var(--color-zinc-400);
+    --zinc-fg-tertiary: var(--color-zinc-500);
+    --zinc-bg-subtle: var(--color-zinc-950);
+    --zinc-bg-muted: var(--color-zinc-900);
+    --zinc-bg-solid: var(--color-zinc-500);
+    --zinc-bg-solid-hover: var(--color-zinc-400);
+    --zinc-border: var(--color-zinc-700);
+    --zinc-border-hover: var(--color-zinc-600);
+
+    /* ---------------------------------------------------------
+     Brand gradient set (Blue) + component aliases
+     --------------------------------------------------------- */
+
+    --brand-gradient: linear-gradient(135deg, #60A5FA 0%, #3B82F6 55%, #1D4ED8 100%);
+    --brand-gradient-hover: linear-gradient(135deg, #8BD5FF 0%, #4B9CFF 55%, #1758D6 100%);
+    --brand-gradient-border: linear-gradient(135deg, #6FE3FF 0%, #2D8CFF 45%, #0050EF 100%);
+
+    --brand-bg: 224 76.3% 48%;
+    /* #1D4ED8 */
+    --brand-text: 0 0% 100%;
+
+    --button-brand-bg: var(--button-primary-bg);
+    --button-brand-bg-hover: var(--button-primary-bg-hover);
+    --button-brand-bg-active: var(--button-primary-bg-active);
+    --button-brand-bg-disabled: var(--button-primary-bg-disabled);
+
+    --button-brand-border: var(--button-primary-border);
+    --button-brand-border-hover: var(--button-primary-border-hover);
+
+    --button-brand-text: var(--button-primary-text);
+    --button-brand-text-hover: var(--button-primary-text-hover);
+    --button-brand-text-disabled: var(--button-primary-text-disabled);
+
+    --button-brand-bg-gradient: var(--brand-gradient);
+    --button-brand-bg-gradient-hover: var(--brand-gradient-hover);
+    --button-brand-border-gradient: var(--brand-gradient-border);
+
+    /* Note: --button-primary-bg-gradient defined above with button-primary tokens */
+
+    --glass-bg: 0 0% 100% / 0.06;
+    --glass-border: 0 0% 100% / 0.10;
+    --glass-blur: 16px;
+
+  }
+
+  .light {
+
+    --gradient: linear-gradient(to top left, #007adf, #00ecbc);
+    --gradient-border-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, .17), transparent);
+    --gradient-background: linear-gradient(134deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02), rgba(255, 255, 255, 0) 55%);
+
+    --background: #fff;
+    /* Main background */
+    --foreground: #282a30;
+    /* Linear: #282a30 */
+    --primary: #08090a;
+    --primary-foreground: #f9f8f9;
+    --card: #f4f4f5;
+    --card-foreground: #3c4149;
+    --popover: 240 1% 95.9%;
+    --popover-foreground: 213.6 100% 4.9%;
+    --secondary: 300 2% 97.6%;
+    --secondary-foreground: 213 8% 25.3%;
+    --muted: 300 3% 95.3%;
+    --muted-foreground: #6f6e77;
+    --accent: 300 3% 95.3%;
+    --accent-foreground: #6f6e77;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 1.00 0% 0% / 0.1;
+    --input: 255 0% 0.2% / 15%;
+    --ring: 0 0% 63%;
+
+    --sidebar: 0 0% 99%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 214 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 89%;
+    --sidebar-ring: 0 0% 63%;
+
+    --success-bg: 142 47.3% 52.9%;
+    --success-text: 142 47.3% 9.8%;
+    --warning-bg: 42 100% 57%;
+    --warning-text: 42 100% 11.8%;
+    --error-bg: 0 84.2% 60.2%;
+    --error-text: 0 84.2% 9.8%;
+
+    --header: var(--color-header);
+    /* Header text - strongest contrast */
+    --subheader: var(--color-subheader);
+    /* Subheader text - strong contrast */
+    --header-gradient: linear-gradient(to bottom, var(--color-header) 0%, var(--color-fg-tertiary) 100%);
+
+    /* ============================================
+       LINEAR-INSPIRED SEMANTIC DESIGN TOKENS
+       Based on Linear's hierarchical system
+       ============================================ */
+
+    --bg-primary: 0 0% 100%;
+    /* #fff - Main surface */
+    --bg-secondary: 300 2% 97.6%;
+    /* #f9f8f9 - Elevated */
+    --bg-tertiary: 300 3% 95.3%;
+    /* #f4f2f4 - More elevated */
+    --bg-quaternary: 300 3% 93.3%;
+    /* #eeedef - Highest */
+    --bg-quinary: 300 3% 91.6%;
+    /* #e9e8ea - Accent bg */
+    --bg-translucent: 0 0% 0% / 0.02;
+    /* rgba(0,0,0,.02) */
+    --bg-tint: 240 1% 95.9%;
+    /* #f4f4f5 - Subtle tint */
+    --bg-marketing: 210 100% 95.9%;
+    /* #e6f4ff - Marketing bg */
+
+    /* Visual depth levels for layered UIs */
+    --bg-level-0: 0 0% 100%;
+    /* #fff - Base layer */
+    --bg-level-1: 0 0% 97.3%;
+    /* #f8f8f8 - Layer 1 */
+    --bg-level-2: 0 0% 95.7%;
+    /* #f4f4f4 - Layer 2 */
+    --bg-level-3: 0 0% 94.1%;
+    /* #f0f0f0 - Layer 3 */
+
+    /* Foreground/Text Hierarchy - Linear Design */
+    --fg-primary: 210 11% 17.6%;
+    /* #282a30 - Primary text (Linear) */
+    --fg-secondary: 213 8% 25.3%;
+    /* #3c4149 - Secondary text (Linear) */
+    --fg-tertiary: 270 3% 43.5%;
+    /* #6f6e77 - Tertiary text (Linear) */
+    --fg-quaternary: 277 4% 53.5%;
+    /* #86848d - Disabled/placeholder (Linear) */
+
+    /* Border/Line Hierarchy (Separate from backgrounds!) */
+    --line-primary: 240 2% 83.3%;
+    /* #d4d4d6 - Default border */
+    --line-secondary: 240 2% 91.8%;
+    /* #eaeaeb - Subtle border */
+    --line-tertiary: 0 0% 94.1%;
+    /* #f0f0f0 - Very subtle */
+    --line-quaternary: 0 0% 95.7%;
+    /* #f4f4f4 - Barely visible */
+    --line-tint: 240 1% 95.9%;
+    /* #f4f4f5 - Tinted line */
+
+    --border-primary: 300 3% 91.6%;
+    /* #e9e8ea - Default */
+    --border-secondary: 300 2% 89.4%;
+    /* #e4e2e4 - Subtle */
+    --border-tertiary: 300 3% 86.3%;
+    /* #dcdbdd - Emphasized */
+    --border-translucent: 0 0% 0% / 0.05;
+    /* rgba(0,0,0,.05) */
+
+    --link-primary: 213.65 100% 50%;
+    /* #0070ff - Blue brand */
+    --link-hover: 210 11% 17.6%;
+    /* Text primary on hover */
+    --accent-base: 213.65 100% 50%;
+    /* #0070ff */
+    --accent-hover: 209.09 100% 54.71%;
+    /* Lighter blue */
+    --accent-tint: 209.36 100% 9.22%;
+    /* Light blue tint */
+    --selection-text: var(--text);
+    --selection-bg: color-mix(in lch, var(--brand-bg), black 10%);
+    --selection-dim: color-mix(in lch, var(--brand-bg), transparent 80%);
+
+    /* Background Gradients - Light */
+    --bg-primary-gradient: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+    --bg-secondary-gradient: linear-gradient(135deg, #f9f8f9 0%, #f4f2f4 100%);
+    --bg-tertiary-gradient: linear-gradient(135deg, #f4f2f4 0%, #eeedef 100%);
+
+    /* Mask Gradients - Light */
+    --mask-bottom: linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, transparent 80%);
+    --mask-top: linear-gradient(to top, rgba(0, 0, 0, 1) 30%, transparent 80%);
+    --mask-left: linear-gradient(to left, rgba(0, 0, 0, 1) 40%, transparent 90%);
+    --mask-right: linear-gradient(to right, rgba(0, 0, 0, 1) 20%, transparent 100%);
+
+    /* Interactive States - Brand Shared - Blue Brand */
+    --brand-bg: 213.65 100% 50%;
+    /* #0070ff - Main brand blue */
+    --brand-bg-hover: 214 100% 60%;
+    /* Lighter blue */
+    --brand-bg-active: 214 100% 45%;
+    /* Darker blue */
+    --brand-border: 213.65 100% 50%;
+    /* #0070ff */
+    --brand-border-hover: 214 100% 60%;
+    --brand-text: 0 0% 100%;
+    /* #fff */
+    --brand-gradient: linear-gradient(135deg, #0070ff 0%, #3b9eff 100%);
+    --brand-gradient-hover: linear-gradient(135deg, #3b9eff 0%, #60b0ff 100%);
+    --brand-gradient-active: linear-gradient(135deg, #0060d3 0%, #0070ff 100%);
+    --brand-gradient-border: linear-gradient(to left, #60b0ff 0%, #0070ff 50%, #0060d3 100%);
+
+    --mask-bottom: linear-gradient(to bottom, var(--mask-visible) 30%, var(--mask-invisible) 80%);
+    --mask-right: linear-gradient(to right, var(--mask-visible) 40%, var(--mask-invisible) 90%);
+    --mask-left: linear-gradient(to left, var(--mask-visible) 40%, var(--mask-invisible) 90%);
+    --mask-top: linear-gradient(to top, var(--mask-visible) 30%, var(--mask-invisible) 80%);
+    --mask-visible: 0% 0% 0% / 1.0000;
+    --mask-on: 0, 0%, 0% / 1.0000;
+    --mask-ease: 0, 0%, 0% / 0.2000;
+    --mask-invisible: transparent;
+    --mask-off: transparent;
+    --transparent: 0, 0%, 0% / 0.0000;
+  }
+
+  .premium {
+    /* ============================================
+       SHADCN/UI COMPATIBILITY TOKENS
+       Core semantic tokens for Shadcn components
+       ============================================ */
+    --gradient: linear-gradient(to top left, #007adf, #00ecbc);
+    --gradient-border-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, .17), transparent);
+    --gradient-background: linear-gradient(134deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02), rgba(255, 255, 255, 0) 55%);
+
+    --background: 210 11% 4%;
+    --foreground: 180 7% 97%;
+    --card: 210 6% 6%;
+    --card-foreground: 217 21% 85%;
+    --popover: 210 6% 6%;
+    --popover-foreground: 219 6% 57%;
+    --primary: 216 98% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 217 21% 85%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 219 6% 57%;
+    --accent: 240 4% 14%;
+    --accent-foreground: 210 100% 50%;
+    --destructive: 353.33 65.85% 40.2%;
+    /* #aa2332 */
+    --destructive-foreground: 353.33 65.85% 97%;
+    --border: 0 0% 100% / 0.1;
+    --input: 1.00 0 0 / 15%;
+    --ring: 345 0% 45%;
+
+    --sidebar: 240 4% 14% / 0.3;
+    --sidebar-foreground: 0 0% 91% / 0.7;
+    --sidebar-primary: 214 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 213.65 100% 50%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-ring: 345 0% 45%;
+
+    --success-bg: 145 91% 8%;
+    --success-text: 145 63.64% 40%;
+    /* #22c55e */
+    --warning-text: 0 100% 73.33%;
+    --warning-bg: 23.77 92.98% 22.35%;
+    --warning-bg-hover: 24 91% 12%;
+    --warning-border: 24 91% 15%;
+
+    /* Background Hierarchy (Visual Depth) - Linear Dark */
+    --bg-primary: 210 11% 3.5%;
+    /* #08090a - Main surface (Linear) */
+    --bg-secondary: 240 5% 11.5%;
+    /* #1c1c1f - Elevated (Linear) */
+    --bg-tertiary: 240 4% 14.5%;
+    /* #232326 - More elevated (Linear) */
+    --bg-quaternary: 240 5% 16.5%;
+    /* #28282c - Highest (Linear) */
+    --bg-quinary: 0 0% 15.5%;
+    /* #282828 - Accent bg */
+    --bg-translucent: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --bg-tint: 220 12% 8.5%;
+    /* #141516 - Subtle tint (Linear) */
+    --bg-marketing: 220 25% 0.8%;
+    /* #010102 - Marketing pages */
+
+    --header: var(--color-header);
+    /* Header text - strongest contrast */
+    --header-gradient: linear-gradient(to bottom, var(--color-header) 0%, var(--color-fg-tertiary) 100%);
+    --subheader: var(--color-subheader);
+    /* Subheader text - strong contrast */
+
+    --bg-primary-gradient: linear-gradient(135deg, #08090a 0%, #0e0e11 100%);
+    --bg-secondary-gradient: linear-gradient(135deg, #1c1c1f 0%, #1f1f22 100%);
+    --bg-tertiary-gradient: linear-gradient(135deg, #232326 0%, #262628 100%);
+
+    /* Visual depth levels for layered UIs */
+    --bg-level-0: 222 20% 3.5%;
+    /* HSL - #08090a - Base layer */
+    --bg-level-1: 222 20% 5.9%;
+    /* HSL - #0f1011 - Layer 1 */
+    --bg-level-2: 220 12% 8%;
+    /* HSL - #141516 - Layer 2 */
+    --bg-level-3: 220 10% 10%;
+    /* HSL - #191a1b - Layer 3 */
+
+    --fg-primary: 180 11% 97.1%;
+    /* #f7f8f8 - Primary text (Linear) */
+    --fg-secondary: 217.5 20.51% 84.71%;
+    /* #d0d6e0 - Secondary text (Linear) */
+    --fg-tertiary: 218.57 6.36% 56.86%;
+    /* #8a8f98 - Tertiary text (Linear) */
+    --fg-quaternary: 218.18 5.31% 40.59%;
+    /* #62666d - Disabled/placeholder (Linear) */
+
+    /* Border/Line Hierarchy - Linear Dark */
+    --line-primary: 210 4% 21.8%;
+    /* #37393a - Default border (Linear) */
+    --line-secondary: 210 4% 13.1%;
+    /* #202122 - Subtle border (Linear) */
+    --line-tertiary: 210 5% 10%;
+    /* #18191a - Very subtle (Linear) */
+    --line-quaternary: 210 4% 8.2%;
+    /* #141515 - Barely visible (Linear) */
+    --line-tint: 220 12% 8%;
+    /* #141516 - Tinted line (Linear) */
+    --border-primary: 222.86 9.09% 15.1%;
+    /* #23252a - Default (Linear) */
+    --border-secondary: 240 5.45% 21.57%;
+    /* #34343a - Subtle (Linear) */
+    --border-tertiary: 240 4.62% 25.49%;
+    /* #3e3e44 - Emphasized (Linear) */
+    --border-translucent: 0 0% 0% / 0.05;
+    /* rgba(0,0,0,.05) */
+    --overlay-dim-rgb: 255, 255, 255;
+    --overlay-primary: rgba(0, 0, 0, .9);
+
+    --link-primary: 209.09 100% 54.71%;
+    /* #0070ff - Blue brand link */
+    --link-hover: 0 0% 100%;
+    /* #fff - White on hover */
+    --mask-bottom: linear-gradient(to bottom, var(--mask-visible) 50%, var(--mask-invisible) 100%);
+    --mask-right: linear-gradient(to right, var(--mask-visible) 20%, var(--mask-invisible) 100%);
+
+    /* Interactive States - Accent/Link - Blue Brand */
+    --accent-base: 213.65 100% 50%;
+    /* #0070ff */
+    --accent-hover: 209.09 100% 54.71%;
+    /* #188fff Light blue */
+    --accent-tint: 209.36 100% 9.22%;
+    /* #00182f Dark blue tint */
+    --selection-text: var(--brand-bg);
+    --selection-bg: color-mix(in lch, var(--brand-bg), black 10%);
+    --selection-dim: color-mix(in lch, var(--brand-bg), transparent 80%);
+    /* Shadow System */
+
+    --brand-bg: 213.65 100% 50%;
+    /* #0070ff - Main brand blue */
+    --brand-bg-hover: 213.65 100% 60%;
+    /* # Lighter blue */
+    --brand-bg-active: 213.65 100% 45%;
+    /* Darker blue */
+    --brand-border: 213.65 100% 50%;
+    /* #0070ff */
+    --brand-border-hover: 213.65 100% 60%;
+    --brand-text: 0 0% 100%;
+    /* #fff */
+    --brand-gradient: linear-gradient(135deg, #0070ff 0%, #188fff 100%);
+    --brand-gradient-hover: linear-gradient(135deg, #3b9eff 0%, #60b0ff 100%);
+    --brand-gradient-active: linear-gradient(135deg, #0060d3 0%, #0070ff 100%);
+    --brand-gradient-border: linear-gradient(to left, #60b0ff 0%, #0070ff 50%, #0060d3 100%);
+
+    /* Note: Easing functions inherited from :root */
+
+    /* Shadow System - Premium (darker shadows for glass-like surfaces) */
+    --shadow-tiny: 0px 1px 3px rgba(0, 0, 0, .05);
+    --shadow-xs: 0px 1px 3px rgba(0, 0, 0, .05);
+    --shadow-sm: 0px 2px 4px rgba(0, 0, 0, .1);
+    --shadow-md: 0px 4px 24px rgba(0, 0, 0, .2);
+    --shadow-lg: 0px 7px 32px rgba(0, 0, 0, .35);
+    --shadow-xl: 0px 8px 2px 0px transparent, 0px 5px 2px 0px rgba(0, 0, 0, .01), 0px 3px 2px 0px rgba(0, 0, 0, .04), 0px 1px 1px 0px rgba(0, 0, 0, .07), 0px 0px 1px 0px rgba(0, 0, 0, .08);
+    --mask-left: linear-gradient(to left, var(--mask-visible) 40%, var(--mask-invisible) 90%);
+    --mask-top: linear-gradient(to top, var(--mask-visible) 30%, var(--mask-invisible) 80%);
+    --mask-visible: 0, 0%, 0% / 1.0000;
+    /* #000000 */
+    --mask-on: 0, 0%, 0% / 1.0000;
+    /* solid black */
+    --mask-ease: 0, 0%, 0% / 0.2000;
+    --mask-invisible: transparent;
+    --mask-off: transparent;
+    --transparent: 0, 0%, 0% / 0.0000;
+
+    /* Button States - Primary (Brand Blue - Linear inspired) */
+    --button-primary-bg: 213.65 100% 50%;
+    /* #0070ff */
+    --button-primary-bg-hover: 214 100% 60%;
+    /* Lighter */
+    --button-primary-bg-active: 214 100% 45%;
+    /* Darker */
+    --button-primary-bg-disabled: 214 30% 25%;
+    /* Muted */
+    --button-primary-bg-gradient: linear-gradient(135deg, color-mix(in lch, #60A5FA 0%, #1D4ED8 40%), color-mix(in lch, #2E8CFF 0%, #0080ff 80%), #1D4ED8 100%);
+    --button-primary-bg-gradient-hover: linear-gradient(135deg, color-mix(in lch, #1758D6 0%, #2D8CFF 100%), color-mix(in lch, #0050ef 0%, #0080ff 100%));
+    --button-primary-bg-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+    --button-primary-border: 213.65 100% 50%;
+    /* #0070ff */
+    --button-primary-border-hover: 214 100% 60%;
+    --button-primary-text: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-hover: 0 0% 100%;
+    --button-primary-text-disabled: 219 6% 50%;
+    /* #787882 */
+
+    --button-success-bg: 145 63.64% 40%;
+    --button-success-bg-hover: 145 63.64% 45%;
+    --button-success-text: 145 63.64% 97%;
+    --button-success-text-hover: 145 63.64% 97%;
+    --button-warning-bg: 42 100% 57%;
+    --button-warning-bg-hover: 42 100% 62%;
+    --button-warning-text: 42 100% 11.8%;
+    --button-warning-text-hover: 42 100% 11.8%;
+    --button-info-bg: 210 100% 56%;
+    --button-info-bg-hover: 210 100% 61%;
+    --button-info-text: 210 100% 97%;
+    --button-info-text-hover: 210 100% 97%;
+
+
+
+
+    /* Button States - Brand (Alias to Primary with consistent naming) */
+    --button-brand-bg: var(--button-primary-bg);
+    --button-brand-bg-hover: var(--button-primary-bg-hover);
+    --button-brand-bg-active: var(--button-primary-bg-active);
+    --button-brand-bg-disabled: var(--button-primary-bg-disabled);
+    --button-brand-bg-gradient: var(--button-primary-bg-gradient);
+    --button-brand-bg-gradient-hover: var(--button-primary-bg-gradient-hover);
+    --button-brand-bg-gradient-active: var(--button-primary-bg-gradient-active);
+    --button-brand-border: var(--button-primary-border);
+    --button-brand-border-hover: var(--button-primary-border-hover);
+    --button-brand-text: var(--button-primary-text);
+    --button-brand-text-hover: var(--button-primary-text-hover);
+    --button-brand-text-disabled: var(--button-primary-text-disabled);
+
+    /* Button States - Secondary */
+    --button-secondary-bg: 220 15% 16%;
+    /* #34343a */
+    --button-secondary-bg-hover: 220 15% 20%;
+    /* #3e3e44 */
+    --button-secondary-bg-active: 220 15% 24%;
+    /* #48484f */
+    --button-secondary-bg-disabled: 220 15% 8%;
+    /* #191a1b */
+    --button-secondary-bg-gradient: linear-gradient(to bottom right, #3e3e44, #28282c);
+    --button-secondary-bg-gradient-hover: linear-gradient(to bottom right, #48484f, #232326);
+    --button-secondary-border: 220 15% 16%;
+    /* #34343a */
+    --button-secondary-border-hover: 220 15% 20%;
+    /* #3e3e44 */
+    --button-secondary-text: 210 10% 97%;
+    /* #f7f8f8 */
+    --button-secondary-text-hover: 210 10% 97%;
+    /* #f7f8f8 */
+    --button-secondary-text-disabled: 210 10% 50%;
+    /* #7f8288 */
+
+    /* Semantic Color Scales */
+    --red-header: var(--color-red-200);
+    --red-subheader: var(--color-red-300);
+    --red-fg-primary: var(--color-red-400);
+    --red-fg-secondary: var(--color-red-500);
+    --red-fg-tertiary: var(--color-red-600);
+    --red-bg-subtle: var(--color-red-950);
+    --red-bg-muted: var(--color-red-900);
+    --red-bg-solid: var(--color-red-500);
+    --red-bg-solid-hover: var(--color-red-400);
+    --red-border: var(--color-red-700);
+    --red-border-hover: var(--color-red-600);
+
+    --blue-header: var(--color-blue-200);
+    --blue-subheader: var(--color-blue-300);
+    --blue-fg-primary: var(--color-blue-400);
+    --blue-fg-secondary: var(--color-blue-500);
+    --blue-fg-tertiary: var(--color-blue-600);
+    --blue-bg-subtle: var(--color-blue-950);
+    --blue-bg-muted: var(--color-blue-900);
+    --blue-bg-solid: var(--color-blue-500);
+    --blue-bg-solid-hover: var(--color-blue-400);
+    --blue-border: var(--color-blue-700);
+    --blue-border-hover: var(--color-blue-600);
+
+    --green-header: var(--color-green-200);
+    --green-subheader: var(--color-green-300);
+    --green-fg-primary: var(--color-green-400);
+    --green-fg-secondary: var(--color-green-500);
+    --green-fg-tertiary: var(--color-green-600);
+    --green-bg-subtle: var(--color-green-950);
+    --green-bg-muted: var(--color-green-900);
+    --green-bg-solid: var(--color-green-500);
+    --green-bg-solid-hover: var(--color-green-400);
+    --green-border: var(--color-green-700);
+    --green-border-hover: var(--color-green-600);
+
+    --amber-header: var(--color-amber-200);
+    --amber-subheader: var(--color-amber-300);
+    --amber-fg-primary: var(--color-amber-400);
+    --amber-fg-secondary: var(--color-amber-500);
+    --amber-fg-tertiary: var(--color-amber-600);
+    --amber-bg-subtle: var(--color-amber-950);
+    --amber-bg-muted: var(--color-amber-900);
+    --amber-bg-solid: var(--color-amber-500);
+    --amber-bg-solid-hover: var(--color-amber-400);
+    --amber-border: var(--color-amber-700);
+    --amber-border-hover: var(--color-amber-600);
+
+    --zinc-header: var(--color-zinc-200);
+    --zinc-subheader: var(--color-zinc-300);
+    --zinc-fg-primary: var(--color-zinc-400);
+    --zinc-fg-secondary: var(--color-zinc-500);
+    --zinc-fg-tertiary: var(--color-zinc-600);
+    --zinc-bg-subtle: var(--color-zinc-950);
+    --zinc-bg-muted: var(--color-zinc-900);
+    --zinc-bg-solid: var(--color-zinc-500);
+    --zinc-bg-solid-hover: var(--color-zinc-400);
+    --zinc-border: var(--color-zinc-700);
+    --zinc-border-hover: var(--color-zinc-600);
+
+    /* neutral-200 for header text */
+    --neutral-header: var(--color-neutral-200);
+    --neutral-subheader: var(--color-neutral-300);
+    --neutral-fg-primary: var(--color-neutral-400);
+    --neutral-fg-secondary: var(--color-neutral-500);
+    --neutral-fg-tertiary: var(--color-neutral-600);
+    --neutral-bg-subtle: var(--color-neutral-950);
+    --neutral-bg-muted: var(--color-neutral-900);
+    --neutral-bg-solid: var(--color-neutral-500);
+    --neutral-bg-solid-hover: var(--color-neutral-400);
+    --neutral-border: var(--color-neutral-700);
+    --neutral-border-hover: var(--color-neutral-600);
+
+    --radius: 0.5rem;
+  }
+
+  .glass {
+    /* Core semantic tokens - Glass theme (frosted translucent) */
+    --gradient: linear-gradient(to top left, #0050ef, #00c8ff);
+    --gradient-border-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, .17), transparent);
+    --gradient-background: linear-gradient(134deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02), rgba(255, 255, 255, 0) 55%);
+
+    --background: 222 100% 0.7%;
+    /* #000212 - Near-black translucent base */
+    --foreground: 210 10% 97%;
+    /* #f7f8f8 */
+
+    --card: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --card-foreground: 210 10% 97%;
+
+    --popover: 0 0% 100% / 0.07;
+    /* rgba(255,255,255,.07) */
+    --popover-foreground: 210 10% 97%;
+
+    --primary: 213.65 100% 50%;
+    /* #006eff */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 100% / 0.03;
+    /* rgba(255,255,255,.03) */
+    --secondary-foreground: 210 10% 97%;
+
+    --muted: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --muted-foreground: 220 15% 56%;
+
+    --accent: 211 100% 63%;
+    /* #5eb0ff */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    /* #eb5757 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 151 91% 95%;
+
+    --warning-text: 24 100% 83%;
+    /* orange-200 */
+    --warning-bg: 20 91% 8%;
+    /* orange-950 */
+    --warning-bg-hover: 24 91% 12%;
+    /* orange-900 */
+    --warning-border: 24 91% 15%;
+    /* orange-900 */
+
+    --border: 0 0% 100% / 0.08;
+    /* rgba(255,255,255,.08) */
+    --input: 0 0% 100% / 0.1;
+    /* rgba(255,255,255,.1) */
+    --ring: 211 100% 63%;
+
+    /* ============================================
+       LINEAR GLASS SEMANTIC DESIGN TOKENS
+       Translucent frosted glass effect
+       ============================================ */
+
+    /* Background Hierarchy (Translucent) */
+    --bg-primary: 222 100% 0.7%;
+    /* #000212 - Main surface */
+    --bg-primary-gradient: linear-gradient(135deg, rgba(10, 11, 12, 0.3) 0%, rgba(18, 19, 21, 0.3) 100%);
+    --bg-secondary: 0 0% 100% / 0.03;
+    /* rgba(255,255,255,.03) - Elevated */
+    --bg-secondary-gradient: linear-gradient(135deg, rgba(30, 30, 32, 0.3) 0%, rgba(35, 35, 38, 0.3) 100%);
+    --bg-tertiary: 0 0% 100% / 0.07;
+    /* rgba(255,255,255,.07) - More elevated */
+    --bg-tertiary-gradient: linear-gradient(135deg, rgba(36, 36, 39, 0.3) 0%, rgba(42, 42, 45, 0.3) 100%);
+    --bg-quaternary: 0 0% 100% / 0.1;
+    /* rgba(255,255,255,.1) */
+    --bg-quinary: 0 0% 100% / 0.12;
+    /* rgba(255,255,255,.12) */
+    --bg-translucent: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --bg-tint: 220 12% 8% / 0.5;
+    /* rgba(20, 21, 22, 0.5) */
+    --bg-marketing: 222 100% 0.6% / 0.9;
+    /* rgba(1, 1, 2, 0.9) */
+
+    /* Visual depth levels with translucency */
+    --bg-level-0: 222 100% 0.7% / 0.95;
+    /* rgba(0, 2, 18, 0.95) - Base layer */
+    --bg-level-1: 0 0% 100% / 0.03;
+    /* rgba(255,255,255,.03) - Layer 1 */
+    --bg-level-2: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) - Layer 2 */
+    --bg-level-3: 0 0% 100% / 0.07;
+    /* rgba(255,255,255,.07) - Layer 3 */
+
+    /* Foreground/Text Hierarchy (same as premium) */
+    --fg-primary: 210 10% 97%;
+    /* #f7f8f8 - Primary text */
+    --fg-secondary: 220 18% 81.6%;
+    /* #d0d6e0 - Secondary text */
+    --fg-tertiary: 220 10% 58%;
+    /* #8a8f98 - Tertiary text */
+    --fg-quaternary: 225 6% 39.6%;
+    /* #62666d - Disabled/placeholder */
+
+    /* Border/Line Hierarchy (Translucent) */
+    --line-primary: 0 0% 100% / 0.1;
+    /* rgba(255,255,255,.1) */
+    --line-secondary: 0 0% 100% / 0.06;
+    /* rgba(255,255,255,.06) */
+    --line-tertiary: 0 0% 100% / 0.04;
+    /* rgba(255,255,255,.04) */
+    --line-quaternary: 0 0% 100% / 0.02;
+    /* rgba(255,255,255,.02) */
+    --line-tint: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+
+    --border-primary: 0 0% 100% / 0.08;
+    /* rgba(255,255,255,.08) */
+    --border-secondary: 0 0% 100% / 0.06;
+    /* rgba(255,255,255,.06) */
+    --border-tertiary: 0 0% 100% / 0.1;
+    /* rgba(255,255,255,.1) */
+    --border-translucent: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+
+    /* Interactive States - Accent/Link */
+    --accent-base: 213.65 100% 50%;
+    /* #0070ff */
+    --accent-hover: 209.09 100% 54.71%;
+    /* Lighter */
+    --accent-tint: 209.36 100% 9.22%;
+    /* Blue tint */
+
+    --link-primary: 209.09 100% 54.71%;
+    /* #0070ff */
+    --link-hover: 0 0% 100%;
+    /* #fff */
+
+    /* Brand Colors */
+    --brand-bg: 213.65 100% 50%;
+    /* #0070ff - Main brand */
+    --brand-bg-hover: 213.65 100% 60%;
+    /* Lighter */
+    --brand-bg-active: 213.65 100% 45%;
+    /* Darker */
+    --brand-border: 213.65 100% 50%;
+    /* #0070ff */
+    --brand-border-hover: 213.65 100% 60%;
+    --brand-text: 0 0% 100%;
+    /* #fff */
+    --brand-gradient: linear-gradient(135deg, color-mix(in lch, #60A5FA 0%, #1D4ED8 40%), color-mix(in lch, #2E8CFF 0%, #0080ff 80%), #1D4ED8 100%);
+    --brand-gradient-hover: linear-gradient(135deg, color-mix(in lch, #1758D6 0%, #2D8CFF 100%), color-mix(in lch, #0050ef 0%, #0080ff 100%));
+    --brand-gradient-active: linear-gradient(135deg, #1758D6 0%, #0080ff 100%);
+    --brand-gradient-border: linear-gradient(to left, color-mix(in lch, #6FE3FF 0%, #2D8CFF 100%), color-mix(in lch, #2D8CFF 0%, #0050EF 100%), color-mix(in lch, #0050EF 0%, #6FE3FF 100%));
+
+    --selection-text: var(--brand-bg);
+    --selection-bg: color-mix(in lch, var(--brand-bg), black 10%);
+    --selection-dim: color-mix(in lch, var(--brand-bg), transparent 80%);
+
+    /* Selection */
+
+    /* Shadow System (enhanced for glass) */
+    --shadow-tiny: 0px 2px 8px rgb(0 0 0 / 0.2);
+    --shadow-sm: 0px 4px 12px rgb(0 0 0 / 0.25);
+    --shadow-md: 0px 8px 32px rgb(0 0 0 / 0.35);
+    --shadow-lg: 0px 12px 48px rgb(0 0 0 / 0.45);
+    --shadow-xl: 0px 16px 64px rgb(0 0 0 / 0.55),
+      0px 8px 32px rgb(0 0 0 / 0.25);
+
+    /* Note: Background gradients defined above with bg-hierarchy tokens */
+
+    /* Button States - Primary (Glass style) */
+    --button-primary-bg: 214 100% 50% / 0.9;
+    /* #006eff with 90% opacity */
+    --button-primary-bg-hover: 214 100% 44% / 0.95;
+    /* #0056cc with 95% opacity */
+    --button-primary-bg-active: 214 100% 40%;
+    /* #004bb8 */
+    --button-primary-bg-disabled: 214 100% 20% / 0.5;
+    /* #001933 with 50% opacity */
+    --button-primary-bg-gradient: linear-gradient(to bottom right, rgba(0, 128, 255, 0.9), rgba(0, 75, 184, 0.9));
+    --button-primary-bg-gradient-hover: linear-gradient(to bottom right, rgba(0, 145, 255, 0.95), rgba(0, 61, 153, 0.95));
+    --button-primary-border: 213.65 100% 50%;
+    /* #006eff */
+    --button-primary-border-hover: 214 100% 44%;
+    /* #0056cc */
+    --button-primary-text: 0 0% 100%;
+    /* #fff */
+    --button-primary-text-hover: 0 0% 100%;
+    --button-primary-text-disabled: 0 0% 70% / 0.7;
+    /* rgba(179, 179, 179, 0.7) */
+
+    /* Button States - Secondary (Glass style) */
+    --button-secondary-bg: 0 0% 100% / 0.05;
+    /* rgba(255,255,255,.05) */
+    --button-secondary-bg-hover: 0 0% 100% / 0.08;
+    /* rgba(255,255,255,.08) */
+    --button-secondary-bg-active: 0 0% 100% / 0.12;
+    /* rgba(255,255,255,.12) */
+    --button-secondary-bg-disabled: 0 0% 100% / 0.02;
+    /* rgba(255,255,255,.02) */
+    --button-secondary-bg-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, .08), rgba(255, 255, 255, .04));
+    --button-secondary-bg-gradient-hover: linear-gradient(to bottom right, rgba(255, 255, 255, .12), rgba(255, 255, 255, .06));
+    --button-secondary-border: 0 0% 100% / 0.08;
+    /* rgba(255,255,255,.08) */
+    --button-secondary-border-hover: 0 0% 100% / 0.12;
+    /* rgba(255,255,255,.12) */
+    --button-secondary-text: 210 10% 97%;
+    /* #f7f8f8 */
+    --button-secondary-text-hover: 0 0% 100%;
+    /* #fff */
+    --button-secondary-text-disabled: 210 10% 50% / 0.7;
+    /* rgba(127, 130, 136, 0.7) */
+
+    /* Semantic Color Scales - Glass theme */
+    /* Red - Error/Destructive */
+    --red-fg-primary: var(--color-red-400);
+    --red-fg-secondary: var(--color-red-500);
+    --red-fg-tertiary: var(--color-red-600);
+    --red-bg-subtle: color-mix(in oklab, var(--color-red-950), transparent 70%);
+    --red-bg-muted: color-mix(in oklab, var(--color-red-900), transparent 60%);
+    --red-bg-solid: var(--color-red-500);
+    --red-bg-solid-hover: var(--color-red-400);
+    --red-border: color-mix(in oklab, var(--color-red-700), transparent 50%);
+    --red-border-hover: color-mix(in oklab, var(--color-red-600), transparent 30%);
+
+    /* Blue - Info/Primary */
+    --blue-fg-primary: var(--color-blue-300);
+    --blue-fg-secondary: var(--color-blue-400);
+    --blue-fg-tertiary: var(--color-blue-500);
+    --blue-bg-subtle: color-mix(in oklab, var(--color-blue-950), transparent 70%);
+    --blue-bg-muted: color-mix(in oklab, var(--color-blue-900), transparent 60%);
+    --blue-bg-solid: var(--color-blue-500);
+    --blue-bg-solid-hover: var(--color-blue-400);
+    --blue-border: color-mix(in oklab, var(--color-blue-700), transparent 50%);
+    --blue-border-hover: color-mix(in oklab, var(--color-blue-600), transparent 30%);
+
+    /* Green - Success */
+    --green-fg-primary: var(--color-green-300);
+    --green-fg-secondary: var(--color-green-400);
+    --green-fg-tertiary: var(--color-green-500);
+    --green-bg-subtle: color-mix(in oklab, var(--color-green-950), transparent 70%);
+    --green-bg-muted: color-mix(in oklab, var(--color-green-900), transparent 60%);
+    --green-bg-solid: var(--color-green-500);
+    --green-bg-solid-hover: var(--color-green-400);
+    --green-border: color-mix(in oklab, var(--color-green-700), transparent 50%);
+    --green-border-hover: color-mix(in oklab, var(--color-green-600), transparent 30%);
+
+    /* Amber - Warning */
+    --amber-fg-primary: var(--color-amber-300);
+    --amber-fg-secondary: var(--color-amber-400);
+    --amber-fg-tertiary: var(--color-amber-500);
+    --amber-bg-subtle: color-mix(in oklab, var(--color-amber-950), transparent 70%);
+    --amber-bg-muted: color-mix(in oklab, var(--color-amber-900), transparent 60%);
+    --amber-bg-solid: var(--color-amber-500);
+    --amber-bg-solid-hover: var(--color-amber-400);
+    --amber-border: color-mix(in oklab, var(--color-amber-700), transparent 50%);
+    --amber-border-hover: color-mix(in oklab, var(--color-amber-600), transparent 30%);
+
+    /* Zinc - Neutral */
+    --zinc-fg-primary: var(--color-zinc-300);
+    --zinc-fg-secondary: var(--color-zinc-400);
+    --zinc-fg-tertiary: var(--color-zinc-500);
+    --zinc-bg-subtle: color-mix(in oklab, var(--color-zinc-950), transparent 70%);
+    --zinc-bg-muted: color-mix(in oklab, var(--color-zinc-900), transparent 60%);
+    --zinc-bg-solid: var(--color-zinc-500);
+    --zinc-bg-solid-hover: var(--color-zinc-400);
+    --zinc-border: color-mix(in oklab, var(--color-zinc-700), transparent 50%);
+    --zinc-border-hover: color-mix(in oklab, var(--color-zinc-600), transparent 30%);
+
+    --radius: 0.5rem;
+  }
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --color-gradient-border-gradient: var(--gradient-border-gradient);
+  --color-gradient-background: var(--gradient-background);
+  --color-gradient: var(--gradient);
+
+  --color-mask-visible: hsl(var(--mask-visible));
+  --color-mask-on: hsl(var(--mask-on));
+  --color-mask-ease: hsl(var(--mask-ease));
+  --color-mask-invisible: hsl(var(--mask-invisible));
+  --color-mask-off: hsl(var(--mask-off));
+  --color-transparent: hsl(var(--transparent));
+  --color-mask-bottom: var(--mask-bottom);
+  --color-mask-right: var(--mask-right);
+  --color-mask-left: var(--mask-left);
+  --color-mask-top: var(--mask-top);
+
+  /* Base semantic colors - auto-convert from HSL */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-ring: hsl(var(--ring));
+
+  --color-success-bg: hsl(var(--success-bg));
+  --color-success-text: hsl(var(--success-text));
+  --color-warning-bg: hsl(var(--warning-bg));
+  --color-warning-text: hsl(var(--warning-text));
+  --color-error-bg: hsl(var(--error-bg));
+  --color-error-text: hsl(var(--error-text));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* ============================================
+     LINEAR SEMANTIC COLOR SYSTEM
+     Auto-converts HSL tokens to CSS colors
+     ============================================ */
+
+  /* Background Hierarchy */
+  --color-bg-primary: hsl(var(--bg-primary));
+  /*  Question: Frontend classname is ? Answer: bg-primary */
+  --color-bg-secondary: hsl(var(--bg-secondary));
+  --color-bg-tertiary: hsl(var(--bg-tertiary));
+  --color-bg-quaternary: hsl(var(--bg-quaternary));
+  --color-bg-quinary: hsl(var(--bg-quinary));
+  --color-bg-translucent: hsl(var(--bg-translucent));
+  --color-bg-tint: hsl(var(--bg-tint));
+  --color-bg-marketing: hsl(var(--bg-marketing, var(--bg-primary)));
+
+  /* Background Levels */
+  --color-bg-level-0: hsl(var(--bg-level-0));
+  --color-bg-level-1: hsl(var(--bg-level-1));
+  --color-bg-level-2: hsl(var(--bg-level-2));
+  --color-bg-level-3: hsl(var(--bg-level-3));
+
+  /* Header */
+  --color-header: hsl(var(--header));
+  --color-subheader: hsl(var(--subheader));
+  --color-header-gradient: var(--header-gradient);
+
+  /* Foreground/Text */
+  --color-fg-primary: hsl(var(--fg-primary));
+  --color-fg-secondary: hsl(var(--fg-secondary));
+  --color-fg-tertiary: hsl(var(--fg-tertiary));
+  --color-fg-quaternary: hsl(var(--fg-quaternary));
+
+  /* Text content hierarchy (for Tailwind utilities) */
+  --color-text-primary: hsl(var(--fg-primary));
+  --color-text-secondary: hsl(var(--fg-secondary));
+  --color-text-tertiary: hsl(var(--fg-tertiary));
+  --color-text-quaternary: hsl(var(--fg-quaternary));
+
+  /* Lines/Borders */
+  --color-line-primary: hsl(var(--line-primary));
+  --color-line-secondary: hsl(var(--line-secondary));
+  --color-line-tertiary: hsl(var(--line-tertiary));
+  --color-line-quaternary: hsl(var(--line-quaternary));
+  --color-line-tint: hsl(var(--line-tint));
+
+  --color-border-primary: hsl(var(--border-primary));
+  --color-border-secondary: hsl(var(--border-secondary));
+  --color-border-tertiary: hsl(var(--border-tertiary));
+  --color-border-translucent: hsl(var(--border-translucent));
+
+  /* Interactive States */
+  --color-accent-base: hsl(var(--accent-base));
+  --color-accent-hover: hsl(var(--accent-hover));
+  --color-accent-tint: hsl(var(--accent-tint));
+
+  --color-link-primary: hsl(var(--link-primary));
+  --color-link-hover: hsl(var(--link-hover));
+
+  /* Brand - Complete export */
+  --color-brand-bg: hsl(var(--brand-bg));
+  --color-brand-bg-hover: hsl(var(--brand-bg-hover));
+  --color-brand-bg-active: hsl(var(--brand-bg-active));
+  --color-brand-border: hsl(var(--brand-border));
+  --color-brand-border-hover: hsl(var(--brand-border-hover));
+  --color-brand-text: hsl(var(--brand-text));
+  --color-brand-gradient: var(--brand-gradient);
+  --color-brand-gradient-hover: var(--brand-gradient-hover);
+  --color-brand-gradient-active: var(--brand-gradient-active);
+  --color-brand-gradient-border: var(--brand-gradient-border);
+
+  /* Selection */
+  --color-selection-text: hsl(var(--selection-text));
+  --color-selection-bg: hsl(var(--selection-bg));
+  --color-selection-dim: hsl(var(--selection-dim));
+
+  /* Shadows (raw values, not HSL) */
+  --color-shadow-tiny: var(--shadow-tiny);
+  --color-shadow-sm: var(--shadow-sm);
+  --color-shadow-md: var(--shadow-md);
+  --color-shadow-lg: var(--shadow-lg);
+  --color-shadow-xl: var(--shadow-xl);
+
+  /* Background Gradients (raw values) */
+  --color-bg-primary-gradient: var(--bg-primary-gradient);
+  --color-bg-secondary-gradient: var(--bg-secondary-gradient);
+  --color-bg-tertiary-gradient: var(--bg-tertiary-gradient);
+
+  /* Mask Gradients (raw values) */
+  --color-mask-bottom: var(--mask-bottom);
+  --color-mask-right: var(--mask-right);
+  --color-mask-left: var(--mask-left);
+  --color-mask-top: var(--mask-top);
+  --color-mask-visible: var(--mask-visible);
+  --color-mask-on: var(--mask-on);
+  --color-mask-ease: var(--mask-ease);
+  --color-mask-invisible: var(--mask-invisible);
+  --color-mask-off: var(--mask-off);
+  --color-transparent: var(--transparent);
+
+  /* Button Primary States */
+  --color-button-primary-bg: hsl(var(--button-primary-bg));
+  --color-button-primary-bg-hover: hsl(var(--button-primary-bg-hover));
+  --color-button-primary-bg-active: hsl(var(--button-primary-bg-active));
+  --color-button-primary-bg-disabled: hsl(var(--button-primary-bg-disabled));
+  --color-button-primary-bg-gradient: var(--button-primary-bg-gradient);
+  --color-button-primary-bg-gradient-hover: var(--button-primary-bg-gradient-hover);
+  --color-button-primary-bg-gradient-active: var(--button-primary-bg-gradient-active);
+  --color-button-primary-border: hsl(var(--button-primary-border));
+  --color-button-primary-border-hover: hsl(var(--button-primary-border-hover));
+  --color-button-primary-text: hsl(var(--button-primary-text));
+  --color-button-primary-text-hover: hsl(var(--button-primary-text-hover));
+  --color-button-primary-text-disabled: hsl(var(--button-primary-text-disabled));
+
+  /* Button Secondary States */
+  --color-button-secondary-bg: hsl(var(--button-secondary-bg));
+  --color-button-secondary-bg-hover: hsl(var(--button-secondary-bg-hover));
+  --color-button-secondary-bg-active: hsl(var(--button-secondary-bg-active));
+  --color-button-secondary-bg-disabled: hsl(var(--button-secondary-bg-disabled));
+  --color-button-secondary-bg-gradient: var(--button-secondary-bg-gradient);
+  --color-button-secondary-bg-gradient-hover: var(--button-secondary-bg-gradient-hover);
+  --color-button-secondary-border: hsl(var(--button-secondary-border));
+  --color-button-secondary-border-hover: hsl(var(--button-secondary-border-hover));
+  --color-button-secondary-text: hsl(var(--button-secondary-text));
+  --color-button-secondary-text-hover: hsl(var(--button-secondary-text-hover));
+  --color-button-secondary-text-disabled: hsl(var(--button-secondary-text-disabled));
+
+  /* Button Brand States */
+  --color-button-brand-bg: hsl(var(--button-brand-bg));
+  --color-button-brand-bg-hover: hsl(var(--button-brand-bg-hover));
+  --color-button-brand-bg-active: hsl(var(--button-brand-bg-active));
+  --color-button-brand-bg-disabled: hsl(var(--button-brand-bg-disabled));
+  --color-button-brand-bg-gradient: var(--button-brand-bg-gradient);
+  --color-button-brand-bg-gradient-hover: var(--button-brand-bg-gradient-hover);
+  --color-button-brand-bg-gradient-active: var(--button-brand-bg-gradient-active);
+  --color-button-brand-border: hsl(var(--button-brand-border));
+  --color-button-brand-border-hover: hsl(var(--button-brand-border-hover));
+  --color-button-brand-border-gradient: var(--brand-gradient-border);
+  --color-button-brand-text: hsl(var(--button-brand-text));
+  --color-button-brand-text-hover: hsl(var(--button-brand-text-hover));
+  --color-button-brand-text-disabled: hsl(var(--button-brand-text-disabled));
+
+  /* Semantic Color Scales with Hierarchical Naming */
+  /* Red */
+  --color-red-header: var(--red-header);
+  --color-red-subheader: var(--red-subheader);
+  --color-red-header-gradient: var(--red-header-gradient);
+  --color-red-fg-primary: var(--red-fg-primary);
+  --color-red-fg-secondary: var(--red-fg-secondary);
+  --color-red-fg-tertiary: var(--red-fg-tertiary);
+  --color-red-bg-subtle: var(--red-bg-subtle);
+  --color-red-bg-muted: var(--red-bg-muted);
+  --color-red-bg-solid: var(--red-bg-solid);
+  --color-red-bg-solid-hover: var(--red-bg-solid-hover);
+  --color-red-border: var(--red-border);
+  --color-red-border-hover: var(--red-border-hover);
+
+  /* Blue */
+  --color-blue-header: var(--blue-header);
+  --color-blue-subheader: var(--blue-subheader);
+  --color-blue-header-gradient: var(--blue-header-gradient);
+  --color-blue-fg-primary: var(--blue-fg-primary);
+  --color-blue-fg-secondary: var(--blue-fg-secondary);
+  --color-blue-fg-tertiary: var(--blue-fg-tertiary);
+  --color-blue-bg-subtle: var(--blue-bg-subtle);
+  --color-blue-bg-muted: var(--blue-bg-muted);
+  --color-blue-bg-solid: var(--blue-bg-solid);
+  --color-blue-bg-solid-hover: var(--blue-bg-solid-hover);
+  --color-blue-border: var(--blue-border);
+  --color-blue-border-hover: var(--blue-border-hover);
+
+  /* Green */
+  --color-green-header: var(--green-header);
+  --color-green-subheader: var(--green-subheader);
+  --color-green-header-gradient: var(--green-header-gradient);
+  --color-green-fg-primary: var(--green-fg-primary);
+  --color-green-fg-secondary: var(--green-fg-secondary);
+  --color-green-fg-tertiary: var(--green-fg-tertiary);
+  --color-green-bg-subtle: var(--green-bg-subtle);
+  --color-green-bg-muted: var(--green-bg-muted);
+  --color-green-bg-solid: var(--green-bg-solid);
+  --color-green-bg-solid-hover: var(--green-bg-solid-hover);
+  --color-green-border: var(--green-border);
+  --color-green-border-hover: var(--green-border-hover);
+
+  /* Amber */
+  --color-amber-header: var(--amber-header);
+  --color-amber-subheader: var(--amber-subheader);
+  --color-amber-header-gradient: var(--amber-header-gradient);
+  --color-amber-fg-primary: var(--amber-fg-primary);
+  --color-amber-fg-secondary: var(--amber-fg-secondary);
+  --color-amber-fg-tertiary: var(--amber-fg-tertiary);
+  --color-amber-bg-subtle: var(--amber-bg-subtle);
+  --color-amber-bg-muted: var(--amber-bg-muted);
+  --color-amber-bg-solid: var(--amber-bg-solid);
+  --color-amber-bg-solid-hover: var(--amber-bg-solid-hover);
+  --color-amber-border: var(--amber-border);
+  --color-amber-border-hover: var(--amber-border-hover);
+
+  /* Zinc */
+  --color-zinc-header: var(--zinc-header);
+  --color-zinc-subheader: var(--zinc-subheader);
+  --color-zinc-header-gradient: var(--zinc-header-gradient);
+  --color-zinc-fg-primary: var(--zinc-fg-primary);
+  --color-zinc-fg-secondary: var(--zinc-fg-secondary);
+  --color-zinc-fg-tertiary: var(--zinc-fg-tertiary);
+  --color-zinc-bg-subtle: var(--zinc-bg-subtle);
+  --color-zinc-bg-muted: var(--zinc-bg-muted);
+  --color-zinc-bg-solid: var(--zinc-bg-solid);
+  --color-zinc-bg-solid-hover: var(--zinc-bg-solid-hover);
+  --color-zinc-border: var(--zinc-border);
+  --color-zinc-border-hover: var(--zinc-border-hover);
+
+  --color-neutral-header: var(--neutral-header);
+  --color-neutral-subheader: var(--neutral-subheader);
+  --color-neutral-header-gradient: var(--neutral-header-gradient);
+  --color-neutral-fg-primary: var(--neutral-fg-primary);
+  --color-neutral-fg-secondary: var(--neutral-fg-secondary);
+  --color-neutral-fg-tertiary: var(--neutral-fg-tertiary);
+  --color-neutral-bg-subtle: var(--neutral-bg-subtle);
+  --color-neutral-bg-muted: var(--neutral-bg-muted);
+  --color-neutral-bg-solid: var(--neutral-bg-solid);
+  --color-neutral-bg-solid-hover: var(--neutral-bg-solid-hover);
+  --color-neutral-border: var(--neutral-border);
+  --color-neutral-border-hover: var(--neutral-border-hover);
+
+  /* ============================================
+     CONVENIENCE ALIASES FOR INLINE USAGE
+     Allows using either --bg-primary or --color-bg-primary
+     ============================================ */
+
+  /* Header Alias */
+  --color-header: hsl(var(--header));
+  --color-header-gradient: var(--header-gradient);
+  --color-subheader: hsl(var(--subheader));
+
+  /* Text/Foreground Aliases */
+  --text-foreground: hsl(var(--foreground));
+  --text-primary-foreground: hsl(var(--primary-foreground));
+  --text-secondary-foreground: hsl(var(--secondary-foreground));
+  --text-tertiary-foreground: hsl(var(--fg-tertiary));
+  --text-quaternary-foreground: hsl(var(--fg-quaternary));
+
+  /* Line Aliases (already have --color-line-* above, adding short versions) */
+  --color-line: hsl(var(--line-primary));
+
+  /* ============================================
+     PRIMITIVE COMPONENT TOKENS
+     Input, Form, Dropdown, Modal, Field tokens
+     ============================================ */
+
+  /* Input States (if defined in themes) */
+  --color-input-background: hsl(var(--input-background, var(--background)));
+  --color-input-foreground: hsl(var(--input-foreground, var(--foreground)));
+  --color-input-placeholder: hsl(var(--input-placeholder, var(--muted-foreground)));
+  --color-input-border: hsl(var(--input-border, var(--input)));
+  --color-input-border-hover: hsl(var(--input-border-hover, var(--ring)));
+  --color-input-focus: hsl(var(--input-focus, var(--ring)));
+  --color-input-disabled: hsl(var(--input-disabled, var(--muted)));
+
+  /* Form States (if defined in themes) */
+  --color-form-background: hsl(var(--form-background, var(--background)));
+  --color-form-foreground: hsl(var(--form-foreground, var(--foreground)));
+  --color-form-border: hsl(var(--form-border, var(--input)));
+  --color-form-error: hsl(var(--form-error, var(--destructive)));
+  --color-form-success: hsl(var(--form-success, var(--green-border)));
+
+  /* Button States (if defined in themes) */
+  --color-button-success: hsl(var(--button-success, var(--green-600)));
+  --color-button-error: hsl(var(--button-error, var(--destructive)));
+  --color-button-warning: hsl(var(--button-warning, var(--amber-600)));
+  --color-button-info: hsl(var(--button-info, var(--blue-600)));
+
+  /* Dropdown/Popover States (if defined in themes) */
+  --color-dropdown-background: hsl(var(--dropdown-background, var(--popover)));
+  --color-dropdown-foreground: hsl(var(--dropdown-foreground, var(--popover-foreground)));
+  --color-dropdown-border: hsl(var(--dropdown-border, var(--border)));
+  --color-dropdown-hover: hsl(var(--dropdown-hover, var(--accent)));
+
+  /* Modal/Dialog States (if defined in themes) */
+  --color-modal-background: hsl(var(--modal-background, var(--popover)));
+  --color-modal-foreground: hsl(var(--modal-foreground, var(--popover-foreground)));
+  --color-modal-border: hsl(var(--modal-border, var(--border)));
+  --color-modal-overlay: hsl(var(--modal-overlay, var(--background)) / 0.7);
+
+  /* Field States (if defined in themes) */
+  --color-field-background: hsl(var(--field-background, var(--background)));
+  --color-field-foreground: hsl(var(--field-foreground, var(--foreground)));
+  --color-field-border: hsl(var(--field-border, var(--input)));
+  --color-field-placeholder: hsl(var(--field-placeholder, var(--muted-foreground)));
+  --color-field-focus: hsl(var(--field-focus, var(--ring)));
+  --color-field-disabled: hsl(var(--field-disabled, var(--muted)));
+  --color-field-error: hsl(var(--field-error, var(--destructive)));
+  --color-field-success: hsl(var(--field-success, var(--green-border)));
+
+  /* ============================================
+     NORMALIZED COLOR PALETTE
+     Tailwind-compatible color scale (50-950)
+     ============================================ */
+
+  /* Red */
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+
+  /* Orange */
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+
+  /* Amber */
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  /* Yellow */
+  --color-yellow-50: #fefce8;
+  --color-yellow-100: #fef9c3;
+  --color-yellow-200: #fef08a;
+  --color-yellow-300: #fde047;
+  --color-yellow-400: #facc15;
+  --color-yellow-500: #eab308;
+  --color-yellow-600: #ca8a04;
+  --color-yellow-700: #a16207;
+  --color-yellow-800: #854d0e;
+  --color-yellow-900: #713f12;
+  --color-yellow-950: #422006;
+
+  /* Green */
+  --color-green-50: #f0fdf4;
+  --color-green-100: #dcfce7;
+  --color-green-200: #bbf7d0;
+  --color-green-300: #86efac;
+  --color-green-400: #4ade80;
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-green-700: #15803d;
+  --color-green-800: #166534;
+  --color-green-900: #14532d;
+  --color-green-950: #052e16;
+
+  /* Emerald */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+
+  /* Blue */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
+
+  /* Cyan */
+  --color-cyan-50: #ecfeff;
+  --color-cyan-100: #cffafe;
+  --color-cyan-200: #a5f3fc;
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-cyan-800: #155e75;
+  --color-cyan-900: #164e63;
+  --color-cyan-950: #083344;
+
+  /* Purple */
+  --color-purple-50: #faf5ff;
+  --color-purple-100: #f3e8ff;
+  --color-purple-200: #e9d5ff;
+  --color-purple-300: #d8b4fe;
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+  --color-purple-700: #7e22ce;
+  --color-purple-800: #6b21a8;
+  --color-purple-900: #581c87;
+  --color-purple-950: #3b0764;
+
+  /* Pink */
+  --color-pink-50: #fdf2f8;
+  --color-pink-100: #fce7f3;
+  --color-pink-200: #fbcfe8;
+  --color-pink-300: #f9a8d4;
+  --color-pink-400: #f472b6;
+  --color-pink-500: #ec4899;
+  --color-pink-600: #db2777;
+  --color-pink-700: #be185d;
+  --color-pink-800: #9d174d;
+  --color-pink-900: #831843;
+  --color-pink-950: #500724;
+
+  /* Slate/Zinc - Neutral grays */
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-500: #71717a;
+  --color-zinc-600: #52525b;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-800: #27272a;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b;
+
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+}
+
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE 10+ */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  /* Chrome/Safari/Edge (Chromium) */
+  display: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+
+.dropdown-scrollable {
+  max-height: 240px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.dropdown-scrollable::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.dropdown-scrollable::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 4px;
+}
+
+.dropdown-scrollable::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+@layer components {
+
+  /* =========================
+   Generic Helpers
+  ========================= */
+  .is-disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  .no-hover {
+    @media (hover: hover) {
+      &:hover {
+        transform: none !important;
+        filter: none !important;
+      }
+    }
+  }
+
+  /* ====================================
+     Surfaces (layout building blocks)
+  ==================================== */
+  .surface {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  .card {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Optional: if you have theme gradients defined */
+  .card-gradient {
+    background-image: var(--bg-secondary-gradient, none);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .popover-surface {
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .divider {
+    height: 1px;
+    width: 100%;
+    background-color: hsl(var(--border));
+  }
+
+  /* ====================================
+     Fields (input / textarea / select)
+     ==================================== */
+
+  .field {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--input));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+
+    transition: box-shadow 200ms, border-color 200ms, background-color 200ms, color 200ms;
+  }
+
+  .field::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .field:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring));
+  }
+
+  .field:disabled,
+  .field[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.7;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* For textarea */
+  .field-textarea {
+    min-height: 6.5rem;
+    align-items: flex-start;
+  }
+
+  /* For select */
+  .field-select {
+    appearance: none;
+  }
+
+  /* ====================================
+     Badges / Chips
+     ========================= */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    border-radius: 9999px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  .badge-solid {
+    background-color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .badge-outline {
+    background-color: transparent;
+    color: hsl(var(--foreground));
+  }
+
+  .badge-destructive {
+    background-color: hsl(var(--destructive));
+    border-color: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+  }
+
+  /* =========================
+     Links / Nav links
+     ========================= */
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+
+    color: hsl(var(--muted-foreground));
+    transition: background-color 200ms, color 200ms;
+  }
+
+  .header .graidient-header {
+    background-image: linear-gradient(90deg, hsl(var(--color-header)) 0%, hsl(var(--color-fg-tertiary)) 100%);
+    background: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    align-items: center;
+    font-size: larger;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 0.5rem 0.75rem;
+    padding-bottom: 2rem;
+  }
+
+  @media (hover: hover) {
+    .nav-link:hover {
+      background-color: hsl(var(--muted));
+      color: hsl(var(--foreground));
+    }
+  }
+
+  .nav-link-active {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+  }
+
+  /* =========================
+     Skeleton (loading)
+     ========================= */
+
+  .skeleton {
+    border-radius: var(--radius);
+    background-color: hsl(var(--muted));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg,
+        transparent,
+        hsl(var(--foreground) / 0.06),
+        transparent);
+    animation: skeleton-shimmer 1.2s infinite;
+  }
+
+  /* =========================
+     Dialog / Modal (surface only; overlay separate)
+     ========================= */
+
+  .overlay {
+    background: hsl(var(--background) / 0.7);
+    backdrop-filter: blur(10px);
+  }
+
+  .dialog {
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) + 0.25rem);
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* ====================================
+     Button Components with State Handling
+     ==================================== */
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    color: hsl(var(--button-secondary-text));
+    border: 1px solid hsl(var(--button-secondary-border));
+    background-color: hsl(var(--button-secondary-bg));
+    box-shadow: var(--shadow-sm);
+
+    transition:
+      transform 150ms,
+      box-shadow 150ms,
+      background-color 150ms,
+      border-color 150ms,
+      color 150ms;
+  }
+
+  @media (hover: hover) {
+    .btn-secondary:hover {
+      background-color: hsl(var(--button-secondary-bg-hover));
+      border-color: hsl(var(--button-secondary-border-hover));
+      box-shadow: var(--shadow-md);
+      transform: translateY(-0.5px) scale(1.01);
+    }
+  }
+
+  .btn-secondary:active {
+    background-color: hsl(var(--button-secondary-bg-active));
+    transform: translateY(0) scale(0.99);
+  }
+
+  .btn-secondary:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring)),
+      var(--shadow-sm);
+  }
+
+  .btn-secondary:disabled,
+  .btn-secondary[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    background-color: hsl(var(--button-secondary-bg-disabled));
+    border-color: hsl(var(--button-secondary-bg-disabled));
+    color: hsl(var(--button-secondary-text-disabled));
+    box-shadow: none;
+  }
+
+  .btn-brand {
+    /* Primary Brand Button */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    color: hsl(var(--brand-text));
+    border: 1px solid hsl(var(--brand-gradient-border));
+    background-color: hsl(var(--brand-bg));
+    background-image: linear-gradient(135deg, color-mix(in lch, hsl(var(--accent-base)), hsl(var(--brand-gradient))), color-mix(in lch, hsl(var(--accent-tint)), hsl(var(--button-brand-bg-gradient))));
+    background-size: 200% 200%;
+    background-position: center;
+    box-shadow: var(--shadow-lg),
+      0 0 0 1px hsl(var(--brand-gradient-border) / 0.2);
+
+    transition:
+      transform 200ms,
+      box-shadow 200ms,
+      background-position 300ms,
+      background-image 300ms;
+  }
+
+  @media (hover: hover) {
+    .btn-brand:hover {
+      background-image: linear-gradient(135deg, color-mix(in lch, hsl(var(--accent-base)), hsl(var(--brand-gradient))), color-mix(in lch, hsl(var(--accent-tint)), hsl(var(--button-brand-bg-gradient))));
+      background-position: 60% 40%;
+      border-color: hsl(var(--brand-gradient-border-hover));
+      box-shadow: var(--shadow-xl),
+        0 0 20px hsl(var(--brand-gradient-bg) / 0.9);
+      transform: translateY(0px) scale(1.03);
+    }
+  }
+
+  .btn-brand:active {
+    background-color: hsl(var(--brand-bg-active));
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-brand:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--brand-bg)),
+      var(--shadow-lg);
+  }
+
+  .btn-brand:disabled,
+  .btn-brand[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    background-image: none;
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+    box-shadow: none;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    color: hsl(var(--foreground));
+    border: 1px solid transparent;
+    background-color: transparent;
+
+    transition:
+      transform 150ms,
+      background-color 150ms,
+      color 150ms;
+  }
+
+  @media (hover: hover) {
+    .btn-ghost:hover {
+      background-color: hsl(var(--bg-quinary));
+      transform: scale(1.02);
+    }
+  }
+
+  .btn-ghost:active {
+    background-color: hsl(var(--bg-quaternary));
+    transform: scale(0.98);
+  }
+
+  .btn-ghost:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring));
+  }
+
+  .btn-ghost:disabled,
+  .btn-ghost[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    color: hsl(var(--muted-foreground));
+    background-color: transparent;
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--border));
+    background-color: transparent;
+
+    transition:
+      transform 150ms,
+      background-color 150ms,
+      border-color 150ms,
+      color 150ms;
+  }
+
+  @media (hover: hover) {
+    .btn-outline:hover {
+      background-color: hsl(var(--bg-secondary));
+      border-color: hsl(var(--accent));
+      color: hsl(var(--accent));
+      transform: scale(1.02);
+    }
+  }
+
+  .btn-outline:active {
+    background-color: hsl(var(--bg-tertiary));
+    transform: scale(0.98);
+  }
+
+  .btn-outline:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring));
+  }
+
+  .btn-outline:disabled,
+  .btn-outline[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    border-color: hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+    background-color: transparent;
+  }
+
+  /* Button Size Variants */
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    gap: 0.375rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    gap: 0.625rem;
+  }
+
+  .btn-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  /* ====================================
+     Card Components with State Handling
+     ==================================== */
+
+  .card-interactive {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+
+    transition:
+      transform 200ms,
+      box-shadow 200ms,
+      border-color 200ms,
+      background-color 200ms;
+  }
+
+  @media (hover: hover) {
+    .card-interactive:hover {
+      border-color: hsl(var(--accent) / 0.5);
+      background-color: hsl(var(--bg-tertiary));
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+  }
+
+  .card-interactive:active {
+    transform: translateY(0) scale(0.99);
+  }
+
+  .card-flat {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+
+  .card-elevated {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ====================================
+     Form Components with State Handling
+     ==================================== */
+
+  .form-input {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--input));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+
+    transition: box-shadow 200ms, border-color 200ms;
+  }
+
+  .form-input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .form-input:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring));
+    border-color: hsl(var(--ring));
+  }
+
+  .form-input:disabled,
+  .form-input[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: hsl(var(--muted));
+  }
+
+  .form-input-error {
+    border-color: hsl(var(--destructive));
+  }
+
+  .form-input-error:focus-visible {
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--destructive));
+  }
+
+  .form-input-success {
+    border-color: hsl(var(--green-border));
+  }
+
+  .form-input-success:focus-visible {
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--green-border));
+  }
+
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-help-text {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.375rem;
+  }
+
+  .form-error-text {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: hsl(var(--destructive));
+    margin-top: 0.375rem;
+  }
+
+  /* ====================================
+     Link Components with State Handling
+     ==================================== */
+
+  .link {
+    color: hsl(var(--accent));
+    text-decoration: none;
+    transition: color 150ms, opacity 150ms;
+  }
+
+  @media (hover: hover) {
+    .link:hover {
+      opacity: 0.9;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  .link-subtle {
+    color: hsl(var(--fg-secondary));
+    text-decoration: none;
+    transition: color 150ms;
+  }
+
+  @media (hover: hover) {
+    .link-subtle:hover {
+      color: hsl(var(--fg-primary));
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  /* ====================================
+     Badge Components (Semantic)
+     ==================================== */
+
+  .badge-info {
+    background-color: hsl(var(--blue-bg-subtle));
+    color: hsl(var(--blue-fg-primary));
+    border: 1px solid hsl(var(--blue-border));
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .badge-success {
+    background-color: hsl(var(--green-bg-subtle));
+    color: hsl(var(--green-fg-primary));
+    border: 1px solid hsl(var(--green-border));
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .badge-warning {
+    background-color: hsl(var(--amber-bg-subtle));
+    color: hsl(var(--amber-fg-primary));
+    border: 1px solid hsl(var(--amber-border));
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .badge-error {
+    background-color: hsl(var(--red-bg-subtle));
+    color: hsl(var(--red-fg-primary));
+    border: 1px solid hsl(var(--red-border));
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* ====================================
+     Surface Components with State
+     ==================================== */
+
+  .surface-elevated {
+    background-color: hsl(var(--bg-tertiary));
+    color: hsl(var(--fg-primary));
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@utility btn-primary {
+  /* Base */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  color: hsl(var(--button-primary-text));
+  border: 1px solid hsl(var(--button-primary-border));
+  background-color: hsl(var(--button-primary-bg));
+  box-shadow: var(--shadow-lg);
+
+  transition:
+    transform 200ms,
+    box-shadow 200ms,
+    filter 200ms,
+    background-image 200ms,
+    background-color 200ms,
+    border-color 200ms,
+    color 200ms;
+
+  /* Hover */
+  @media (hover: hover) {
+    &:hover {
+      background-color: hsl(var(--button-primary-bg-hover));
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-1px) scale(1.03);
+    }
+  }
+
+  /* Active */
+  &:active {
+    background-color: hsl(var(--button-primary-bg-active));
+    transform: translateY(0) scale(0.99);
+    filter: brightness(0.98);
+  }
+
+  /* Focus */
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring)),
+      var(--shadow-lg);
+  }
+
+  /* Disabled */
+  &:disabled,
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+
+    background-color: hsl(var(--button-primary-bg-disabled));
+    border-color: hsl(var(--button-primary-bg-disabled));
+    color: hsl(var(--button-primary-text-disabled));
+
+    box-shadow: var(--shadow-sm);
+    opacity: 0.9;
+  }
+}
+
+@utility btn-primary-gradient {
+  /* Base */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  color: hsl(var(--button-primary-text));
+  border: 1px solid hsl(var(--button-primary-border));
+  background-color: hsl(var(--button-primary-bg));
+  /* fallback */
+  background-image: var(--button-primary-bg-gradient);
+  background-size: 200% 200%;
+  background-position: center;
+
+  box-shadow: var(--shadow-lg);
+
+  transition:
+    transform 200ms,
+    box-shadow 200ms,
+    filter 200ms,
+    background-position 200ms,
+    background-image 200ms,
+    background-color 200ms,
+    border-color 200ms,
+    color 200ms;
+
+  /* Hover */
+  @media (hover: hover) {
+    &:hover {
+      background-image: var(--button-primary-bg-gradient-hover);
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-1px) scale(1.03);
+      background-position: 55% 45%;
+    }
+  }
+
+  /* Active */
+  &:active {
+    background-image: var(--button-primary-bg-gradient-active, var(--button-primary-bg-gradient-hover));
+    transform: translateY(0) scale(0.99);
+    filter: brightness(0.98);
+  }
+
+  /* Focus */
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--ring)),
+      var(--shadow-lg);
+  }
+
+  /* Disabled */
+  &:disabled,
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+
+    background-image: none;
+    background-color: hsl(var(--button-primary-bg-disabled));
+    border-color: hsl(var(--button-primary-bg-disabled));
+    color: hsl(var(--button-primary-text-disabled));
+
+    box-shadow: var(--shadow-sm);
+    opacity: 0.9;
+  }
+}
+
+/* ============================================
+   Simple Gradient Utilities (Single-Purpose)
+   ============================================ */
+
+/* Theme-driven gradient utilities */
+@utility bg-primary-gradient {
+  background-image: var(--bg-primary-gradient);
+}
+
+@utility bg-secondary-gradient {
+  background-image: var(--bg-secondary-gradient);
+}
+
+@utility bg-tertiary-gradient {
+  background-image: var(--bg-tertiary-gradient);
+}
+
+@utility bg-button-primary-gradient {
+  background-image: var(--button-primary-bg-gradient);
+}
+
+@utility bg-button-primary-gradient-hover {
+  background-image: var(--button-primary-bg-gradient-hover);
+}
+
+@utility bg-button-secondary-gradient {
+  background-image: var(--button-secondary-bg-gradient);
+}
+
+@utility bg-button-secondary-gradient-hover {
+  background-image: var(--button-secondary-bg-gradient-hover);
+}
+
+/* Brand gradient utilities */
+@utility bg-brand-gradient {
+  background-image: var(--brand-gradient);
+}
+
+@utility bg-brand-gradient-hover {
+  background-image: var(--brand-gradient-hover);
+}
+
+/* Gradient text utilities */
+@utility text-primary-gradient {
+  background-image: var(--bg-primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-brand-gradient {
+  background-image: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================================
+   Brand Button Gradient Utility
+   Matches "Continue to Payment" button style
+   ============================================ */
+
+@utility btn-brand-gradient {
+  /* Base */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  color: hsl(var(--brand-text));
+  border: 1px solid hsl(var(--brand-border));
+  background-color: hsl(var(--brand-bg));
+  background-image: var(--brand-gradient);
+  background-size: 200% 200%;
+  background-position: center;
+
+  box-shadow:
+    0 1px 0 0 hsl(var(--line-primary)),
+    0 0 20px -8px hsl(var(--accent-base)),
+    var(--shadow-md);
+
+  transition:
+    transform 200ms,
+    box-shadow 200ms,
+    background-position 300ms,
+    background-image 300ms,
+    border-color 200ms;
+
+  /* Hover */
+  @media (hover: hover) {
+    &:hover {
+      background-image: var(--brand-gradient-hover);
+      background-position: 60% 40%;
+      border-color: hsl(var(--brand-border-hover));
+      box-shadow:
+        0 1px 0 0 hsl(var(--line-primary)),
+        0 0 24px -6px hsl(var(--accent-base)),
+        var(--shadow-lg);
+      transform: translateY(-1px) scale(1.02);
+    }
+  }
+
+  /* Active */
+  &:active {
+    background-color: hsl(var(--brand-bg-active));
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Focus */
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--brand-bg)),
+      var(--shadow-lg);
+  }
+
+  /* Disabled */
+  &:disabled,
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    transform: none;
+    background-image: none;
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+    box-shadow: none;
+  }
+}
+
+/* ============================================
+   Simple Surface Utilities (Single-Purpose)
+   ============================================ */
+
+@utility surface-primary {
+  background-color: hsl(var(--bg-primary));
+  color: hsl(var(--fg-primary));
+}
+
+@utility surface-secondary {
+  background-color: hsl(var(--bg-secondary));
+  color: hsl(var(--fg-primary));
+}
+
+/* ============================================
+   Simple Text Color Utilities (Single-Purpose)
+   ============================================ */
+
+@utility text-gradient-header {
+  color: hsl(var(--gradient-header));
+}
+
+@utility text-header {
+  color: hsl(var(--header));
+}
+
+@utility text-subheader {
+  color: hsl(var(--subheader));
+}
+
+@utility text-primary {
+  color: hsl(var(--fg-primary));
+}
+
+@utility text-secondary {
+  color: hsl(var(--fg-secondary));
+}
+
+@utility text-tertiary {
+  color: hsl(var(--fg-tertiary));
+}
+
+@utility text-muted {
+  color: hsl(var(--fg-quaternary));
+}
+
+@utility text-brand {
+  color: hsl(var(--accent-base));
+}
+
+@utility text-error {
+  color: hsl(var(--destructive));
+}
+
+@utility text-success {
+  color: hsl(var(--green-fg-primary));
+}
+
+@utility text-warning {
+  color: hsl(var(--amber-fg-primary));
+}
+
+/* ============================================
+   Simple Border Color Utilities (Single-Purpose)
+   ============================================ */
+
+@utility border-primary {
+  border-color: hsl(var(--line-primary));
+}
+
+@utility border-secondary {
+  border-color: hsl(var(--line-secondary));
+}
+
+@utility border-accent {
+  border-color: hsl(var(--accent-base));
+}
+
+@utility border-muted {
+  border-color: hsl(var(--border));
+}
+
+/* ============================================
+   Animated Brand Border Gradient (Nile-style)
+   ============================================ */
+
+@utility brand-border-gradient {
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: var(--brand-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotate-gradient 3s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@utility header-gradient-animate {
+  animation: rotate-gradient 5s linear infinite;
+}
+
+@keyframes rotate-gradient {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.dotPattern {
+  background-image: radial-gradient(rgb(35, 40, 68) 1px, transparent 1px);
+  background-size: 25px 25px;
+}
+
+.use-automation-zoom-in {
+  animation: automation-zoom-in 0.5s;
+}
+
+@keyframes automation-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   INTERACTIVE STATE UTILITIES
+   Auto-respecting light/dark/premium modes
+   ============================================ */
+
+/* Hover State Utilities */
+@utility hover-interactive {
+  @media (hover: hover) {
+    &:hover {
+      background-color: hsl(var(--bg-secondary));
+      border-color: hsl(var(--line-primary));
+      transform: translateY(-0.5px);
+      transition: all 150ms ease;
+    }
+  }
+}
+
+@utility hover-subtle {
+  @media (hover: hover) {
+    &:hover {
+      background-color: hsl(var(--bg-tertiary));
+      transition: background-color 150ms ease;
+    }
+  }
+}
+
+@utility hover-accent {
+  @media (hover: hover) {
+    &:hover {
+      color: hsl(var(--accent-base));
+      transition: color 150ms ease;
+    }
+  }
+}
+
+@utility hover-destructive {
+  @media (hover: hover) {
+    &:hover {
+      color: hsl(var(--destructive));
+      transition: color 150ms ease;
+    }
+  }
+}
+
+@utility hover-underline {
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Disabled State Utility */
+@utility state-disabled {
+
+  &:disabled,
+  &[aria-disabled="true"],
+  &[data-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Focus State Utility */
+@utility focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--accent-base) / 0.2);
+    transition: box-shadow 150ms ease;
+  }
+}
+
+/* Command Item Interactive (for dropdowns/lists) */
+@utility command-item {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 150ms ease;
+  color: hsl(var(--fg-primary));
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: hsl(var(--bg-secondary));
+    }
+  }
+
+  &[aria-selected="true"],
+  &:focus {
+    background-color: hsl(var(--bg-secondary));
+    outline: none;
+  }
+}
+
+/* Translucent Surface (glass-like backgrounds) */
+@utility surface-translucent {
+  background-color: hsl(var(--bg-primary) / 0.8);
+  -webkit-backdrop-filter: blur(35px) saturate(150%);
+  backdrop-filter: blur(35px) saturate(150%);
+}
+
+/* Icon hover state (for interactive icons) */
+@utility icon-interactive {
+  color: hsl(var(--fg-tertiary));
+  cursor: pointer;
+  transition: color 150ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      color: hsl(var(--accent-base));
+    }
+  }
+}
+
+@utility icon-destructive {
+  color: hsl(var(--fg-tertiary));
+  cursor: pointer;
+  transition: color 150ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      color: hsl(var(--destructive));
+    }
+  }
+}
+
+/* Scroll offset for anchor links with sticky header */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+[id] {
+  scroll-margin-top: 5rem;
+  /* 80px - accounts for sticky header (56px) + padding */
+}
+
+/* Glass Container */
+.glass-outer {
+  --glass-border-size: 1px;
+  --glass-border-gradient: linear-gradient(to bottom right, rgba(255,255,255,0.07), transparent);
+  border-radius: 18px;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  background:   var(--glass-border-gradient);
+}
+
+.glass-inner {
+  isolation: isolate;
+  --glass-border-size: 1px;
+  --glass-border-gradient: linear-gradient(to bottom right, rgba(255,255,255,0.17), transparent);
+  background: var(--glass-border-gradient);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.glass-inner::after {
+  content: "";
+  pointer-events: none;
+  filter: url(#noiseFilter);
+  mix-blend-mode: overlay;
+  opacity: 0.1;
+  position: absolute;
+  inset: 0;
+}
+
+/* Hide noise when data-noise="false" */
+.glass-inner[data-noise="false"]::after {
+  display: none;
+}
+
+/* Light theme glass adjustments */
+.light .glass-outer {
+  background: linear-gradient(to bottom right, rgba(0,0,0,0.03), transparent);
+}
+
+.light .glass-inner {
+  background: linear-gradient(134deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7), rgba(255,255,255,0.5) 55%);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+/* Premium/Dark theme glass - more visible effect */
+.dark .glass-outer,
+.premium .glass-outer {
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+}
+
+.dark .glass-inner,
+.premium .glass-inner {
+  background: linear-gradient(134deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04), transparent 55%);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.mask-fade-br {
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%),
+    linear-gradient(to right, black 20%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%),
+    linear-gradient(to right, black 20%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+.glass-card {
+    -webkit-user-select: none;
+    user-select: none;
+    aspect-ratio: 432/320;
+    --mask-bottom: linear-gradient(to bottom,var(--mask-visible)50%,var(--mask-invisible)100%);
+    --mask-right: linear-gradient(to right,var(--mask-visible)20%,var(--mask-invisible)100%);
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    -webkit-mask-image: var(--mask-bottom),var(--mask-right);
+    -webkit-mask-image: var(--mask-bottom),var(--mask-right);
+    mask-image: var(--mask-bottom),var(--mask-right);
+    -webkit-mask-composite: source-in;
+    overflow: hidden;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+}
+
+.glass-border-gradient {
+  --invisible: rgba(255,255,255,0);
+  --visible: rgba(255,255,255,0.2);
+  --mask-visible: var(--visible);
+  --mask-invisible: var(--invisible);
+    --glass-border-size: 1px;
+    --glass-border-gradient: linear-gradient(to bottom right, var(--visible), var(--invisible));
+    border-radius: 18px; 
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    border: 1px solid var(--glass-border-gradient);
+    background: var(--glass-border-gradient);
+}
+
+.premium .module__C0ELRa__root {
+    -webkit-user-select: none;
+    user-select: none;
+    aspect-ratio: 432 / 320;
+    --mask-bottom: linear-gradient(to bottom, var(--mask-visible) 50%, var(--mask-invisible) 100%);
+    --mask-right: linear-gradient(to right, var(--mask-visible) 20%, var(--mask-invisible) 100%);
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    -webkit-mask-image: var(--mask-bottom), var(--mask-right);
+    -webkit-mask-image: var(--mask-bottom), var(--mask-right);
+    mask-image: var(--mask-bottom), var(--mask-right);
+    -webkit-mask-composite: source-in;
+    overflow: hidden;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+}
+
+.premium .module__WDhx3G__outer {
+    --gradientBorder-size: 1px;
+    --gradientBorder-gradient: linear-gradient(to bottom right, #ffffff12, transparent); 
+    border-radius: 18px;
+    width: 100%;
+    padding: 8px;
+}
+
+.premium .module__WDhx3G__inner {
+    isolation: isolate;
+    --gradientBorder-size: 1px;
+    --gradientBorder-gradient: linear-gradient(to bottom right, #ffffff2b, transparent);
+    background: linear-gradient(134deg, #ffffff14, #ffffff05, #fff0 55%);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}

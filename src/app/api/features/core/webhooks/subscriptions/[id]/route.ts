@@ -1,0 +1,170 @@
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { requireIntegrationAuth } from '@/lib/features/core/integrations/guards'
+import { db } from '@/lib/db'
+import { Prisma } from '@/generated/prisma/client'
+import { deleteSubscription, updateSubscription, getSubscriptionWithScope, updateSubscriptionSecret } from '@/lib/features/core/integrations/store'
+import { randomToken, sha256Hex, encryptStringGcm, decryptStringGcm } from '@/lib/features/core/integrations/crypto'
+import { sendWebhookAttempt } from '@/lib/features/core/integrations/delivery'
+import { KEYS } from '@/lib/registry/keys/permissions'
+
+const PatchSchema = z.object({
+  url: z.string().url().optional(),
+  events: z.array(z.string().min(1)).optional(),
+  isActive: z.boolean().optional(),
+})
+
+type Props = { params: Promise<{ id: string }> }
+
+export async function GET(req: Request, props: Props) {
+  try {
+    const { scope } = await requireIntegrationAuth(req, { requiredKeys: [KEYS.core.apps.webhooks.view] })
+    const { id } = await props.params
+    const ok = await subscriptionInScope(id, scope)
+    if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const subscription = await db.integrationWebhookSubscription.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        connectionId: true,
+        url: true,
+        events: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    if (!subscription) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json({ subscription })
+  } catch (e: any) {
+    if (e instanceof Response) return e
+    console.error(e)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: Request, props: Props) {
+  try {
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
+    const { id } = await props.params
+    const body = await req.json()
+    const parsed = PatchSchema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    const ok = await subscriptionInScope(id, scope)
+    if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    await updateSubscription(id, parsed.data)
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    if (e instanceof Response) return e
+    console.error(e)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: Request, props: Props) {
+  try {
+    const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
+    const { id } = await props.params
+    const ok = await subscriptionInScope(id, scope)
+    if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    await deleteSubscription(id)
+    return NextResponse.json({ ok: true })
+  } catch (e: any) {
+    if (e instanceof Response) return e
+    console.error(e)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// POST handles actions: test, rotate
+export async function POST(req: Request, props: Props) {
+  try {
+    const url = new URL(req.url)
+    const action = url.searchParams.get('action')
+
+    if (action === 'test') {
+      return handleTest(req, props)
+    } else if (action === 'rotate') {
+      return handleRotate(req, props)
+    }
+
+    return NextResponse.json({ error: 'Invalid action. Use ?action=test or ?action=rotate' }, { status: 400 })
+  } catch (e: any) {
+    if (e instanceof Response) return e
+    console.error(e)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+async function handleTest(req: Request, props: Props) {
+  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
+  const { id } = await props.params
+  const sub = await getSubscriptionWithScope(id)
+  if (!sub) return NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 })
+
+  if (scope.type === 'AGENCY') {
+    if (sub.agencyId !== scope.agencyId || sub.subAccountId) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+  } else {
+    if (sub.subAccountId !== scope.subAccountId) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+  }
+
+  const secret = sub.secretEnc ? decryptStringGcm(sub.secretEnc) : null
+
+  const attempt = await sendWebhookAttempt({
+    url: sub.url,
+    secret,
+    body: {
+      event: 'autlify.webhook.test',
+      subscriptionId: sub.id,
+      sentAt: new Date().toISOString(),
+    },
+  })
+
+  return NextResponse.json({ ok: attempt.ok, status: attempt.status, durationMs: attempt.durationMs, error: attempt.ok ? null : attempt.error ?? attempt.body }, { status: 200 })
+}
+
+async function handleRotate(req: Request, props: Props) {
+  const { scope } = await requireIntegrationAuth(req, { requireWrite: true, requiredKeys: [KEYS.core.apps.webhooks.manage] })
+  const { id } = await props.params
+  const sub = await getSubscriptionWithScope(id)
+  if (!sub) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+  if (scope.type === 'AGENCY') {
+    if (sub.agencyId !== scope.agencyId || sub.subAccountId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } else {
+    if (sub.subAccountId !== scope.subAccountId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const secret = randomToken(24)
+  const secretHash = sha256Hex(secret)
+  const secretEnc = encryptStringGcm(secret)
+
+  await updateSubscriptionSecret({ subscriptionId: id, secretHash, secretEnc })
+
+  return NextResponse.json({ subscriptionId: id, secret }, { status: 200 })
+}
+
+
+async function subscriptionInScope(subscriptionId: string, scope: any) {
+  const rows = (await db.$queryRaw(
+    Prisma.sql`SELECT c."agencyId", c."subAccountId"
+              FROM "IntegrationWebhookSubscription" s
+              JOIN "IntegrationConnection" c ON c."id" = s."connectionId"
+              WHERE s."id" = ${subscriptionId}
+              LIMIT 1`
+  )) as any[]
+  const row = rows?.[0]
+  if (!row) return false
+
+  if (scope.type === 'AGENCY') {
+    return row.agencyId === scope.agencyId && row.subAccountId === null
+  }
+  if (scope.type === 'SUBACCOUNT') {
+    return row.subAccountId === scope.subAccountId
+  }
+  return false
+}
