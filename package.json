@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:cf": "npx @cloudflare/next-on-pages",
+    "preview:cf": "npx wrangler pages dev",
+    "deploy:cf": "npx wrangler pages deploy",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -129,6 +132,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@playwright/test": "^1.58.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/bcryptjs": "^3.0.0",
@@ -147,6 +151,7 @@
     "prisma": "^7.3.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.63.0"
   }
 }
