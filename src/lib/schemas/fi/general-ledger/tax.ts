@@ -2,7 +2,7 @@
  * Tax Management Schemas
  * FI-GL Module - Tax accounts, codes, and posting configuration
  * 
- * @namespace Autlify.Lib.Schemas.FI.GL.Tax
+ * @namespace Naropo.Lib.Schemas.FI.GL.Tax
  */
 
 import { z } from 'zod'
@@ -45,7 +45,7 @@ export type UpdateTaxCodeInput = z.infer<typeof updateTaxCodeSchema>
 /** Tax settings schema (part of GL configuration) */
 export const taxSettingsSchema = z.object({
   enabled: z.boolean().default(false),
-  
+
   // Tax accounts
   inputVATAccountId: z.string().uuid().nullable().optional(),
   outputVATAccountId: z.string().uuid().nullable().optional(),
@@ -53,13 +53,13 @@ export const taxSettingsSchema = z.object({
   taxClearingAccountId: z.string().uuid().nullable().optional(),
   taxPayableAccountId: z.string().uuid().nullable().optional(),
   taxReceivableAccountId: z.string().uuid().nullable().optional(),
-  
+
   // Tax period
   taxPeriod: taxPeriodEnum.default('MONTHLY'),
-  
+
   // Tax codes (stored as JSON)
   taxCodes: z.array(taxCodeSchema).default([]),
-  
+
   // Behavior
   autoApplyDefaultTax: z.boolean().default(false),
   requireTaxOnInvoice: z.boolean().default(false),

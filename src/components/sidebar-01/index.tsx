@@ -90,7 +90,7 @@ const Sidebar = async ({ id, type }: Props) => {
     const isWhiteLabeledAgency = agency.whiteLabel
     if (!details) return null
 
-    let sideBarLogo = agency.agencyLogo || '/assets/autlify-logo.svg'
+    let sideBarLogo = agency.agencyLogo || '/assets/naropo-logo.svg'
 
     if (!isWhiteLabeledAgency) {
         if (type === 'subaccount') {
@@ -98,7 +98,7 @@ const Sidebar = async ({ id, type }: Props) => {
                 agency.SubAccount.find((subaccount) => subaccount.id === id)
                     ?.subAccountLogo || agency.agencyLogo
         } else if (type === 'agency') {
-            sideBarLogo = '/assets/autlify-logo.svg'
+            sideBarLogo = '/assets/naropo-logo.svg'
         }
     }
 
@@ -131,7 +131,7 @@ const Sidebar = async ({ id, type }: Props) => {
         subAccountId: type === 'subaccount' ? id : null,
         scope: scope as 'AGENCY' | 'SUBACCOUNT',
     })
-    
+
     // Serialize entitlements for client component (only pass what's needed)
     const entitledFeatures: Record<string, boolean> = {}
     for (const [key, ent] of Object.entries(entitlementsMap)) {

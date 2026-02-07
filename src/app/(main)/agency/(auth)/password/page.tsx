@@ -175,8 +175,8 @@ export default function ForgotPasswordPage() {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
             <Image
-              src="/assets/autlify-logo.svg"
-              alt="Autlify"
+              src="/assets/naropo-logo.svg"
+              alt="Naropo"
               width={140}
               height={40}
               className="dark:invert"

@@ -328,7 +328,7 @@ const MenuOptions = ({
   sidebarLogo,
   details,
   user,
-  id, 
+  id,
   animated = true,
 }: {
   defaultOpen?: boolean
@@ -336,7 +336,7 @@ const MenuOptions = ({
   sidebarLogo: string
   details: any
   user: any
-  id: string 
+  id: string
   animated?: boolean
 }) => {
   const links = [
@@ -428,7 +428,7 @@ const MenuOptions = ({
     status: false
   })
 
-    const defaultOpenState = useMemo(
+  const defaultOpenState = useMemo(
     () => (defaultOpen ? { open: true } : {}),
     [defaultOpen]
   )
@@ -449,92 +449,113 @@ const MenuOptions = ({
 
   return (
 
-      <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
-            {open ? (
-              <div className="relative mb-8 mt-2 flex items-center justify-center">
-                <a
-                  href="#"
-                  className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+    <Sidebar open={open} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10">
+        <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+          {open ? (
+            <div className="relative mb-8 mt-2 flex items-center justify-center">
+              <a
+                href="#"
+                className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+              >
+                <AspectRatio ratio={16 / 5}>
+                  <Image
+                    src={'/assets/naropo-logo.svg'}
+                    alt="Naropo Logo"
+                    fill
+                    className="rounded-md object-contain"
+                  />
+                </AspectRatio>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="font-medium whitespace-pre text-black dark:text-white"
                 >
-                  <AspectRatio ratio={16 / 5}>
-                    <Image
-                      src={'/assets/autlify-logo.svg'}
-                      alt="Autlify Logo"
-                      fill
-                      className="rounded-md object-contain"
-                    />
-                  </AspectRatio>
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="font-medium whitespace-pre text-black dark:text-white"
-                  >
-                    Autlify
-                  </motion.span>
-                </a>
-                {!animated && <FaExpandArrowsAlt className="absolute right-3 top-3 text-black dark:text-white cursor-pointer" onClick={() => setOpen(false)} />}
-              </div>
-            ) : (
-              <div className="relative mb-8 mt-2 flex items-center justify-center">
-                <a
-                  href="#"
-                  className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
-                >
-                  <AspectRatio ratio={16 / 5}>
-                    <Image
-                      src={'/assets/autlify-logo.svg'}
-                      alt="Autlify Logo"
-                      fill
-                      className="rounded-md object-contain"
-                    />
-                  </AspectRatio>
-                </a>
-                {!animated && <FaEye className="absolute right-3 top-3 text-black dark:text-white cursor-pointer" onClick={() => setOpen(true)} />}
-              </div>
-            )}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className={cn(open ? "w-full my-4 flex items-center justify-between py-8" : "w-12 h-12 my-4 flex items-center justify-center p-0")}
-                  variant="ghost"
-                >
-                  <div className="flex items-center text-left gap-2">
-                    <Compass />
-                    <div className="flex flex-col">
-                      {details.name}
-                      <span className="text-muted-foreground">
-                        {details.address}
-                      </span>
-                    </div>
+                  Naropo
+                </motion.span>
+              </a>
+              {!animated && <FaExpandArrowsAlt className="absolute right-3 top-3 text-black dark:text-white cursor-pointer" onClick={() => setOpen(false)} />}
+            </div>
+          ) : (
+            <div className="relative mb-8 mt-2 flex items-center justify-center">
+              <a
+                href="#"
+                className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+              >
+                <AspectRatio ratio={16 / 5}>
+                  <Image
+                    src={'/assets/naropo-logo.svg'}
+                    alt="Naropo Logo"
+                    fill
+                    className="rounded-md object-contain"
+                  />
+                </AspectRatio>
+              </a>
+              {!animated && <FaEye className="absolute right-3 top-3 text-black dark:text-white cursor-pointer" onClick={() => setOpen(true)} />}
+            </div>
+          )}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                className={cn(open ? "w-full my-4 flex items-center justify-between py-8" : "w-12 h-12 my-4 flex items-center justify-center p-0")}
+                variant="ghost"
+              >
+                <div className="flex items-center text-left gap-2">
+                  <Compass />
+                  <div className="flex flex-col">
+                    {details.name}
+                    <span className="text-muted-foreground">
+                      {details.address}
+                    </span>
                   </div>
-                  {open && (
-                    <ChevronsUpDown
-                      size={16}
-                      className="text-muted-foreground"
-                    />
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 h-80 mt-4 z-[200]">
-                <Command className="rounded-lg">
-                  <CommandInput placeholder="Search Accounts..." />
-                  <CommandList className="pb-16">
-                    <CommandEmpty> No results found</CommandEmpty>
-                    {user?.AgencyMemberships?.some(
-                      (m: any) => m.isActive && (m.Role?.name === 'AGENCY_OWNER' || m.Role?.name === 'AGENCY_ADMIN')
-                    ) && user?.AgencyMemberships?.[0]?.Agency && (
-                        <CommandGroup heading="Agency">
-                          <CommandItem className="!bg-transparent my-2 text-primary broder-[1px] border p-2 rounded-md hover:!bg-muted cursor-pointer transition-all">
-                            {defaultOpen ? (
+                </div>
+                {open && (
+                  <ChevronsUpDown
+                    size={16}
+                    className="text-muted-foreground"
+                  />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 h-80 mt-4 z-[200]">
+              <Command className="rounded-lg">
+                <CommandInput placeholder="Search Accounts..." />
+                <CommandList className="pb-16">
+                  <CommandEmpty> No results found</CommandEmpty>
+                  {user?.AgencyMemberships?.some(
+                    (m: any) => m.isActive && (m.Role?.name === 'AGENCY_OWNER' || m.Role?.name === 'AGENCY_ADMIN')
+                  ) && user?.AgencyMemberships?.[0]?.Agency && (
+                      <CommandGroup heading="Agency">
+                        <CommandItem className="!bg-transparent my-2 text-primary broder-[1px] border p-2 rounded-md hover:!bg-muted cursor-pointer transition-all">
+                          {defaultOpen ? (
+                            <Link
+                              href={`/agency/${user?.AgencyMemberships?.[0]?.Agency?.id}`}
+                              className="flex gap-4 w-full h-full"
+                            >
+                              <div className="relative w-16">
+                                <Image
+                                  src={user?.AgencyMemberships?.[0]?.Agency?.agencyLogo || '/assets/glassmorphism/organization.svg'}
+                                  alt="Agency Logo"
+                                  fill
+                                  className="rounded-md object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                {user?.AgencyMemberships?.[0]?.Agency?.name}
+                                <span className="text-muted-foreground">
+                                  {user?.AgencyMemberships?.[0]?.Agency?.city}, {user?.AgencyMemberships?.[0]?.Agency?.country}
+                                </span>
+                              </div>
+                            </Link>
+                          ) : (
+                            <SheetClose asChild>
                               <Link
                                 href={`/agency/${user?.AgencyMemberships?.[0]?.Agency?.id}`}
                                 className="flex gap-4 w-full h-full"
                               >
                                 <div className="relative w-16">
                                   <Image
-                                    src={user?.AgencyMemberships?.[0]?.Agency?.agencyLogo || '/assets/glassmorphism/organization.svg'}
+                                    src={user?.AgencyMemberships?.[0]?.Agency?.agencyLogo}
                                     alt="Agency Logo"
                                     fill
                                     className="rounded-md object-contain"
@@ -547,37 +568,37 @@ const MenuOptions = ({
                                   </span>
                                 </div>
                               </Link>
-                            ) : (
-                              <SheetClose asChild>
-                                <Link
-                                  href={`/agency/${user?.AgencyMemberships?.[0]?.Agency?.id}`}
-                                  className="flex gap-4 w-full h-full"
-                                >
-                                  <div className="relative w-16">
-                                    <Image
-                                      src={user?.AgencyMemberships?.[0]?.Agency?.agencyLogo}
-                                      alt="Agency Logo"
-                                      fill
-                                      className="rounded-md object-contain"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    {user?.AgencyMemberships?.[0]?.Agency?.name}
-                                    <span className="text-muted-foreground">
-                                      {user?.AgencyMemberships?.[0]?.Agency?.city}, {user?.AgencyMemberships?.[0]?.Agency?.country}
-                                    </span>
-                                  </div>
-                                </Link>
-                              </SheetClose>
-                            )}
-                          </CommandItem>
-                        </CommandGroup>
-                      )}
-                    <CommandGroup heading="Accounts">
-                      {!!subAccounts
-                        ? subAccounts.map((subaccount) => (
-                          <CommandItem key={subaccount.id}>
-                            {defaultOpen ? (
+                            </SheetClose>
+                          )}
+                        </CommandItem>
+                      </CommandGroup>
+                    )}
+                  <CommandGroup heading="Accounts">
+                    {!!subAccounts
+                      ? subAccounts.map((subaccount) => (
+                        <CommandItem key={subaccount.id}>
+                          {defaultOpen ? (
+                            <Link
+                              href={`/subaccount/${subaccount.id}`}
+                              className="flex gap-4 w-full h-full"
+                            >
+                              <div className="relative w-16">
+                                <Image
+                                  src={subaccount.subAccountLogo}
+                                  alt="subaccount Logo"
+                                  fill
+                                  className="rounded-md object-contain"
+                                />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                {subaccount.name}
+                                <span className="text-muted-foreground">
+                                  {subaccount.line1}
+                                </span>
+                              </div>
+                            </Link>
+                          ) : (
+                            <SheetClose asChild>
                               <Link
                                 href={`/subaccount/${subaccount.id}`}
                                 className="flex gap-4 w-full h-full"
@@ -597,120 +618,99 @@ const MenuOptions = ({
                                   </span>
                                 </div>
                               </Link>
-                            ) : (
-                              <SheetClose asChild>
-                                <Link
-                                  href={`/subaccount/${subaccount.id}`}
-                                  className="flex gap-4 w-full h-full"
-                                >
-                                  <div className="relative w-16">
-                                    <Image
-                                      src={subaccount.subAccountLogo}
-                                      alt="subaccount Logo"
-                                      fill
-                                      className="rounded-md object-contain"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col flex-1">
-                                    {subaccount.name}
-                                    <span className="text-muted-foreground">
-                                      {subaccount.line1}
-                                    </span>
-                                  </div>
-                                </Link>
-                              </SheetClose>
-                            )}
-                          </CommandItem>
-                        ))
-                        : 'No Accounts'}
-                    </CommandGroup>
-                  </CommandList>
-                  {user?.AgencyMemberships?.some(
-                    (m: any) => m.isActive && (m.Role?.name === 'AGENCY_OWNER' || m.Role?.name === 'AGENCY_ADMIN')
-                  ) && (
-                      <SheetClose asChild>
-                        <Button
-                          className="w-full flex gap-2"
-                          onClick={() => {
-                            setModalOpen(
-                              <CustomModal
-                                title="Create A Subaccount"
-                                subheading="You can switch between your agency account and the subaccount from the sidebar"
-                              >
-                                <SubAccountDetails
-                                  agencyDetails={user?.AgencyMemberships?.[0]?.Agency as Agency}
-                                  userId={user?.id as string}
-                                  userName={user?.name}
-                                />
-                              </CustomModal>
-                            )
-                          }}
-                        >
-                          <PlusCircleIcon size={15} />
-                          Create Sub Account
-                        </Button>
-                      </SheetClose>
-                    )}
-                </Command>
-              </PopoverContent>
-            </Popover>
+                            </SheetClose>
+                          )}
+                        </CommandItem>
+                      ))
+                      : 'No Accounts'}
+                  </CommandGroup>
+                </CommandList>
+                {user?.AgencyMemberships?.some(
+                  (m: any) => m.isActive && (m.Role?.name === 'AGENCY_OWNER' || m.Role?.name === 'AGENCY_ADMIN')
+                ) && (
+                    <SheetClose asChild>
+                      <Button
+                        className="w-full flex gap-2"
+                        onClick={() => {
+                          setModalOpen(
+                            <CustomModal
+                              title="Create A Subaccount"
+                              subheading="You can switch between your agency account and the subaccount from the sidebar"
+                            >
+                              <SubAccountDetails
+                                agencyDetails={user?.AgencyMemberships?.[0]?.Agency as Agency}
+                                userId={user?.id as string}
+                                userName={user?.name}
+                              />
+                            </CustomModal>
+                          )
+                        }}
+                      >
+                        <PlusCircleIcon size={15} />
+                        Create Sub Account
+                      </Button>
+                    </SheetClose>
+                  )}
+              </Command>
+            </PopoverContent>
+          </Popover>
 
-            <div className="mt-8 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <div className="relative items-center justify-between" key={idx}>
-                  <Button 
-                    variant="ghost"
-                    className={cn(
-                      open ? "w-full flex items-center justify-between py-4" : "w-12 h-12 flex items-center justify-center p-0",
-                      "hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
-                    )}
-                    onClick={() => {
-                      if (state.label === link.label) {
-                        setIsShow({
-                          label: '',
-                          status: !state.status
-                        })
-                      } else {
-                        setIsShow({
-                          label: link.label,
-                          status: true
-                        })
-                      }
-                    }}
-                  >
-                    <SidebarLink key={idx} link={link} />
-                    {state.label === link.label && link.subs && open && (
-                      <ChevronDown
-                        size={16}
-                        className={cn(
-                          "transition-transform",
-                          {
-                            "rotate-180": state.status,
-                          }
-                        )}
-                      />
-                    )}
-                    {link.subs && open && (
-                      <div className="ml-6 mt-2 flex flex-col gap-1">
-                        {link.subs.map((sublink, subIdx) => (
-                          <SidebarLink
-                            key={subIdx}
-                            link={{
-                              label: sublink.label,
-                              href: sublink.href,
-                              icon: null,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </Button>
-                </div>
-              ))}
-            </div> 
+          <div className="mt-8 flex flex-col gap-2">
+            {links.map((link, idx) => (
+              <div className="relative items-center justify-between" key={idx}>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    open ? "w-full flex items-center justify-between py-4" : "w-12 h-12 flex items-center justify-center p-0",
+                    "hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
+                  )}
+                  onClick={() => {
+                    if (state.label === link.label) {
+                      setIsShow({
+                        label: '',
+                        status: !state.status
+                      })
+                    } else {
+                      setIsShow({
+                        label: link.label,
+                        status: true
+                      })
+                    }
+                  }}
+                >
+                  <SidebarLink key={idx} link={link} />
+                  {state.label === link.label && link.subs && open && (
+                    <ChevronDown
+                      size={16}
+                      className={cn(
+                        "transition-transform",
+                        {
+                          "rotate-180": state.status,
+                        }
+                      )}
+                    />
+                  )}
+                  {link.subs && open && (
+                    <div className="ml-6 mt-2 flex flex-col gap-1">
+                      {link.subs.map((sublink, subIdx) => (
+                        <SidebarLink
+                          key={subIdx}
+                          link={{
+                            label: sublink.label,
+                            href: sublink.href,
+                            icon: null,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </Button>
+              </div>
+            ))}
           </div>
-          <div>
-            {/* <SidebarLink
+        </div>
+        <div>
+          {/* <SidebarLink
               link={{
                 label: "Manu Arora",
                 href: "#",
@@ -725,9 +725,9 @@ const MenuOptions = ({
                 ),
               }}
             /> */}
-          </div>
-        </SidebarBody>
-      </Sidebar>
+        </div>
+      </SidebarBody>
+    </Sidebar>
   );
 }
 

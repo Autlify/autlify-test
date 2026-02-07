@@ -215,7 +215,7 @@ export default function DocsLayout({ children, tableOfContents }: DocsLayoutProp
               Blog
             </Link>
             <Link
-              href="https://github.com/autlify/autlify"
+              href="https://github.com/naropo/naropo"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-fg-secondary hover:text-fg-primary transition-colors"

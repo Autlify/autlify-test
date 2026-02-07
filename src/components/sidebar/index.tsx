@@ -32,15 +32,15 @@ const Sidebar = async ({ id, type }: Props) => {
   const isWhiteLabeledAgency = agency.whiteLabel
   if (!details) return
 
-  let sideBarLogo = agency.agencyLogo || '/assets/autlify-logo.svg'
+  let sideBarLogo = agency.agencyLogo || '/assets/naropo-logo.svg'
 
   if (!isWhiteLabeledAgency) {
     if (type === 'subaccount') {
       sideBarLogo =
         agency.SubAccount.find((subaccount) => subaccount.id === id)
           ?.subAccountLogo || agency.agencyLogo
-    } else if ( type === 'agency' ) {
-      sideBarLogo = '/assets/autlify-logo.svg'
+    } else if (type === 'agency') {
+      sideBarLogo = '/assets/naropo-logo.svg'
     }
   }
 
@@ -48,7 +48,7 @@ const Sidebar = async ({ id, type }: Props) => {
     type === 'agency'
       ? agency.SidebarOption || []
       : agency.SubAccount.find((subaccount) => subaccount.id === id)
-          ?.SidebarOption || []
+        ?.SidebarOption || []
 
   // Get subaccounts user has access to via SubAccountMemberships
   const subaccounts = agency.SubAccount.filter((subaccount) =>

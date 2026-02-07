@@ -7,9 +7,9 @@
  * - Basic (price_1SwgiCJglUPlULDQ9XByIzXp): RM 199/mo - Unlimited sub-accounts & team members
  * - Advanced (price_1SwgiDJglUPlULDQ0LqXQpip): RM 399/mo - Everything + Rebilling + 24/7 support
  * 
- * @namespace Autlify.Lib.Registry.Plans.PlanEntitlements
+ * @namespace Naropo.Lib.Registry.Plans.PlanEntitlements
  * @module REGISTRY
- * @author Autlify Team
+ * @author Naropo Team
  * @created 2026-01-29
  */
 
@@ -49,7 +49,7 @@ export type PlanEntitlementSeed = {
  * @namespace PlanEntitlements
  * @description Static plan entitlements mapping.
  * @module REGISTRY
- * @author Autlify Team 
+ * @author Naropo Team 
  */
 export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
   // ─────────────────────────────────────────────────────────
@@ -159,7 +159,7 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
     isEnabled: true,
     isUnlimited: true,
   },
-    {
+  {
     planId: PRICE_IDS.BASIC,
     featureKey: 'core.billing.account',
     isEnabled: true,
@@ -250,7 +250,7 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
     isEnabled: true,
     isUnlimited: true,
   },
-    {
+  {
     planId: PRICE_IDS.ADVANCED,
     featureKey: 'core.billing.account',
     isEnabled: true,
@@ -393,17 +393,17 @@ export const PLAN_ENTITLEMENTS: PlanEntitlementSeed[] = [
     featureKey: 'fi.accounts_receivable.subledgers',
     isEnabled: true,
   },
-    {
+  {
     planId: PRICE_IDS.FI_AP,
     featureKey: 'fi.accounts_payable.subledgers',
     isEnabled: true,
   },
-    {
+  {
     planId: PRICE_IDS.FI_BL,
     featureKey: 'fi.bank_ledger.bank_accounts',
     isEnabled: true,
   },
-    {
+  {
     planId: PRICE_IDS.FI_BL,
     featureKey: 'fi.bank_ledger.subledgers',
     isEnabled: true,

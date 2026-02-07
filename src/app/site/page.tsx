@@ -41,7 +41,7 @@ export default function Home() {
             {/* Hero Headline - Linear Typography */}
             <h1 className="max-w-6xl font-semibold leading-[1.1] tracking-[-0.022em]">
               <span className="block text-4xl md:text-5xl lg:text-6xl text-fg-primary">
-                Autlify is a{' '}
+                Naropo is a{' '}
                 <span className="relative inline-block">
                   <span className="bg-gradient-to-r from-accent-base via-accent-base to-accent-hover bg-clip-text text-transparent">
                     purpose-built tool
@@ -166,7 +166,7 @@ export default function Home() {
               </h2>
               <div className="h-6" aria-hidden="true" />
               <p className="text-lg leading-[1.6] text-fg-secondary">
-                Autlify is shaped by the practices and principles that distinguish world-class agency teams from the rest: relentless focus, fast execution, and a commitment to the quality of craft.
+                Naropo is shaped by the practices and principles that distinguish world-class agency teams from the rest: relentless focus, fast execution, and a commitment to the quality of craft.
               </p>
             </div>
 
@@ -224,7 +224,7 @@ export default function Home() {
 
       {/* Secondary Feature Section - Linear showcase */}
       <section className="relative items-center justify-center px-4 pt-16 sm:pt-28">
- 
+
 
         <div className="mx-auto max-w-[1024px] px-6 lg:px-8">
           <div className="text-center">
@@ -362,7 +362,7 @@ export default function Home() {
 
 //           <div className="bg-gradient-to-r from-primary to-secondary-foreground text-transparent bg-clip-text relative">
 //             <h1 className="text-9xl font-bold text-center md:text-[300px]">
-//               Autlify
+//               Naropo
 //             </h1>
 //           </div>
 //           <div className="flex justify-center items-center relative md:mt-[-70px] w-full mx-auto mt-4 md:mt-0">
@@ -384,7 +384,7 @@ export default function Home() {
 //       {/* <section className="relative flex items-center justify-center flex-col pt-32 md:pt-40 pb-16 md:pb-24 px-4">
 //         <div className="bg-gradient-to-r from-primary to-secondary-foreground text-transparent bg-clip-text relative mb-8 md:mb-12">
 //           <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[200px] xl:text-[280px] font-bold text-center leading-none">
-//             Autlify
+//             Naropo
 //           </h1>
 //         </div>
 

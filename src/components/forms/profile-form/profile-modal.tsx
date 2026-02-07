@@ -22,7 +22,7 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { User, Subscription } from '@/generated/prisma/client'
-import { PricingPlan } from '@autlify/billing-sdk'
+import { PricingPlan } from '@naropo/billing-sdk'
 
 
 export interface AccessibilityPreferences {
@@ -48,13 +48,13 @@ export function ProfileModal({ open, onOpenChange, user, onUpdateProfile, subscr
   const [activeTab, setActiveTab] = useState('profile')
   const [showPermissionManagement, setShowPermissionManagement] = useState(false)
 
-//   const handleAccessibilityChange = (preferences: AccessibilityPreferences) => {
-//     onUpdateProfile({ accessibilityPreferences: preferences })
-//   }
+  //   const handleAccessibilityChange = (preferences: AccessibilityPreferences) => {
+  //     onUpdateProfile({ accessibilityPreferences: preferences })
+  //   }
 
-//   const handlePermissionUpdate = (permissions: string[]) => {
-//     onUpdateProfile({ permissions })
-//   }
+  //   const handlePermissionUpdate = (permissions: string[]) => {
+  //     onUpdateProfile({ permissions })
+  //   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -32,7 +32,7 @@ export default function SignUpPage() {
   useEffect(() => {
     setName(`${firstName} ${lastName}`)
   }, [firstName, lastName])
- 
+
   useEffect(() => {
     if (!email || !firstName || !lastName || !password || !confirmPassword || !termsAgreed) {
       setDisabled(true)
@@ -114,12 +114,12 @@ export default function SignUpPage() {
 
   return (
     <div className="w-full flex min-h-screen items-center justify-center p-4">
-         <Card className="max-w-[380px]">
+      <Card className="max-w-[380px]">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <Image src="/assets/autlify-logo.svg" alt="Autlify Logo" width={48} height={48} />
+            <Image src="/assets/naropo-logo.svg" alt="Naropo Logo" width={48} height={48} />
             <CardTitle className="text-center ml-2 text-2xl font-bold">Create an account</CardTitle>
-      
+
           </div>
 
           <CardDescription className="text-center">
@@ -250,7 +250,7 @@ export default function SignUpPage() {
               aria-label="Sign up with Microsoft"
               className="h-12 p-0"
               tooltip="Sign in with Microsoft"
-              
+
             >
               <span className="relative h-8 w-8 ">
                 <Image

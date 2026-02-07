@@ -118,7 +118,7 @@ async function handleTest(req: Request, props: Props) {
     url: sub.url,
     secret,
     body: {
-      event: 'autlify.webhook.test',
+      event: 'naropo.webhook.test',
       subscriptionId: sub.id,
       sentAt: new Date().toISOString(),
     },

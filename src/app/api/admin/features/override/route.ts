@@ -8,7 +8,7 @@ import type { MeteringScope } from '@/generated/prisma/client'
  * POST /api/admin/features/override
  * Create/update admin override for a feature
  * 
- * Requires: x-autlify-agency or x-autlify-subaccount header
+ * Requires: x-naropo-agency or x-naropo-subaccount header
  * Supports: User sessions and API keys
  */
 export async function POST(request: Request) {
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
  * DELETE /api/admin/features/override
  * Remove an admin override
  * 
- * Requires: x-autlify-agency or x-autlify-subaccount header
+ * Requires: x-naropo-agency or x-naropo-subaccount header
  * Supports: User sessions and API keys
  */
 export async function DELETE(request: Request) {

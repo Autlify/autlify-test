@@ -196,7 +196,7 @@ function EnvVarRow({ name, value, decrypted = false }: { name: string; value: st
 // Build Log Preview
 function BuildLogPreview() {
   const logs = [
-    { type: 'info', message: 'Cloning github.com/autlify/autlify (Branch: main, Commit: 3a8f2d1)' },
+    { type: 'info', message: 'Cloning github.com/naropo/naropo (Branch: main, Commit: 3a8f2d1)' },
     { type: 'info', message: 'Installing dependencies...' },
     { type: 'success', message: 'Dependencies installed successfully' },
     { type: 'info', message: 'Running build command: next build' },
@@ -283,9 +283,9 @@ export default function DesignSample06() {
                 <Box className="h-4 w-4 text-background" />
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium text-foreground">autlify</span>
+              <span className="font-medium text-foreground">naropo</span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">autlify-app</span>
+              <span className="text-muted-foreground">naropo-app</span>
             </div>
           </div>
 
@@ -308,7 +308,7 @@ export default function DesignSample06() {
                 <Rocket className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">autlify-app</h1>
+                <h1 className="text-xl font-bold text-foreground">naropo-app</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <a href="#" className="text-sm text-blue-400 hover:underline flex items-center gap-1">
                     naropo.com

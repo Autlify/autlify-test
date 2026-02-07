@@ -3,7 +3,7 @@
  * Maps EventKey to posting rule trigger types
  * 
  * @description SSoT for event-to-trigger mapping used by fanout service
- * @namespace Autlify.Lib.Registry.Events.TriggerMappings
+ * @namespace Naropo.Lib.Registry.Events.TriggerMappings
  * @module REGISTRY
  */
 

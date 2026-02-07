@@ -32,7 +32,7 @@ const Sidebar = async ({ id, type }: Props) => {
   const isWhiteLabeledAgency = agency.whiteLabel
   if (!details) return
 
-  let sideBarLogo = agency.agencyLogo || '/assets/autlify-logo.svg'
+  let sideBarLogo = agency.agencyLogo || '/assets/naropo-logo.svg'
 
   if (!isWhiteLabeledAgency) {
     if (type === 'subaccount') {
@@ -40,7 +40,7 @@ const Sidebar = async ({ id, type }: Props) => {
         agency.SubAccount.find((subaccount) => subaccount.id === id)
           ?.subAccountLogo || agency.agencyLogo
     } else if (type === 'agency') {
-      sideBarLogo = '/assets/autlify-logo.svg'
+      sideBarLogo = '/assets/naropo-logo.svg'
     }
   }
 

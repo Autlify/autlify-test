@@ -2,7 +2,7 @@
  * General Ledger Components
  * FI-GL Module reusable components
  * 
- * @namespace Autlify.Components.FI.GeneralLedger
+ * @namespace Naropo.Components.FI.GeneralLedger
  */
 
 // Settings
@@ -25,7 +25,7 @@ export * from './audit'
 
 // Approvals
 export * from './approvals'
- 
+
 // Consolidation
 export * from './consolidation'
 

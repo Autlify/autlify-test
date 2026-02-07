@@ -9,7 +9,7 @@ import { requireRequestAccess, ApiAuthzError } from '@/lib/features/iam/authz/re
  * @abstraction Admin Features API Routes
  * @description List all features with admin controls
  * 
- * @requires x-autlify-agency or x-autlify-subaccount header
+ * @requires x-naropo-agency or x-naropo-subaccount header
  * @supports User sessions and API keys
  * 
  */
@@ -22,14 +22,14 @@ export async function GET(request: NextRequest) {
       requiredKeys: ['core.billing.features.manage'],
       requireActiveSubscription: true,
     })
-    
+
     const features = await db.entitlementFeature.findMany({
       orderBy: [
         { category: 'asc' },
         { displayOrder: 'asc' },
       ],
     })
-    
+
     return NextResponse.json({ features })
   } catch (error) {
     if (error instanceof ApiAuthzError) {

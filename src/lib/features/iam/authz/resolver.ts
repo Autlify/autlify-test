@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import { db } from '@/lib/db'
 import type { ActionKey } from '@/lib/registry'
 
-export const CONTEXT_COOKIE = 'autlify.context-token'
+export const CONTEXT_COOKIE = 'naropo.context-token'
 
 export type SubscriptionState = 'ACTIVE' | 'INACTIVE' | 'MISSING' | 'TRIAL'
 
@@ -20,7 +20,7 @@ export type LandingTarget =
     permissionKeys: ActionKey[]
     subscriptionState: SubscriptionState
     hasInactiveSubscription: boolean
-   }
+  }
   | {
     kind: 'subaccount'
     subAccountId: string

@@ -25,9 +25,9 @@ export type IntegrationAuthResult = {
  * Header-based guard (API Key) + session fallback (UI).
  *
  * Headers supported:
- * - x-autlify-api-key: {prefix}.{secret}
+ * - x-naropo-api-key: {prefix}.{secret}
  * - authorization: Bearer {prefix}.{secret}
- * - x-autlify-agency-id / x-autlify-subaccount-id (optional scope hint)
+ * - x-naropo-agency-id / x-naropo-subaccount-id (optional scope hint)
  *
  * Query params supported (session fallback):
  * - ?agencyId=... or ?subAccountId=...
@@ -38,9 +38,9 @@ export async function requireIntegrationAuth(
 ): Promise<IntegrationAuthResult> {
   const apiKey = getApiKeyFromRequest(req)
   if (apiKey) {
-    const hintedAgencyId = req.headers.get('x-autlify-agency-id') || undefined
+    const hintedAgencyId = req.headers.get('x-naropo-agency-id') || undefined
     const hintedSubAccountId =
-      req.headers.get('x-autlify-subaccount-id') || undefined
+      req.headers.get('x-naropo-subaccount-id') || undefined
     return requireApiKeyAuth(apiKey, { hintedAgencyId, hintedSubAccountId, requireActiveSubscription: opts?.requireActiveSubscription })
   }
 
@@ -48,7 +48,7 @@ export async function requireIntegrationAuth(
 }
 
 function getApiKeyFromRequest(req: Request) {
-  const h = req.headers.get('x-autlify-api-key')
+  const h = req.headers.get('x-naropo-api-key')
   if (h) return h.trim()
 
   const authz = req.headers.get('authorization') || ''
@@ -135,16 +135,16 @@ async function requireSessionAuth(
 
   // Prefer scope headers (SDK-style), but allow query params as UI fallback.
   const agencyId =
-    req.headers.get('x-autlify-agency-id') ||
+    req.headers.get('x-naropo-agency-id') ||
     url.searchParams.get('agencyId') ||
     undefined
 
   const subAccountId =
-    req.headers.get('x-autlify-subaccount-id') ||
+    req.headers.get('x-naropo-subaccount-id') ||
     url.searchParams.get('subAccountId') ||
     undefined
 
-  const requiredKeys = opts?.requiredKeys  ?? []
+  const requiredKeys = opts?.requiredKeys ?? []
   const requireActive = opts?.requireActiveSubscription ?? true
 
   if (subAccountId) {

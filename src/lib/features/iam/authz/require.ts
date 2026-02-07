@@ -213,7 +213,7 @@ export const requireRequestAccess = async (args: {
         throw new ApiAuthzError({
           status: 400,
           code: 'INVALID_REQUEST',
-          message: 'Missing scope: provide x-autlify-agency-id / x-autlify-subaccount-id headers (SDK) or agencyId/subAccountId query (UI)',
+          message: 'Missing scope: provide x-naropo-agency-id / x-naropo-subaccount-id headers (SDK) or agencyId/subAccountId query (UI)',
         })
       }
     } else if (e instanceof AutlifyContextError) {
@@ -231,11 +231,11 @@ export const requireRequestAccess = async (args: {
     // Use membership permissions at the resolved scope.
     const membership =
       scope.kind === 'agency'
-      ? await resolveAgencyContextForUser({ userId: principal.userId, agencyId: scope.agencyId })
-      : await resolveSubAccountContextForUser({
-        userId: principal.userId,
-        subAccountId: scope.subAccountId,
-      })
+        ? await resolveAgencyContextForUser({ userId: principal.userId, agencyId: scope.agencyId })
+        : await resolveSubAccountContextForUser({
+          userId: principal.userId,
+          subAccountId: scope.subAccountId,
+        })
     if (!membership) {
       throw new ApiAuthzError({ status: 403, code: 'FORBIDDEN', message: 'No membership' })
     }

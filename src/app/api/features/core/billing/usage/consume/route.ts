@@ -12,8 +12,8 @@ import { inferScopeFromIds } from '@/lib/features/core/billing/entitlements/reso
  * Consume usage for a feature
  * 
  * Headers Required:
- * - x-autlify-agency: <agencyId>
- * - x-autlify-subaccount: <subAccountId> (optional)
+ * - x-naropo-agency: <agencyId>
+ * - x-naropo-subaccount: <subAccountId> (optional)
  * 
  * Permissions: core.billing.usage.consume
  */

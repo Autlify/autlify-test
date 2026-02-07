@@ -4,10 +4,10 @@
  * Each key is organized hierarchically by module, sub-module, and specific features or actions.
  * This structure facilitates consistent permission management and access control across different parts of the system.
  *
- * @namespace Autlify.Lib.Registry.Keys.Permissions
+ * @namespace Naropo.Lib.Registry.Keys.Permissions
  * @name Permission Keys Registry
  * @module REGISTRY
- * @author Autlify Team
+ * @author Naropo Team
  * @created 2026-01-15
  * @summary Centralized, Standardized, Normalized permission keys for access control, entitlement features, role management, and authorization checks.
  */
@@ -116,7 +116,7 @@ export const KEYS = {
             team_member: {
                 invite: 'core.subaccount.team_member.invite',
                 remove: 'core.subaccount.team_member.remove',
-            }, 
+            },
         },
         experimental: {
             // User preferences - action pattern
@@ -576,7 +576,7 @@ export type SubModuleOf<M extends ModuleCode> = M extends keyof typeof KEYS
 export type ResourceOf<M extends ModuleCode, S extends SubModuleOf<M>> = Extract<
     keyof (typeof KEYS)[M][S],
     string
->; 
+>;
 
 export type ActionOf<
     M extends ModuleCode,

@@ -269,19 +269,19 @@ export function Navbar() {
                     "flex items-center justify-center",
                     "group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-500/30 transition-all duration-200"
                   )}> */}
-                {/* Autlify Logo */}
+                {/* Naropo Logo */}
                 {/* <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold" fontFamily="system-ui">A</text>
                   </svg> */}
                 <Image
-                  src="/assets/autlify-logo.svg"
-                  alt="Autlify Logo"
+                  src="/assets/naropo-logo.svg"
+                  alt="Naropo Logo"
                   width={48}
                   height={48}
                   className="object-contain"
                 />
                 {/* </div> */}
-                <span className="text-xl font-bold text-white select-none">Autlify</span>
+                <span className="text-xl font-bold text-white select-none">Naropo</span>
               </Link>
             </div>
             {/* Navigation Section - Centered with flex-1 */}
@@ -508,18 +508,18 @@ export function Navbar() {
 }
 
 
-{/** Version 1.0.0 Navigation */}
+{/** Version 1.0.0 Navigation */ }
 // const Navigation = () => {
 //   return (
 //     <div className="fixed top-0 right-0 left-0 p-4 flex items-center justify-between z-10">
 //       <aside className="flex items-center gap-2">
 //         <Image
-//           src={`/assets/autlify-logo.svg`}
+//           src={`/assets/naropo-logo.svg`}
 //           width={40}
 //           height={40}
-//           alt="autlify logo"
+//           alt="naropo logo"
 //         />
-//         <span className="text-xl font-bold"> Autlify.</span>
+//         <span className="text-xl font-bold"> Naropo.</span>
 //       </aside>
 //       <nav className="hidden md:block absolute left-[50%] top-[50%] transform translate-x-[-50%] translate-y-[-50%]">
 //         <ul className="flex items-center justify-center gap-8">

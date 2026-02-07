@@ -9,9 +9,9 @@
  * - Accounting journal entries
  * - Deferred revenue handling
  * 
- * @namespace Autlify.Lib.Registry.Plans.PricingConfig
+ * @namespace Naropo.Lib.Registry.Plans.PricingConfig
  * @module PRICING
- * @author Autlify Team
+ * @author Naropo Team
  * @created 2026-02-03
  * 
  * @usage
@@ -63,7 +63,7 @@ export const PRICING_CONFIG = definePricingConfig({
     STARTER: {
         type: 'plan',
         name: 'Starter',
-        description: 'Perfect for trying out Autlify',
+        description: 'Perfect for trying out Naropo',
 
         // Product Classification
         productType: 'service',
@@ -239,7 +239,7 @@ export const PRICING_CONFIG = definePricingConfig({
     STARTER_YEARLY: {
         type: 'plan',
         name: 'Starter',
-        description: 'Perfect for trying out Autlify',
+        description: 'Perfect for trying out Naropo',
         productType: 'service',
         revenueRecognition: 'over_time_ratable',
         deferredRevenue: {
@@ -1543,7 +1543,7 @@ const ADDON_FEATURES: Record<string, string[]> = {
     WHITE_LABEL: [
         'Custom domain',
         'Custom branding',
-        'Remove Autlify branding',
+        'Remove Naropo branding',
         'White-label emails',
     ],
     SETUP_FEE: [
@@ -1620,7 +1620,7 @@ export function getPricingItemByPriceId(priceId: string): (PricingCardData | Add
     // Check plans first
     const plan = getPricingCardByPriceId(priceId)
     if (plan) return plan
-    
+
     // Then check addons
     return getAddonCardByPriceId(priceId)
 }

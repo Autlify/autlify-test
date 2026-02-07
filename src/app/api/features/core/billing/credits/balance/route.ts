@@ -11,8 +11,8 @@ import type { MeteringScope } from '@/generated/prisma/client'
  * Get credit balances for features
  * 
  * Headers Required:
- * - x-autlify-agency: <agencyId>
- * - x-autlify-subaccount: <subAccountId> (optional)
+ * - x-naropo-agency: <agencyId>
+ * - x-naropo-subaccount: <subAccountId> (optional)
  * 
  * Query Parameters:
  * - featureKey (optional): Filter by specific feature

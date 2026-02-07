@@ -101,8 +101,8 @@ export default function SignInPage() {
       <Card className="max-w-[380px]">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <Image src="/assets/autlify-logo.svg" alt="Autlify Logo" width={40} height={40} />
-            <span className="ml-2 text-2xl font-bold">Autlify</span>
+            <Image src="/assets/naropo-logo.svg" alt="Naropo Logo" width={40} height={40} />
+            <span className="ml-2 text-2xl font-bold">Naropo</span>
           </div>
           <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
           <CardDescription className="text-center">

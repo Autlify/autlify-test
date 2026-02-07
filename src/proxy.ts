@@ -1,5 +1,5 @@
 /**
- * Autlify Middleware Proxy
+ * Naropo Middleware Proxy
  *
  * Request flow (in order):
  * 1. Static assets & API routes → pass through
@@ -19,7 +19,7 @@ import { logger } from '@/lib/logger'
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CONTEXT_COOKIE = 'autlify.context-token'
+const CONTEXT_COOKIE = 'naropo.context-token'
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 60 // 60 days
 
 const AUTH_PAGES = ['/agency/sign-in', '/agency/sign-up', '/agency/verify']

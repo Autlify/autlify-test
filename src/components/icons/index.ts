@@ -13,7 +13,7 @@
 // Standard Icons
 export { default as Analytics } from './analytics'
 export { default as Apps } from './apps'
-export { default as AutlifyCategory } from './autlify-category'
+export { default as AutlifyCategory } from './naropo-category'
 export { default as Award } from './award'
 export { default as BarChart } from './bar_chart'
 export { default as BarChart3 } from './bar-chart-3'

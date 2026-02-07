@@ -27,7 +27,7 @@ export const INTEGRATION_CATALOG: IntegrationCatalogItem[] = [
     id: 'zapier',
     name: 'Zapier',
     category: 'Automation',
-    description: 'Connect Autlify to 6,000+ apps using triggers & actions.',
+    description: 'Connect Naropo to 6,000+ apps using triggers & actions.',
     badges: ['Recommended', 'Low effort'],
     docsLabel: 'Triggers & actions',
     icon: 'zap',

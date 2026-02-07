@@ -33,8 +33,8 @@ export async function sendWebhookAttempt(opts: {
       secret: opts.secret,
       body: bodyStr,
     })
-    headers['x-autlify-timestamp'] = String(timestamp)
-    headers['x-autlify-signature'] = signature
+    headers['x-naropo-timestamp'] = String(timestamp)
+    headers['x-naropo-signature'] = signature
   }
 
   const controller = new AbortController()

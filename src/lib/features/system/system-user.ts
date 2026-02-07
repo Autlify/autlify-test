@@ -7,7 +7,7 @@ import { db } from '@/lib/db'
  * This is NOT a real inbox and must never be allowed to sign in via UI/OAuth.
  */
 export const SYSTEM_USER_EMAIL = 'system@naropo.com'
-export const SYSTEM_USER_NAME = 'Autlify System'
+export const SYSTEM_USER_NAME = 'Naropo System'
 
 export type SystemUser = {
   id: string

@@ -12,8 +12,8 @@ import {
     CreditBalanceCard,
     CreditHistory,
     DunningAlerts,
-} from "@autlify/billing-sdk";
-import type { PlanOption } from "@autlify/billing-sdk";
+} from "@naropo/billing-sdk";
+import type { PlanOption } from "@naropo/billing-sdk";
 import { Button } from "@/components/ui/button";
 
 // Local types for showcase data
@@ -311,7 +311,7 @@ export function BillingSDKSection() {
     ];
 
     // Convert local dunningStrikes to SDK's expected alerts format
-    const dunningAlerts = dunningStrikes.flatMap(strike => 
+    const dunningAlerts = dunningStrikes.flatMap(strike =>
         strike.failedPayments.map(fp => ({
             id: fp.id,
             level: strike.level as 1 | 2 | 3,

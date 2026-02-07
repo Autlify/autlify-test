@@ -6,7 +6,7 @@
  * - @/lib/registry/plans/pricing-config.ts (SSoT: PRICING_CONFIG, PLAN_IDS, pricing cards)
  * - @/lib/registry/plans/plan-entitlements.ts (entitlements, feature limits)
  * 
- * @namespace Autlify.Lib.Constants
+ * @namespace Naropo.Lib.Constants
  * @module LIB
  */
 
@@ -40,7 +40,7 @@ import Notification from '@/components/icons/notification'
 import Payment from '@/components/icons/payment'
 import Person from '@/components/icons/person'
 import Pipelines from '@/components/icons/pipelines'
-import AutlifyCategory from '@/components/icons/autlify-category'
+import AutlifyCategory from '@/components/icons/naropo-category'
 import Power from '@/components/icons/power'
 import Receipt from '@/components/icons/receipt'
 import Rocket from '@/components/icons/rocket'

@@ -10,9 +10,9 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { generateRegistrationOptions, generateAuthenticationOptions } from '@simplewebauthn/server'
 import { createVerificationToken } from '@/lib/queries'
-import type { 
+import type {
   PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON 
+  PublicKeyCredentialRequestOptionsJSON
 } from '@simplewebauthn/types'
 
 const rpID = process.env.NEXT_PUBLIC_DOMAIN || 'localhost'
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
 
       const options: PublicKeyCredentialCreationOptionsJSON = await generateRegistrationOptions({
         rpID,
-        rpName: 'Autlify',
+        rpName: 'Naropo',
         userName: email,
         userID: user!.id,
         userDisplayName: userName,
@@ -107,12 +107,12 @@ export async function POST(req: Request) {
         rpID,
         // Empty array = discoverable credentials (any passkey for this RP)
         // Specific credentials = only allow specific user's passkeys
-        allowCredentials: usernameless || !user 
-          ? [] 
+        allowCredentials: usernameless || !user
+          ? []
           : user!.Passkeys.map((pk) => ({
-              id: Buffer.from(pk.credentialId, 'base64'),
-              type: 'public-key' as const,
-            })),
+            id: Buffer.from(pk.credentialId, 'base64'),
+            type: 'public-key' as const,
+          })),
         userVerification: 'preferred',
       })
 

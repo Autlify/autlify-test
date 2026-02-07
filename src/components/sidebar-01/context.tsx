@@ -38,8 +38,8 @@ export const SidebarContext = createContext<SidebarContextValue | null>(null)
 // Storage Keys
 // ============================================================================
 
-const STORAGE_KEY_PREFERENCES = 'autlify:sidebar:preferences'
-const STORAGE_KEY_STATE = 'autlify:sidebar:state'
+const STORAGE_KEY_PREFERENCES = 'naropo:sidebar:preferences'
+const STORAGE_KEY_STATE = 'naropo:sidebar:state'
 
 // ============================================================================
 // Provider Props

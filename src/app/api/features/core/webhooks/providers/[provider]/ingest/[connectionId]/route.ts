@@ -10,7 +10,7 @@ import { sha256Hex } from '@/lib/features/core/integrations/crypto'
 type Props = { params: Promise<{ provider: string; connectionId: string }> }
 
 /**
- * Provider -> Autlify inbound webhook.
+ * Provider -> Naropo inbound webhook.
  * Path binding uses connectionId for tenant resolution.
  */
 export async function POST(req: Request, props: Props) {
@@ -112,9 +112,9 @@ export async function POST(req: Request, props: Props) {
         secret: sub.secretHash ?? null, // derived secret (sha256(userSecret))
         body: outboundPayload,
         headers: {
-          'x-autlify-provider': provider,
-          'x-autlify-connection-id': connectionId,
-          'x-autlify-event': eventKeys[0] ?? provider,
+          'x-naropo-provider': provider,
+          'x-naropo-connection-id': connectionId,
+          'x-naropo-event': eventKeys[0] ?? provider,
         },
       })
 

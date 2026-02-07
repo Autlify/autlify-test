@@ -13,7 +13,7 @@ import { SidebarProvider } from '@/components/sidebar-01/sidebar-context'
 const font = DM_Sans({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Autlify',
+  title: 'Naropo',
   description: 'The ultimate agency kit',
 }
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
     >
-      <body className={`${font.className } min-w-screen min-h-screen`}>
+      <body className={`${font.className} min-w-screen min-h-screen`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"

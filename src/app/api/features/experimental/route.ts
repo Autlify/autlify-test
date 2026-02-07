@@ -9,8 +9,8 @@ import { resolveEffectiveEntitlements, inferScopeFromIds } from '@/lib/features/
  * Toggle a feature for the authenticated user
  * 
  * Headers Required:
- * - x-autlify-agency: <agencyId>
- * - x-autlify-subaccount: <subAccountId> (optional)
+ * - x-naropo-agency: <agencyId>
+ * - x-naropo-subaccount: <subAccountId> (optional)
  * 
  * Permissions: core.experimental.flag.toggle
  */
@@ -22,15 +22,15 @@ export async function POST(request: Request) {
       requireActiveSubscription: true,
     })
 
-    const userId = principal.kind === 'user' 
-      ? principal.userId 
+    const userId = principal.kind === 'user'
+      ? principal.userId
       : principal.ownerUserId
     const agencyId = scope.kind === 'agency' ? scope.agencyId : scope.agencyId
     const subAccountId = scope.kind === 'subaccount' ? scope.subAccountId : null
     const meteringScope = inferScopeFromIds(subAccountId)
 
     const { featureKey, enabled } = await request.json()
-    
+
     if (!featureKey || typeof enabled !== 'boolean') {
       return NextResponse.json(
         { error: 'Invalid request body' },
@@ -42,28 +42,28 @@ export async function POST(request: Request) {
     const feature = await db.entitlementFeature.findUnique({
       where: { key: featureKey },
     })
-    
+
     if (!feature) {
       return NextResponse.json(
         { error: 'Feature not found' },
         { status: 404 }
       )
     }
-    
+
     if (!feature.isToggleable) {
       return NextResponse.json(
         { error: 'Feature cannot be toggled by users' },
         { status: 403 }
       )
     }
-    
+
     // Check if feature is enabled by admin/plan
     const entitlements = await resolveEffectiveEntitlements({
       agencyId,
       subAccountId,
       scope: meteringScope,
     })
-    
+
     const ent = entitlements[featureKey]
     if (!ent || !ent.isEnabled) {
       return NextResponse.json(
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
         { status: 403 }
       )
     }
-    
+
     // Upsert user preference
     await db.featurePreference.upsert({
       where: {
@@ -95,9 +95,9 @@ export async function POST(request: Request) {
     })
 
     logger.info('Feature toggled', { featureKey, enabled, userId, agencyId })
-    
+
     return NextResponse.json({ success: true })
-    
+
   } catch (error) {
     if (error instanceof ApiAuthzError) {
       return NextResponse.json(

@@ -65,7 +65,7 @@ const defaultMobile = {
 }
 
 // Storage key for persisting preferences
-const STORAGE_KEY = 'autlify:accessibility:preferences'
+const STORAGE_KEY = 'naropo:accessibility:preferences'
 
 // Safe hook that works outside of SidebarProvider
 function useSafePreferences() {

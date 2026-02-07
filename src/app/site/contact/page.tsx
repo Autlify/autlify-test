@@ -33,7 +33,7 @@ export default function ContactPage() {
       icon: Twitter,
       title: "Twitter",
       description: "Follow us for updates",
-      action: "@autlify",
+      action: "@naropo",
       href: "#"
     }
   ]

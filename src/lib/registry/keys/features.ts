@@ -3,19 +3,19 @@
  * @description Type-safe feature key derivations from the KEYS registry.
  * Runtime entitlements should come from DB (EntitlementFeature/PlanFeature).
  * 
- * @namespace Autlify.Lib.Registry.Keys.Features
+ * @namespace Naropo.Lib.Registry.Keys.Features
  * @module REGISTRY
- * @author Autlify Team
+ * @author Naropo Team
  * @created 2026-01-29
  */
 
 import type { ModuleCode, SubModuleOf, ResourceOf, KEYS } from '@/lib/registry/keys/permissions'
- 
+
 
 /** Resource codes (e.g., 'account', 'subaccounts', 'team_member') */
 export type FeatureCode = {
-  [M in ModuleCode]: { 
-    [S in SubModuleOf<M>]: ResourceOf<M, S> 
+  [M in ModuleCode]: {
+    [S in SubModuleOf<M>]: ResourceOf<M, S>
   }[SubModuleOf<M>]
 }[ModuleCode];
 

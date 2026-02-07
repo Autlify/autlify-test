@@ -12,8 +12,8 @@ import { resolveEffectiveEntitlements } from '@/lib/features/core/billing/entitl
  * Get current effective entitlements for the context
  * 
  * Headers Required:
- * - x-autlify-agency: <agencyId>
- * - x-autlify-subaccount: <subAccountId> (optional)
+ * - x-naropo-agency: <agencyId>
+ * - x-naropo-subaccount: <subAccountId> (optional)
  * 
  * Permissions: core.billing.entitlements.view
  */

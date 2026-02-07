@@ -27,7 +27,7 @@ type CheckoutItemInput = {
   unitAmountCents?: number;
 };
 
-type CheckoutScope = 
+type CheckoutScope =
   | { level: 'user'; userId: string }
   | { level: 'agency'; agencyId: string }
   | { level: 'subAccount'; agencyId: string; subAccountId: string };
@@ -238,7 +238,7 @@ function buildScopeMetadata(userId: string, scope: CheckoutScope): Record<string
   const base = {
     userId,
     scopeLevel: scope.level,
-    platform: 'autlify',
+    platform: 'naropo',
   };
 
   switch (scope.level) {
@@ -353,8 +353,8 @@ export async function POST(req: Request) {
 
     // Resolve scope from body or headers
     const scope: CheckoutScope = body.scope ?? { level: 'user', userId };
-    const agencyIdHeader = req.headers.get('x-autlify-agency-id');
-    const subAccountIdHeader = req.headers.get('x-autlify-subaccount-id');
+    const agencyIdHeader = req.headers.get('x-naropo-agency-id');
+    const subAccountIdHeader = req.headers.get('x-naropo-subaccount-id');
 
     if (!body.scope && agencyIdHeader) {
       if (subAccountIdHeader) {
@@ -372,7 +372,7 @@ export async function POST(req: Request) {
 
     // Handle Portal flow
     if (body.intent === 'PORTAL') {
-      const customerId = req.headers.get('x-autlify-stripe-customer-id');
+      const customerId = req.headers.get('x-naropo-stripe-customer-id');
       if (!customerId) {
         return NextResponse.json({ error: 'MISSING_CUSTOMER' }, { status: 400 });
       }
@@ -466,7 +466,7 @@ export async function POST(req: Request) {
 
     if (uiMode === 'embedded') {
       const returnUrl = `${origin}${body.returnPath ?? '/checkout/success'}?session_id={CHECKOUT_SESSION_ID}`;
-      
+
       const checkoutSession = await stripe.checkout.sessions.create({
         ui_mode: 'embedded',
         mode: stripeMode,
