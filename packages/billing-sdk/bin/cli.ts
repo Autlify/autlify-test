@@ -97,9 +97,9 @@ program
             }
 
             console.log(`\n✅ Successfully installed ${component.name}!`)
-            console.log(`\n📚 Documentation: https://autlify.com${component.meta.docs}`)
+            console.log(`\n📚 Documentation: https://naropo.com${component.meta.docs}`)
             if (component.meta.examples) {
-                console.log(`🎨 Live examples: https://autlify.com${component.meta.examples[0]}`)
+                console.log(`🎨 Live examples: https://naropo.com${component.meta.examples[0]}`)
             }
             console.log(`\n💡 Import with:`)
             console.log(`   import { ${componentName.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("")} } from "@/components/billing-sdk"`)
@@ -185,7 +185,7 @@ export * from "@autlify/billing-sdk/types"
             console.log(`\n💡 Next steps:`)
             console.log(`   1. bunx @autlify/billing-sdk add <component-name>`)
             console.log(`   2. Import: import { SubscriptionCard } from "@/components/billing-sdk"`)
-            console.log(`   3. Read docs: https://autlify.com/site/docs/billing-sdk\n`)
+            console.log(`   3. Read docs: https://naropo.com/site/docs/billing-sdk\n`)
 
         } catch (error) {
             console.error("\n❌ Initialization failed:", error)

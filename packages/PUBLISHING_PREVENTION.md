@@ -40,7 +40,7 @@ npm publish
 # - License is "UNLICENSED" (shows in npm)
 # - LICENSE file clearly states proprietary
 # - API key validation enforced in code
-# - Whitelisted domains only work for autlify.com
+# - Whitelisted domains only work for naropo.com
 ```
 
 ## License Enforcement
@@ -56,20 +56,20 @@ await initLicense({
 ```
 
 **What it checks:**
-1. Is domain whitelisted? (localhost, *.autlify.com, *.autlify.dev)
+1. Is domain whitelisted? (localhost, *.naropo.com, *.autlify.dev)
 2. If not whitelisted, is API key provided?
-3. If API key provided, validate with api.autlify.com
+3. If API key provided, validate with api.naropo.com
 4. Track usage and enforce limits
 
 **Whitelisted domains (no API key needed):**
 - `localhost`
 - `127.0.0.1`
-- `*.autlify.com`
+- `*.naropo.com`
 - `*.autlify.dev`
 
 **Non-whitelisted domains:**
-- Require valid API key from https://autlify.com/dashboard/api-keys
-- API key validated against https://api.autlify.com/v1/validate-key
+- Require valid API key from https://naropo.com/dashboard/api-keys
+- API key validated against https://api.naropo.com/v1/validate-key
 - Usage tracked and limited by subscription tier
 
 ### MCP Server
@@ -117,7 +117,7 @@ cd packages/autlify-mcp && bun link
 
 ```bash
 # 1. Get API key from dashboard
-# https://autlify.com/dashboard/api-keys
+# https://naropo.com/dashboard/api-keys
 
 # 2. Set environment variable
 export AUTLIFY_API_KEY=sk_live_...

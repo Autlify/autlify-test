@@ -11,13 +11,13 @@ This software is proprietary and confidential. It is NOT open source.
 ### API Key Required
 
 Use of this SDK requires a valid Autlify API key. You can obtain one at:
-**https://autlify.com/dashboard/api-keys**
+**https://naropo.com/dashboard/api-keys**
 
 ### Internal Use Whitelist
 
 The following domains are automatically whitelisted and do not require an API key:
 - `localhost` (all ports)
-- `*.autlify.com`
+- `*.naropo.com`
 - `*.autlify.dev`
 - Internal development environments
 
@@ -103,7 +103,7 @@ For Autlify team members and authorized contractors:
 No API key needed when running on:
 ```
 http://localhost:*
-https://*.autlify.com
+https://*.naropo.com
 https://*.autlify.dev
 ```
 
@@ -128,10 +128,10 @@ Autlify reserves the right to:
 
 ## Support & Contact
 
-- **Get API Key**: https://autlify.com/dashboard/api-keys
-- **Documentation**: https://autlify.com/docs/billing-sdk
-- **Support**: support@autlify.com
-- **Sales**: sales@autlify.com
+- **Get API Key**: https://naropo.com/dashboard/api-keys
+- **Documentation**: https://naropo.com/docs/billing-sdk
+- **Support**: support@naropo.com
+- **Sales**: sales@naropo.com
 
 ## Legal
 

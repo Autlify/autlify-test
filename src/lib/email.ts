@@ -421,7 +421,7 @@ export async function sendInvitationEmail({
 
     ${invitationUrl}
 
-    If you have any questions or need assistance, feel free to reach out to us at support@autlify.com.
+    If you have any questions or need assistance, feel free to reach out to us at support@naropo.com.
 
     This invitation link will remain valid until you create your account.
 
@@ -542,7 +542,7 @@ export async function sendInvitationEmail({
         <a href="${invitationUrl}" class="btn">Accept Invitation</a>
         <p style="margin-top: 2rem; font-size: 0.9rem; color: #aaa;">
           If you have any questions or need assistance, feel free to reach out to us at 
-          <a href="mailto:support@autlify.com" style="color: #06b6d4; text-decoration: none;">support@autlify.com</a>.
+          <a href="mailto:support@naropo.com" style="color: #06b6d4; text-decoration: none;">support@naropo.com</a>.
         </p>
       </div>
     </body>

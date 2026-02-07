@@ -53,7 +53,7 @@ export function EmbeddedCheckout({
 
     // Construct iframe URL
     useEffect(() => {
-        const baseUrl = "https://checkout.autlify.com/embedded";
+        const baseUrl = "https://checkout.naropo.com/embedded";
         const params = new URLSearchParams();
 
         if (checkoutSessionId) {
@@ -77,7 +77,7 @@ export function EmbeddedCheckout({
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             // Verify origin
-            if (!event.origin.endsWith(".autlify.com")) return;
+            if (!event.origin.endsWith(".naropo.com")) return;
 
             const { type, data } = event.data || {};
 
@@ -316,7 +316,7 @@ export function PaymentButton({
 
         try {
             const response = await fetch(
-                "https://api.autlify.com/v1/gateway/checkout/sessions",
+                "https://api.naropo.com/v1/gateway/checkout/sessions",
                 {
                     method: "POST",
                     headers: {

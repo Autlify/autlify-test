@@ -6,7 +6,7 @@ import { db } from '@/lib/db'
  * A non-loginable "service principal" user used for internal jobs.
  * This is NOT a real inbox and must never be allowed to sign in via UI/OAuth.
  */
-export const SYSTEM_USER_EMAIL = 'system@autlify.com'
+export const SYSTEM_USER_EMAIL = 'system@naropo.com'
 export const SYSTEM_USER_NAME = 'Autlify System'
 
 export type SystemUser = {

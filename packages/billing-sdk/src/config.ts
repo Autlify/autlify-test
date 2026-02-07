@@ -10,7 +10,7 @@ import type { GatewayEnvironment } from "./types/gateway";
 export interface BillingSDKConfig {
   /**
    * Your Autlify API key
-   * Get one at: https://autlify.com/dashboard/api-keys
+   * Get one at: https://naropo.com/dashboard/api-keys
    */
   apiKey?: string;
 
@@ -28,7 +28,7 @@ export interface BillingSDKConfig {
 
   /**
    * Custom API endpoint (for internal use)
-   * @default 'https://api.autlify.com/v1'
+   * @default 'https://api.naropo.com/v1'
    */
   apiEndpoint?: string;
 

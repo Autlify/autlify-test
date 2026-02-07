@@ -7,8 +7,8 @@
  * A comprehensive billing and subscription management SDK for React applications.
  * Supports internal billing, external API integrations, and payment gateway (PayKit) mode.
  *
- * Get your API key: https://autlify.com/dashboard/api-keys
- * Whitelisted domains: localhost, *.autlify.com, *.autlify.dev
+ * Get your API key: https://naropo.com/dashboard/api-keys
+ * Whitelisted domains: localhost, *.naropo.com, *.autlify.dev
  *
  * @packageDocumentation
  */

@@ -7,7 +7,7 @@
 const WHITELISTED_DOMAINS = [
   'localhost',
   '127.0.0.1',
-  '.autlify.com',
+  '.naropo.com',
   '.autlify.dev',
 ]
 
@@ -75,7 +75,7 @@ export class LicenseValidator {
     // API key is required for non-whitelisted domains
     if (!this.apiKey) {
       console.error(
-        '[Autlify] API key required. Get one at https://autlify.com/dashboard/api-keys'
+        '[Autlify] API key required. Get one at https://naropo.com/dashboard/api-keys'
       )
       return false
     }
@@ -91,7 +91,7 @@ export class LicenseValidator {
 
   private async performValidation(): Promise<boolean> {
     try {
-      const response = await fetch('https://api.autlify.com/v1/validate-key', {
+      const response = await fetch('https://api.naropo.com/v1/validate-key', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

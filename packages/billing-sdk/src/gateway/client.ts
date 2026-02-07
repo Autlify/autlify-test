@@ -86,7 +86,7 @@ export interface GatewayClient {
     constructWebhookEvent(payload: string, signature: string): Promise<unknown>;
 }
 
-const DEFAULT_BASE_URL = "https://api.autlify.com/v1/gateway";
+const DEFAULT_BASE_URL = "https://api.naropo.com/v1/gateway";
 
 export function createGatewayClient(
     options: GatewayClientOptions

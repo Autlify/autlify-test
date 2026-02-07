@@ -8,13 +8,13 @@ This SDK requires a valid Autlify API key. **Not open source.**
 
 ### Get Your API Key
 
-🔑 **Get API Key**: https://autlify.com/dashboard/api-keys
+🔑 **Get API Key**: https://naropo.com/dashboard/api-keys
 
 ### Internal Use (No API Key Needed)
 
 Whitelisted domains:
 - `localhost` (all ports)
-- `*.autlify.com`
+- `*.naropo.com`
 - `*.autlify.dev`
 
 ## Features
@@ -30,7 +30,7 @@ Whitelisted domains:
 
 ### 1. Get API Key
 
-Visit https://autlify.com/dashboard/api-keys to get your API key.
+Visit https://naropo.com/dashboard/api-keys to get your API key.
 
 ### 2. Set Environment Variable
 
@@ -153,9 +153,9 @@ bunx @autlify/billing-sdk add invoice-list --skip-deps
 
 ## Documentation
 
-- [Full Documentation](https://autlify.com/site/docs/billing-sdk)
-- [Live Examples](https://autlify.com/site/design#billing-sdk)
-- [API Reference](https://autlify.com/site/docs/billing-sdk#reference)
+- [Full Documentation](https://naropo.com/site/docs/billing-sdk)
+- [Live Examples](https://naropo.com/site/design#billing-sdk)
+- [API Reference](https://naropo.com/site/docs/billing-sdk#reference)
 
 ## TypeScript Support
 
@@ -214,10 +214,10 @@ export default CheckoutPage
 - Internal Autlify domains are whitelisted
 - Unauthorized use is prohibited
 
-**Get API Key**: https://autlify.com/dashboard/api-keys
+**Get API Key**: https://naropo.com/dashboard/api-keys
 
 ## Support
 
 - [GitHub Issues](https://github.com/autlify/billing-sdk/issues)
-- [Documentation](https://autlify.com/site/docs/billing-sdk)
-- [Contact Support](https://autlify.com/site/contact)
+- [Documentation](https://naropo.com/site/docs/billing-sdk)
+- [Contact Support](https://naropo.com/site/contact)

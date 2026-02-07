@@ -275,6 +275,6 @@ export const MyComponent = ({ ...props }: MyComponentProps) => {
 
 ## Questions?
 
-- Check the [main documentation](https://autlify.com/site/docs/billing-sdk)
+- Check the [main documentation](https://naropo.com/site/docs/billing-sdk)
 - Review [existing components](../../src/components/billing-sdk/)
-- See [live examples](https://autlify.com/site/design#billing-sdk)
+- See [live examples](https://naropo.com/site/design#billing-sdk)
