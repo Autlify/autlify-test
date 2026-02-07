@@ -10,7 +10,7 @@
  *   SubscriptionCard, 
  *   UsageDisplay, 
  *   CreditBalanceCard 
- * } from '@naropo/billing-sdk/components';
+ * } from '@autlify/billing-sdk/components';
  * ```
  * 
  * @packageDocumentation

@@ -71,7 +71,7 @@ export class AutlifyClient {
   constructor(opts?: AutlifyClientOptions) {
     this.baseUrl = normalizeBaseUrl(opts?.baseUrl)
     this.apiKey = opts?.apiKey || requiredEnv('AUTLIFY_API_KEY')
-    this.userAgent = `@naropo/client (server)${opts?.userAgent ? `; ${opts.userAgent}` : ''}`
+    this.userAgent = `@autlify/client (server)${opts?.userAgent ? `; ${opts.userAgent}` : ''}`
     this.timeoutMs = typeof opts?.timeoutMs === 'number' ? opts.timeoutMs : 15000
     this.validate = opts?.validate ?? true
 

@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-interface AutlifyLogoProps {
+interface NaropoLogoModernProps {
   className?: string
   size?: number
   variant?: 'icon' | 'full' | 'compact'
@@ -11,18 +11,18 @@ interface AutlifyLogoProps {
 }
 
 /**
- * Naropo Premium Brand Logo
+ * Naropo Modern Logo - Alternative Design
  * 
- * A sleek, modern logo with flowing lines forming an abstract "A"
- * Represents: Automation, Flow, Connectivity, Premium Quality
+ * A flowing, dynamic logo with sleek curves and premium feel.
+ * Features elegant letterform with speed lines representing efficiency.
  */
-const AutlifyLogo = ({
+const NaropoLogoModern = ({
   className,
   size = 40,
   variant = 'icon',
   theme = 'gradient',
   animated = false
-}: AutlifyLogoProps) => {
+}: NaropoLogoModernProps) => {
   const id = React.useId()
 
   const fullWidth = variant === 'full' ? size * 4.5 : variant === 'compact' ? size * 1.5 : size
@@ -30,25 +30,24 @@ const AutlifyLogo = ({
 
   const renderDefs = () => (
     <defs>
-      {/* Primary gradient - deep blue to bright blue */}
-      <linearGradient id={`logo-primary-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#1E3A5F">
-          {animated && <animate attributeName="stop-color" values="#1E3A5F;#2563EB;#1E3A5F" dur="4s" repeatCount="indefinite" />}
+      {/* Primary gradient - rich blue */}
+      <linearGradient id={`modern-primary-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#2563EB">
+          {animated && <animate attributeName="stop-color" values="#2563EB;#3B82F6;#2563EB" dur="3s" repeatCount="indefinite" />}
         </stop>
-        <stop offset="50%" stopColor="#2563EB" />
         <stop offset="100%" stopColor="#3B82F6">
-          {animated && <animate attributeName="stop-color" values="#3B82F6;#1E3A5F;#3B82F6" dur="4s" repeatCount="indefinite" />}
+          {animated && <animate attributeName="stop-color" values="#3B82F6;#60A5FA;#3B82F6" dur="3s" repeatCount="indefinite" />}
         </stop>
       </linearGradient>
 
-      {/* Secondary gradient - cyan accent */}
-      <linearGradient id={`logo-secondary-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+      {/* Accent gradient - cyan */}
+      <linearGradient id={`modern-accent-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stopColor="#0EA5E9" />
-        <stop offset="100%" stopColor="#22D3EE" />
+        <stop offset="100%" stopColor="#38BDF8" />
       </linearGradient>
 
-      {/* Glow filter */}
-      <filter id={`logo-glow-${id}`} x="-50%" y="-50%" width="200%" height="200%">
+      {/* Glow effect */}
+      <filter id={`modern-glow-${id}`} x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur stdDeviation="1.5" result="blur" />
         <feMerge>
           <feMergeNode in="blur" />
@@ -65,26 +64,49 @@ const AutlifyLogo = ({
   }
 
   const renderIcon = () => (
-    <g filter={animated ? `url(#logo-glow-${id})` : undefined}>
-      {/* Solid A shape - clean modern lettermark */}
+    <g filter={animated ? `url(#modern-glow-${id})` : undefined}>
+      {/* Speed lines - dynamic motion effect */}
+      <g opacity="0.85">
+        <path
+          d="M2 20 L10 20"
+          stroke={`url(#modern-accent-${id})`}
+          strokeWidth="3"
+          strokeLinecap="round"
+        >
+          {animated && (
+            <animate attributeName="opacity" values="0.85;0.4;0.85" dur="1.2s" repeatCount="indefinite" />
+          )}
+        </path>
+        <path
+          d="M0 26 L8 26"
+          stroke={`url(#modern-accent-${id})`}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        >
+          {animated && (
+            <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1.2s" begin="0.15s" repeatCount="indefinite" />
+          )}
+        </path>
+        <path
+          d="M3 32 L9 32"
+          stroke={`url(#modern-accent-${id})`}
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          {animated && (
+            <animate attributeName="opacity" values="0.6;0.25;0.6" dur="1.2s" begin="0.3s" repeatCount="indefinite" />
+          )}
+        </path>
+      </g>
+
+      {/* Main solid A shape - bold and clean */}
       <path
-        d="M20 2 L36 38 L29 38 L25.5 29 L14.5 29 L11 38 L4 38 L20 2 Z M20 12 L16 25 L24 25 L20 12 Z"
-        fill={`url(#logo-primary-${id})`}
+        d="M22 4 L38 36 L31 36 L27.5 28 L16.5 28 L13 36 L6 36 L22 4 Z M22 14 L18 24 L26 24 L22 14 Z"
+        fill={`url(#modern-primary-${id})`}
         fillRule="evenodd"
       >
         {animated && (
           <animate attributeName="opacity" values="1;0.92;1" dur="3s" repeatCount="indefinite" />
-        )}
-      </path>
-
-      {/* Subtle accent triangle below crossbar */}
-      <path
-        d="M20 32 L23 38 L17 38 Z"
-        fill={`url(#logo-secondary-${id})`}
-        opacity="0.9"
-      >
-        {animated && (
-          <animate attributeName="opacity" values="0.9;0.6;0.9" dur="2s" repeatCount="indefinite" />
         )}
       </path>
     </g>
@@ -165,4 +187,4 @@ const AutlifyLogo = ({
   )
 }
 
-export default AutlifyLogo
+export default NaropoLogoModern

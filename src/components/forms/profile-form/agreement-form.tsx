@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { FaCheckCircle, FaFile, FaUserShield, FaLink } from 'react-icons/fa'
 import type { User, Subscription, TermsAgreement } from '@/generated/prisma/client'
-import { PricingPlan } from '@naropo/billing-sdk'
+import { PricingPlan } from '@autlify/billing-sdk'
 import { LinkIcon, ShieldCheck } from 'lucide-react'
 
 interface AgreementStatusProps {

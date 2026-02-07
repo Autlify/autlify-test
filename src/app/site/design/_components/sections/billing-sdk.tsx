@@ -12,8 +12,8 @@ import {
     CreditBalanceCard,
     CreditHistory,
     DunningAlerts,
-} from "@naropo/billing-sdk";
-import type { PlanOption } from "@naropo/billing-sdk";
+} from "@autlify/billing-sdk";
+import type { PlanOption } from "@autlify/billing-sdk";
 import { Button } from "@/components/ui/button";
 
 // Local types for showcase data

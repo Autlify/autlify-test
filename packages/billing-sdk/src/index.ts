@@ -279,4 +279,4 @@ export {
 // ============================================
 
 export const SDK_VERSION = "0.3.0";
-export const SDK_NAME = "@naropo/billing-sdk";
+export const SDK_NAME = "@autlify/billing-sdk";

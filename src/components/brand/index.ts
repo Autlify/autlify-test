@@ -4,11 +4,12 @@
  * Premium logo components with multiple variants and themes.
  * 
  * Usage:
- * import { AutlifyLogo, AutlifyLogoModern } from '@/components/brand'
+ * import { NaropoLogo, NaropoLogoModern } from '@/components/brand'
  * 
- * <AutlifyLogo size={48} variant="full" theme="gradient" animated />
- * <AutlifyLogoModern size={40} variant="icon" animated />
+ * <NaropoLogo size={48} variant="full" theme="gradient" animated />
+ * <NaropoLogoModern size={40} variant="icon" animated />
  */
 
-export { default as AutlifyLogo } from './naropo-logo'
-export { default as AutlifyLogoModern } from './naropo-logo-modern'
+
+export { default as NaropoLogo } from './naropo-logo'
+export { default as NaropoLogoModern } from './naropo-logo-modern'

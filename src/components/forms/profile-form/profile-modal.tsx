@@ -22,7 +22,7 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { User, Subscription } from '@/generated/prisma/client'
-import { PricingPlan } from '@naropo/billing-sdk'
+import { PricingPlan } from '@autlify/billing-sdk'
 
 
 export interface AccessibilityPreferences {

@@ -2,7 +2,7 @@
  * Naropo Billing SDK CLI
  * 
  * Install and manage billing SDK components
- * Usage: bunx @naropo/billing-sdk add [component-name]
+ * Usage: bunx @autlify/billing-sdk add [component-name]
  */
 
 import { Command } from "commander"
@@ -28,7 +28,7 @@ interface ListOptions {
 const program = new Command()
 
 program
-    .name("@naropo/billing-sdk")
+    .name("@autlify/billing-sdk")
     .description("Naropo Billing SDK CLI - Install billing components")
     .version("0.1.0")
 
@@ -132,7 +132,7 @@ program
             })
         })
 
-        console.log(`\n💡 Install with: bunx @naropo/billing-sdk add <component-name>\n`)
+        console.log(`\n💡 Install with: bunx @autlify/billing-sdk add <component-name>\n`)
     })
 
 program
@@ -174,7 +174,7 @@ export * from "./types"
 
             // Create types file
             const typesContent = `// Billing SDK Type Definitions
-export * from "@naropo/billing-sdk/types"
+export * from "@autlify/billing-sdk/types"
 `
             await fs.writeFile(path.join(targetPath, "types.ts"), typesContent, "utf-8")
 
@@ -183,7 +183,7 @@ export * from "@naropo/billing-sdk/types"
             console.log(`   📝 index.ts created`)
             console.log(`   📝 types.ts created`)
             console.log(`\n💡 Next steps:`)
-            console.log(`   1. bunx @naropo/billing-sdk add <component-name>`)
+            console.log(`   1. bunx @autlify/billing-sdk add <component-name>`)
             console.log(`   2. Import: import { SubscriptionCard } from "@/components/billing-sdk"`)
             console.log(`   3. Read docs: https://naropo.com/site/docs/billing-sdk\n`)
 

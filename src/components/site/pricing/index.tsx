@@ -1,5 +1,5 @@
 'use client'
-import { PlanSelectorDialog, type PlanSelectorDialogProps } from '@naropo/billing-sdk'
+import { PlanSelectorDialog, type PlanSelectorDialogProps } from '@autlify/billing-sdk'
 import React from 'react'
 import { getPricingCards } from '@/lib/registry/plans/pricing-config'
 import { getAuthUserDetails } from '@/lib/queries'

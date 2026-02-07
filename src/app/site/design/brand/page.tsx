@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { AutlifyLogo, AutlifyLogoModern } from '@/components/brand'
+import { NaropoLogo, NaropoLogoModern } from '@/components/brand'
 
 export default function BrandPreview() {
   const [animated, setAnimated] = useState(true)
@@ -51,14 +51,14 @@ export default function BrandPreview() {
           <button
             onClick={() => setAnimated(!animated)}
             className={`group relative px-8 py-3 rounded-2xl font-medium transition-all duration-300 ${animated
-                ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-white shadow-[0_0_30px_-10px_rgba(99,102,241,0.5)]'
-                : 'bg-white/[0.03] border border-white/10 text-slate-400 hover:bg-white/[0.05] hover:border-white/15'
+              ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 text-white shadow-[0_0_30px_-10px_rgba(99,102,241,0.5)]'
+              : 'bg-white/[0.03] border border-white/10 text-slate-400 hover:bg-white/[0.05] hover:border-white/15'
               }`}
           >
             <span className="relative z-10 flex items-center gap-3">
               <span className={`w-3 h-3 rounded-full transition-all duration-300 ${animated
-                  ? 'bg-gradient-to-r from-indigo-400 to-purple-400 shadow-[0_0_12px_3px_rgba(129,140,248,0.4)]'
-                  : 'bg-slate-600'
+                ? 'bg-gradient-to-r from-indigo-400 to-purple-400 shadow-[0_0_12px_3px_rgba(129,140,248,0.4)]'
+                : 'bg-slate-600'
                 }`} />
               {animated ? 'Animations Active' : 'Animations Paused'}
             </span>
@@ -77,7 +77,7 @@ export default function BrandPreview() {
                   <div className="text-center group">
                     <div className="relative inline-block">
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500" />
-                      <AutlifyLogo size={120} variant="icon" theme="gradient" animated={animated} className="relative" />
+                      <NaropoLogo size={120} variant="icon" theme="gradient" animated={animated} className="relative" />
                     </div>
                     <p className="text-sm text-slate-500 mt-6 font-medium">Primary Mark</p>
                   </div>
@@ -88,7 +88,7 @@ export default function BrandPreview() {
                   <div className="text-center group">
                     <div className="relative inline-block">
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500" />
-                      <AutlifyLogoModern size={120} variant="icon" theme="gradient" animated={animated} className="relative" />
+                      <NaropoLogoModern size={120} variant="icon" theme="gradient" animated={animated} className="relative" />
                     </div>
                     <p className="text-sm text-slate-500 mt-6 font-medium">Modern Variant</p>
                   </div>
@@ -122,21 +122,21 @@ export default function BrandPreview() {
                 <div className="flex items-center justify-around py-8">
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={64} variant="icon" theme="gradient" animated={animated} />
+                      <NaropoLogo size={64} variant="icon" theme="gradient" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Icon</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={48} variant="full" theme="gradient" animated={animated} />
+                      <NaropoLogo size={48} variant="full" theme="gradient" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Full</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={40} variant="compact" theme="gradient" animated={animated} />
+                      <NaropoLogo size={40} variant="compact" theme="gradient" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Compact</span>
                   </div>
@@ -155,21 +155,21 @@ export default function BrandPreview() {
                 <div className="flex items-center justify-around py-8">
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={64} variant="icon" theme="light" animated={animated} />
+                      <NaropoLogo size={64} variant="icon" theme="light" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Icon</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={48} variant="full" theme="light" animated={animated} />
+                      <NaropoLogo size={48} variant="full" theme="light" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Full</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogo size={40} variant="compact" theme="light" animated={animated} />
+                      <NaropoLogo size={40} variant="compact" theme="light" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Compact</span>
                   </div>
@@ -203,21 +203,21 @@ export default function BrandPreview() {
                 <div className="flex items-center justify-around py-8">
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={64} variant="icon" theme="gradient" animated={animated} />
+                      <NaropoLogoModern size={64} variant="icon" theme="gradient" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Icon</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={48} variant="full" theme="dark" animated={animated} />
+                      <NaropoLogoModern size={48} variant="full" theme="dark" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Full</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={40} variant="compact" theme="dark" animated={animated} />
+                      <NaropoLogoModern size={40} variant="compact" theme="dark" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Compact</span>
                   </div>
@@ -236,21 +236,21 @@ export default function BrandPreview() {
                 <div className="flex items-center justify-around py-8">
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={64} variant="icon" theme="gradient" animated={animated} />
+                      <NaropoLogoModern size={64} variant="icon" theme="gradient" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Icon</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={48} variant="full" theme="light" animated={animated} />
+                      <NaropoLogoModern size={48} variant="full" theme="light" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Full</span>
                   </div>
 
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center h-20">
-                      <AutlifyLogoModern size={40} variant="compact" theme="light" animated={animated} />
+                      <NaropoLogoModern size={40} variant="compact" theme="light" animated={animated} />
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Compact</span>
                   </div>
@@ -279,7 +279,7 @@ export default function BrandPreview() {
                   <div key={size} className="text-center group" style={{ animationDelay: `${i * 100}ms` }}>
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <AutlifyLogo size={size} variant="icon" theme="gradient" animated={animated} className="relative" />
+                      <NaropoLogo size={size} variant="icon" theme="gradient" animated={animated} className="relative" />
                     </div>
                     <p className="text-[10px] font-mono text-slate-600 mt-4">{size}px</p>
                   </div>
@@ -315,9 +315,9 @@ export default function BrandPreview() {
                 <code>
                   <span className="text-purple-400">import</span>
                   <span className="text-slate-400">{" { "}</span>
-                  <span className="text-cyan-300">AutlifyLogo</span>
+                  <span className="text-cyan-300">NaropoLogo</span>
                   <span className="text-slate-400">,</span>
-                  <span className="text-cyan-300"> AutlifyLogoModern</span>
+                  <span className="text-cyan-300"> NaropoLogoModern</span>
                   <span className="text-slate-400">{" } "}</span>
                   <span className="text-purple-400">from</span>
                   <span className="text-emerald-400"> &apos;@/components/brand&apos;</span>
@@ -325,7 +325,7 @@ export default function BrandPreview() {
                   <span className="text-slate-600">{"// Primary Logo"}</span>
                   {"\n"}
                   <span className="text-slate-300">{"<"}</span>
-                  <span className="text-cyan-300">AutlifyLogo</span>
+                  <span className="text-cyan-300">NaropoLogo</span>
                   {"\n"}
                   <span className="text-slate-400">{"  size"}</span>
                   <span className="text-slate-500">{"="}</span>
@@ -350,7 +350,7 @@ export default function BrandPreview() {
                   <span className="text-slate-600">{"// Modern Alternative"}</span>
                   {"\n"}
                   <span className="text-slate-300">{"<"}</span>
-                  <span className="text-cyan-300">AutlifyLogoModern</span>
+                  <span className="text-cyan-300">NaropoLogoModern</span>
                   <span className="text-slate-400">{" size"}</span>
                   <span className="text-slate-500">{"="}</span>
                   <span className="text-slate-300">{"{"}</span>
