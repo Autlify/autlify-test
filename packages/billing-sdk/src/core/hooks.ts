@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - React Hooks
+ * Naropo Billing SDK - React Hooks
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * Custom hooks for billing operations.
  */

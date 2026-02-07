@@ -1,5 +1,5 @@
 /**
- * Autlify Billing SDK - Component Types
+ * Naropo Billing SDK - Component Types
  * Re-exports from main types for component use
  * @packageDocumentation
  */

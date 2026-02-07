@@ -196,7 +196,7 @@ function EnvVarRow({ name, value, decrypted = false }: { name: string; value: st
 // Build Log Preview
 function BuildLogPreview() {
   const logs = [
-    { type: 'info', message: 'Cloning github.com/naropo/naropo (Branch: main, Commit: 3a8f2d1)' },
+    { type: 'info', message: 'Cloning github.com/Autlify/naropo (Branch: main, Commit: 3a8f2d1)' },
     { type: 'info', message: 'Installing dependencies...' },
     { type: 'success', message: 'Dependencies installed successfully' },
     { type: 'info', message: 'Running build command: next build' },

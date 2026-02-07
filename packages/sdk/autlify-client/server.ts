@@ -43,10 +43,10 @@ function normalizeBaseUrl(baseUrl?: string) {
 
 function scopeHeaders(scope: AutlifyScope): ScopeHeaders {
   if (!scope.agencyId) throw new AutlifySdkError('Missing agencyId for scope', { code: 'INVALID_SCOPE' })
-  const h: ScopeHeaders = { 'x-autlify-agency-id': scope.agencyId }
+  const h: ScopeHeaders = { 'x-naropo-agency-id': scope.agencyId }
   if (scope.kind === 'subaccount') {
     if (!scope.subAccountId) throw new AutlifySdkError('Missing subAccountId for subaccount scope', { code: 'INVALID_SCOPE' })
-    h['x-autlify-subaccount-id'] = scope.subAccountId
+    h['x-naropo-subaccount-id'] = scope.subAccountId
   }
   return h
 }
@@ -71,7 +71,7 @@ export class AutlifyClient {
   constructor(opts?: AutlifyClientOptions) {
     this.baseUrl = normalizeBaseUrl(opts?.baseUrl)
     this.apiKey = opts?.apiKey || requiredEnv('AUTLIFY_API_KEY')
-    this.userAgent = `@autlify/client (server)${opts?.userAgent ? `; ${opts.userAgent}` : ''}`
+    this.userAgent = `@naropo/client (server)${opts?.userAgent ? `; ${opts.userAgent}` : ''}`
     this.timeoutMs = typeof opts?.timeoutMs === 'number' ? opts.timeoutMs : 15000
     this.validate = opts?.validate ?? true
 
@@ -92,7 +92,7 @@ export class AutlifyClient {
     const url = `${this.baseUrl}${path}`
     const headers: Record<string, string> = {
       ...(init.headers as any),
-      'x-autlify-api-key': this.apiKey,
+      'x-naropo-api-key': this.apiKey,
       'user-agent': this.userAgent,
     }
     if (init.scope) Object.assign(headers, scopeHeaders(init.scope))
@@ -127,7 +127,7 @@ export class AutlifyClient {
 }
 
 export class AutlifyScopedClient {
-  constructor(private root: AutlifyClient, private scope: AutlifyScope) {}
+  constructor(private root: AutlifyClient, private scope: AutlifyScope) { }
 
   apps = {
     list: async () => this.root.parse(AppsListResponseSchema, await this.root.request('/api/features/core/apps', { method: 'GET', scope: this.scope })),

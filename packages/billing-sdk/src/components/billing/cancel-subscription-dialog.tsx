@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Autlify Billing SDK - Cancel Subscription Dialog
+ * Naropo Billing SDK - Cancel Subscription Dialog
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 import { useState, useEffect } from "react";
@@ -234,7 +234,7 @@ export function CancelSubscriptionDialog({
               )}
             </div>
           )}
-          
+
           {/* Action Buttons */}
           {!showConfirmation ? (
             <div className="mt-auto flex flex-col gap-3 sm:flex-row">

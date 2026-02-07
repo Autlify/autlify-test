@@ -1,14 +1,14 @@
 /**
- * Autlify Billing SDK
+ * Naropo Billing SDK
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * A comprehensive billing and subscription management SDK for React applications.
  * Supports internal billing, external API integrations, and payment gateway (PayKit) mode.
  *
  * Get your API key: https://naropo.com/dashboard/api-keys
- * Whitelisted domains: localhost, *.naropo.com, *.autlify.dev
+ * Whitelisted domains: localhost, *.naropo.com, *.naropo.dev
  *
  * @packageDocumentation
  */
@@ -279,4 +279,4 @@ export {
 // ============================================
 
 export const SDK_VERSION = "0.3.0";
-export const SDK_NAME = "@autlify/billing-sdk";
+export const SDK_NAME = "@naropo/billing-sdk";

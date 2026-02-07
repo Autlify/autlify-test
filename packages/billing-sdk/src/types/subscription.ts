@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Subscription Types
+ * Naropo Billing SDK - Subscription Types
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 export type SubscriptionStatus =

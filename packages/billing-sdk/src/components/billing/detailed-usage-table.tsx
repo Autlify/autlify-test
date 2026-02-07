@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Autlify Billing SDK - Detailed Usage Table
+ * Naropo Billing SDK - Detailed Usage Table
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 import {

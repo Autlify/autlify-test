@@ -2,7 +2,7 @@
  * Billing SDK Component Registry
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 export type ComponentCategory =
@@ -45,7 +45,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "badge", "separator", "button"],
         files: [{ name: "subscription-card.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk",
             examples: ["/site/design#billing-sdk"]
         }
@@ -58,7 +58,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["dialog", "button", "card", "badge"],
         files: [{ name: "plan-selector-dialog.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk",
             examples: ["/site/design#billing-sdk"]
         }
@@ -71,7 +71,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["dialog", "button", "radio-group", "textarea"],
         files: [{ name: "cancel-subscription-dialog.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -83,7 +83,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "button"],
         files: [{ name: "trial-banner.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -95,7 +95,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "button"],
         files: [{ name: "payment-methods-list.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk",
             examples: ["/site/design#billing-sdk"]
         }
@@ -108,7 +108,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card"],
         files: [{ name: "payment-card.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -120,7 +120,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "button", "input", "label"],
         files: [{ name: "payment-form.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -132,7 +132,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "input", "label", "select", "button"],
         files: [{ name: "billing-form.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -144,7 +144,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table", "badge", "button"],
         files: [{ name: "invoice-list.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk",
             examples: ["/site/design#billing-sdk"]
         }
@@ -157,7 +157,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "progress"],
         files: [{ name: "usage-display.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -169,7 +169,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table"],
         files: [{ name: "usage-table.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -181,7 +181,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "button"],
         files: [{ name: "credit-balance-card.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -193,7 +193,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table", "badge"],
         files: [{ name: "credit-history.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -205,7 +205,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["alert", "button"],
         files: [{ name: "dunning-alerts.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -217,7 +217,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["dialog", "button"],
         files: [{ name: "payment-success-dialog.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -229,7 +229,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "button", "alert"],
         files: [{ name: "payment-failure.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk"
         }
     },
@@ -241,7 +241,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "tabs"],
         files: [{ name: "billing-overview.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk",
             examples: ["/site/design#billing-sdk"]
         }
@@ -259,7 +259,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
             { name: "api-client.ts", path: "core/" },
         ],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/provider"
         }
     },
@@ -272,7 +272,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table", "badge", "button", "select", "input"],
         files: [{ name: "usage-client.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/usage"
         }
     },
@@ -284,7 +284,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table", "progress", "badge"],
         files: [{ name: "detailed-usage-table.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/usage"
         }
     },
@@ -297,7 +297,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "table", "badge", "button", "dialog", "input", "select"],
         files: [{ name: "credits-client.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/credits"
         }
     },
@@ -310,7 +310,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: ["card", "input", "button", "badge"],
         files: [{ name: "coupon-client.tsx" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/coupons"
         }
     },
@@ -327,7 +327,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
             { name: "cancel-subscription-dialog.tsx" },
         ],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/subscription",
             examples: ["/site/design#billing-sdk"]
         }
@@ -341,7 +341,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: [],
         files: [{ name: "embedded-checkout.tsx", path: "gateway/" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/gateway"
         }
     },
@@ -353,7 +353,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: [],
         files: [{ name: "embedded-checkout.tsx", path: "gateway/" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/gateway"
         }
     },
@@ -365,7 +365,7 @@ export const billingSDKRegistry: Record<string, ComponentRegistry> = {
         registryDependencies: [],
         files: [{ name: "client.ts", path: "gateway/" }],
         meta: {
-            source: "https://github.com/autlify/billing-sdk",
+            source: "https://github.com/Autlify/billing-sdk",
             docs: "/site/docs/billing-sdk/gateway"
         }
     }

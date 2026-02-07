@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - API Client
+ * Naropo Billing SDK - API Client
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * REST API client for billing operations.
  */

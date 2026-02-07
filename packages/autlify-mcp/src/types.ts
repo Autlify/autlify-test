@@ -1,6 +1,6 @@
 /**
  * Component Registry Types
- * Shared types for all Autlify component registries
+ * Shared types for all Naropo component registries
  */
 
 export type ComponentCategory =

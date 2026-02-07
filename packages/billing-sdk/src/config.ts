@@ -1,15 +1,15 @@
 /**
- * Autlify Billing SDK Configuration
+ * Naropo Billing SDK Configuration
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 import type { GatewayEnvironment } from "./types/gateway";
 
 export interface BillingSDKConfig {
   /**
-   * Your Autlify API key
+   * Your Naropo API key
    * Get one at: https://naropo.com/dashboard/api-keys
    */
   apiKey?: string;
@@ -34,7 +34,7 @@ export interface BillingSDKConfig {
 
   /**
    * SDK mode
-   * - 'internal': For Autlify apps (no API key needed on whitelisted domains)
+   * - 'internal': For Naropo apps (no API key needed on whitelisted domains)
    * - 'external': For external integrations (API key required)
    * - 'gateway': For payment gateway mode (merchant ID required)
    * @default 'internal'
@@ -130,7 +130,7 @@ export interface ComponentConfig {
   size?: "sm" | "default" | "lg";
 
   /**
-   * Show powered by Autlify branding
+   * Show powered by Naropo branding
    * @default true for gateway mode, false for internal
    */
   showBranding?: boolean;

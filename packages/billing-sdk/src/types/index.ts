@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Type Definitions
+ * Naropo Billing SDK - Type Definitions
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * @packageDocumentation
  */

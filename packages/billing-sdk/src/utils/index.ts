@@ -1,5 +1,5 @@
 /**
- * Autlify Billing SDK - Utilities
+ * Naropo Billing SDK - Utilities
  * @packageDocumentation
  */
 

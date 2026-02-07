@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Autlify Billing SDK - Subscription Management Component
+ * Naropo Billing SDK - Subscription Management Component
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 import {
@@ -47,7 +47,7 @@ export function SubscriptionManagement({
           <CardTitle className="flex items-center gap-2 text-lg sm:gap-3 sm:text-xl">
             <div className="bg-primary/10 ring-primary/20 rounded-lg p-1.5 ring-1 sm:p-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-4 w-4 sm:h-5 sm:w-5">
-                <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+                <rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" />
               </svg>
             </div>
             Current Subscription
@@ -108,7 +108,7 @@ export function SubscriptionManagement({
             <h4 className="flex items-center gap-2 text-base font-medium sm:text-lg">
               <div className="bg-muted ring-border/50 rounded-md p-1 ring-1 sm:p-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 sm:h-4 sm:w-4">
-                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" />
                 </svg>
               </div>
               Billing Information

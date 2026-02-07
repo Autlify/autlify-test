@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Autlify MCP Server
+ * Naropo MCP Server
  * 
  * Model Context Protocol server providing AI-assisted development tools:
  * - Component discovery across multiple registries
@@ -20,7 +20,7 @@ import { registries, getAllComponents, searchComponents, type RegistryName } fro
 import type { ComponentRegistry } from "./types.js"
 
 const server = new Server(
-  { name: "autlify-mcp", version: "0.1.0" },
+  { name: "naropo-mcp", version: "0.1.0" },
   { capabilities: { tools: {} } }
 )
 
@@ -73,7 +73,7 @@ const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        components: { type:"array", items: { type: "string" } },
+        components: { type: "array", items: { type: "string" } },
         packageManager: { type: "string", enum: ["npm", "bun", "yarn", "pnpm"], default: "bun" },
       },
       required: ["components"],
@@ -190,7 +190,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
 async function main() {
   const transport = new StdioServerTransport()
   await server.connect(transport)
-  console.error("Autlify MCP server running")
+  console.error("Naropo MCP server running")
 }
 
 main().catch(console.error)

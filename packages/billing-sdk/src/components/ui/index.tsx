@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Autlify Billing SDK - UI Primitives
+ * Naropo Billing SDK - UI Primitives
  * 
  * This module provides UI primitive wrappers that can be configured
  * by the consumer to use their own UI components (e.g., shadcn/ui).
@@ -112,7 +112,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     ({ className, ...props }, ref) => (
@@ -433,7 +433,7 @@ export const DialogFooter = React.forwardRef<
 DialogFooter.displayName = "DialogFooter";
 
 // Input
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ({ className, type, ...props }, ref) => (

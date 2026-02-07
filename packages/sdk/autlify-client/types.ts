@@ -3,7 +3,7 @@ export type AutlifyScope =
   | { kind: 'subaccount'; agencyId: string; subAccountId: string }
 
 export type AutlifyClientOptions = {
-  /** Base URL of your Autlify deployment (e.g. https://app.naropo.com). Defaults to process.env.AUTLIFY_BASE_URL or http://localhost:3000 */
+  /** Base URL of your Naropo deployment (e.g. https://app.naropo.com). Defaults to process.env.AUTLIFY_BASE_URL or http://localhost:3000 */
   baseUrl?: string
   /** API key (server-only). Defaults to process.env.AUTLIFY_API_KEY */
   apiKey?: string

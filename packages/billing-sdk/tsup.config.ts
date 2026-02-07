@@ -31,7 +31,7 @@ export default defineConfig([
         ],
         esbuildOptions(options) {
             options.banner = {
-                js: "/**\n * Autlify Billing SDK\n * PROPRIETARY SOFTWARE - Copyright © 2026 Autlify. All rights reserved.\n */",
+                js: "/**\n * Naropo Billing SDK\n * PROPRIETARY SOFTWARE - Copyright © 2026 Naropo. All rights reserved.\n */",
             }
         },
     },

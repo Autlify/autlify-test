@@ -3711,7 +3711,7 @@ model SupportTicket {
 // ============================================================================
 // E-INVOICE & BILLING CONFIGURATION (finance schema)
 // ============================================================================
-// NOTE: Autlify does NOT handle tax compliance/liability. These models store
+// NOTE: Naropo does NOT handle tax compliance/liability. These models store
 // user-configured settings for e-Invoice generation and tax visualization.
 // KYC and business verification is handled by Stripe Connect.
 // ============================================================================

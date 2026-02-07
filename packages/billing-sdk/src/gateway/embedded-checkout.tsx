@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Embedded Checkout Component
+ * Naropo Billing SDK - Embedded Checkout Component
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * Drop-in checkout component for external merchants.
  */
@@ -169,7 +169,7 @@ export function EmbeddedCheckout({
                 <iframe
                     src={iframeUrl}
                     style={styles.iframe}
-                    title="Autlify Checkout"
+                    title="Naropo Checkout"
                     allow="payment"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                 />

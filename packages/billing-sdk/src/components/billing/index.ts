@@ -1,5 +1,5 @@
 /**
- * Autlify Billing SDK - Billing Components
+ * Naropo Billing SDK - Billing Components
  * @packageDocumentation
  */
 
@@ -26,7 +26,7 @@ export type { UsageResource, DetailedUsageTableProps } from "./detailed-usage-ta
 export { UpdatePlanDialog } from "./update-plan-dialog";
 export type { UpdatePlanDialogProps } from "./update-plan-dialog";
 export { PlanSelectorDialog } from "./plan-selector-dialog";
-export type {  PlanOption } from "./plan-selector-dialog";
+export type { PlanOption } from "./plan-selector-dialog";
 export { CancelSubscriptionDialog } from "./cancel-subscription-dialog";
 export type { CancelSubscriptionDialogProps } from "./cancel-subscription-dialog";
 

@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Usage & Metering Types
+ * Naropo Billing SDK - Usage & Metering Types
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 export type UsagePeriod = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";

@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK CLI
+ * Naropo Billing SDK CLI
  * 
  * Install and manage billing SDK components
- * Usage: bunx @autlify/billing-sdk add [component-name]
+ * Usage: bunx @naropo/billing-sdk add [component-name]
  */
 
 import { Command } from "commander"
@@ -28,8 +28,8 @@ interface ListOptions {
 const program = new Command()
 
 program
-    .name("@autlify/billing-sdk")
-    .description("Autlify Billing SDK CLI - Install billing components")
+    .name("@naropo/billing-sdk")
+    .description("Naropo Billing SDK CLI - Install billing components")
     .version("0.1.0")
 
 program
@@ -81,7 +81,7 @@ program
             console.log(`\n📝 Creating component files...`)
             for (const file of component.files) {
                 const filePath = path.join(targetPath, file.name)
-                const sourceUrl = `https://raw.githubusercontent.com/autlify/billing-sdk/main/src/components/billing-sdk/${file.name}`
+                const sourceUrl = `https://raw.githubusercontent.com/naropo/billing-sdk/main/src/components/billing-sdk/${file.name}`
 
                 console.log(`   - ${file.name}`)
 
@@ -115,7 +115,7 @@ program
     .description("List all available components")
     .option("-c, --category <category>", "Filter by category")
     .action((options: ListOptions) => {
-        console.log("\n📦 Autlify Billing SDK Components\n")
+        console.log("\n📦 Naropo Billing SDK Components\n")
 
         const components = Object.values(billingSDKRegistry)
         const filtered = options.category
@@ -132,7 +132,7 @@ program
             })
         })
 
-        console.log(`\n💡 Install with: bunx @autlify/billing-sdk add <component-name>\n`)
+        console.log(`\n💡 Install with: bunx @naropo/billing-sdk add <component-name>\n`)
     })
 
 program
@@ -141,14 +141,14 @@ program
     .option("-p, --path <path>", "Installation path", "src/components/billing-sdk")
     .action(async (options) => {
         try {
-            console.log("\n🚀 Initializing Autlify Billing SDK...\n")
+            console.log("\n🚀 Initializing Naropo Billing SDK...\n")
 
             // Create directory
             const targetPath = path.join(process.cwd(), options.path)
             await fs.mkdir(targetPath, { recursive: true })
 
             // Create index file
-            const indexContent = `// Autlify Billing SDK Components
+            const indexContent = `// Naropo Billing SDK Components
 // Auto-generated exports
 
 export * from "./subscription-card"
@@ -174,7 +174,7 @@ export * from "./types"
 
             // Create types file
             const typesContent = `// Billing SDK Type Definitions
-export * from "@autlify/billing-sdk/types"
+export * from "@naropo/billing-sdk/types"
 `
             await fs.writeFile(path.join(targetPath, "types.ts"), typesContent, "utf-8")
 
@@ -183,7 +183,7 @@ export * from "@autlify/billing-sdk/types"
             console.log(`   📝 index.ts created`)
             console.log(`   📝 types.ts created`)
             console.log(`\n💡 Next steps:`)
-            console.log(`   1. bunx @autlify/billing-sdk add <component-name>`)
+            console.log(`   1. bunx @naropo/billing-sdk add <component-name>`)
             console.log(`   2. Import: import { SubscriptionCard } from "@/components/billing-sdk"`)
             console.log(`   3. Read docs: https://naropo.com/site/docs/billing-sdk\n`)
 

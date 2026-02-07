@@ -1,5 +1,5 @@
 /**
- * Autlify Billing SDK - License Validation
+ * Naropo Billing SDK - License Validation
  * 
  * Validates API keys and checks whitelisted domains for internal use
  */
@@ -8,7 +8,7 @@ const WHITELISTED_DOMAINS = [
   'localhost',
   '127.0.0.1',
   '.naropo.com',
-  '.autlify.dev',
+  '.naropo.dev',
 ]
 
 const WHITELISTED_HOSTS = [
@@ -63,19 +63,19 @@ export class LicenseValidator {
   }
 
   /**
-   * Validate API key with Autlify servers
+   * Validate API key with Naropo servers
    */
   async validate(): Promise<boolean> {
     // Skip validation for whitelisted domains
     if (this.isWhitelisted) {
-      console.log('[Autlify] Running on whitelisted domain - validation skipped')
+      console.log('[Naropo] Running on whitelisted domain - validation skipped')
       return true
     }
 
     // API key is required for non-whitelisted domains
     if (!this.apiKey) {
       console.error(
-        '[Autlify] API key required. Get one at https://naropo.com/dashboard/api-keys'
+        '[Naropo] API key required. Get one at https://naropo.com/dashboard/api-keys'
       )
       return false
     }
@@ -106,11 +106,11 @@ export class LicenseValidator {
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.error('[Autlify] Invalid API key')
+          console.error('[Naropo] Invalid API key')
         } else if (response.status === 403) {
-          console.error('[Autlify] API key quota exceeded or not authorized')
+          console.error('[Naropo] API key quota exceeded or not authorized')
         } else {
-          console.error('[Autlify] License validation failed')
+          console.error('[Naropo] License validation failed')
         }
         return false
       }
@@ -118,13 +118,13 @@ export class LicenseValidator {
       const data = await response.json()
 
       if (data.valid) {
-        console.log('[Autlify] License validated successfully')
+        console.log('[Naropo] License validated successfully')
         return true
       }
 
       return false
     } catch (error) {
-      console.warn('[Autlify] Could not validate license (network error), allowing usage')
+      console.warn('[Naropo] Could not validate license (network error), allowing usage')
       // Allow usage if validation server is unreachable (fail-open for better UX)
       return true
     }

@@ -1,10 +1,10 @@
 /**
- * Autlify Billing SDK - Payment Gateway Module
+ * Naropo Billing SDK - Payment Gateway Module
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
- * Enables external apps to use Autlify as their payment processor.
+ * Enables external apps to use Naropo as their payment processor.
  */
 
 // Client

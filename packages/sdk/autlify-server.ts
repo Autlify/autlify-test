@@ -1,15 +1,15 @@
 import 'server-only'
 
 /**
- * Minimal server-side SDK wrapper for calling Autlify APIs with header-based auth.
+ * Minimal server-side SDK wrapper for calling Naropo APIs with header-based auth.
  *
  * This is intentionally lightweight (no proprietary package name yet), but enforces:
  * - API key presence in env
  * - Explicit scope headers when needed
  *
  * Headers supported by our core guards:
- * - x-autlify-api-key
- * - x-autlify-agency-id / x-autlify-subaccount-id
+ * - x-naropo-api-key
+ * - x-naropo-agency-id / x-naropo-subaccount-id
  */
 export type AutlifySdkScope = { agencyId: string } | { subAccountId: string; agencyId?: string }
 
@@ -41,16 +41,16 @@ export class AutlifySdk {
   private headers(extra?: Record<string, string>) {
     const h: Record<string, string> = {
       'content-type': 'application/json',
-      'x-autlify-api-key': this.apiKey,
+      'x-naropo-api-key': this.apiKey,
       ...extra,
     }
 
     if (this.scope && 'agencyId' in this.scope) {
-      h['x-autlify-agency-id'] = this.scope.agencyId!
+      h['x-naropo-agency-id'] = this.scope.agencyId!
     }
     if (this.scope && 'subAccountId' in this.scope) {
-      h['x-autlify-subaccount-id'] = this.scope.subAccountId
-      if (this.scope.agencyId) h['x-autlify-agency-id'] = this.scope.agencyId
+      h['x-naropo-subaccount-id'] = this.scope.subAccountId
+      if (this.scope.agencyId) h['x-naropo-agency-id'] = this.scope.agencyId
     }
 
     return h

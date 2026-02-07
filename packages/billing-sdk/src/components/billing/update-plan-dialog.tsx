@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Autlify Billing SDK - Update Plan Dialog
+ * Naropo Billing SDK - Update Plan Dialog
  *
  * PROPRIETARY SOFTWARE - API Key Required
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 import { useState, useCallback } from "react";
@@ -96,7 +96,7 @@ export function UpdatePlanDialog({
               </Button>
             </div>
           </DialogHeader>
-          
+
           <div
             className="[&::-webkit-scrollbar-thumb]:bg-muted hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 -mx-4 min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 sm:-mx-6 sm:px-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-track]:bg-transparent"
             style={{
@@ -139,8 +139,8 @@ export function UpdatePlanDialog({
                           <div className="flex-shrink-0 mt-0.5 sm:mt-1">
                             <div className={cn(
                               "h-4 w-4 rounded-full border-2 flex items-center justify-center",
-                              selectedPlan === plan.id 
-                                ? "border-primary bg-primary" 
+                              selectedPlan === plan.id
+                                ? "border-primary bg-primary"
                                 : "border-muted-foreground/20"
                             )}>
                               {selectedPlan === plan.id && (

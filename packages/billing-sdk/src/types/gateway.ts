@@ -1,10 +1,10 @@
 /**
- * Autlify Billing SDK - Payment Gateway Types (PayKit Mode)
+ * Naropo Billing SDK - Payment Gateway Types (PayKit Mode)
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
- * This module enables external apps to use Autlify as their payment processor,
+ * This module enables external apps to use Naropo as their payment processor,
  * similar to PayKit, Dodo Payments, or Lemon Squeezy.
  */
 

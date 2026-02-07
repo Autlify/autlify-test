@@ -1,5 +1,5 @@
 /**
- * Autlify Component Registries
+ * Naropo Component Registries
  * Central index for all component registries
  */
 
@@ -30,13 +30,13 @@ export type RegistryName = keyof typeof registries
 // Helper to get all components across all registries
 export const getAllComponents = () => {
   const all: Array<{ registry: string; component: any }> = []
-  
+
   Object.entries(registries).forEach(([registryName, registry]) => {
     Object.values(registry.components).forEach((component) => {
       all.push({ registry: registryName, component })
     })
   })
-  
+
   return all
 }
 
@@ -44,7 +44,7 @@ export const getAllComponents = () => {
 export const searchComponents = (query: string) => {
   const results: Array<{ registry: string; component: any }> = []
   const queryLower = query.toLowerCase()
-  
+
   Object.entries(registries).forEach(([registryName, registry]) => {
     Object.values(registry.components).forEach((component: any) => {
       const text = `${component.name} ${component.description}`.toLowerCase()
@@ -53,7 +53,7 @@ export const searchComponents = (query: string) => {
       }
     })
   })
-  
+
   return results
 }
 

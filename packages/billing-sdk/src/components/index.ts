@@ -1,5 +1,5 @@
 /**
- * Autlify Billing SDK - Components Module
+ * Naropo Billing SDK - Components Module
  * 
  * This module exports all UI components for billing, subscription management,
  * payment methods, credits, and usage display.
@@ -10,7 +10,7 @@
  *   SubscriptionCard, 
  *   UsageDisplay, 
  *   CreditBalanceCard 
- * } from '@autlify/billing-sdk/components';
+ * } from '@naropo/billing-sdk/components';
  * ```
  * 
  * @packageDocumentation

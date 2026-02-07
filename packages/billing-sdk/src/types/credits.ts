@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Credits & Balance Types
+ * Naropo Billing SDK - Credits & Balance Types
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  */
 
 export type CreditTransactionType =

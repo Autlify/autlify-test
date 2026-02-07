@@ -1,8 +1,8 @@
 /**
- * Autlify Billing SDK - Core Provider
+ * Naropo Billing SDK - Core Provider
  *
  * PROPRIETARY SOFTWARE
- * Copyright © 2026 Autlify. All rights reserved.
+ * Copyright © 2026 Naropo. All rights reserved.
  *
  * Provides billing context to components with subscription, payment,
  * and usage data. Supports both internal and external integrations.

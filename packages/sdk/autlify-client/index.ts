@@ -4,5 +4,5 @@ export type { AutlifyScope, AutlifyClientOptions } from './types'
 
 /**
  * Server usage:
- *   import { createAutlifyClient } from '@autlify/client/server'
+ *   import { createAutlifyClient } from '@naropo/client/server'
  */
