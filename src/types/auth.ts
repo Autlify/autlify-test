@@ -5,6 +5,8 @@
  * All API routes and functions should import from here for consistency.
  */
 
+import z from 'zod'
+
 /**
  * Token scope types for verification tokens
  * 
@@ -133,48 +135,16 @@ export interface FullUser extends AuthUser {
   }>;
 }
 
+
 // ---------------------------------------------------------------------------
-// Deprecated User Types
+// User Profile Types (for profile management)
 // ---------------------------------------------------------------------------
 
+export const basicProfileSchema = z.object({
+  name: z.string(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  avatarUrl: z.string().nullable().optional(),
+})
 
-
-// export interface CurrentUser {
-//   id: string;
-//   email: string;
-//   name: string | null;
-//   tenantId: string | null;
-//   businessId?: string | null;
-//   avatar?: string | null;
-//   emailVerified?: boolean;
-//   authenticatorEnabled?: boolean;
-//   role?: string; // User's primary role
-//   // RBAC hints for client-side optimization
-//   rbacHints?: {
-//     roleKeys: string[];
-//     isSuperuser: boolean;
-//     tenantId?: string | null;
-//     businessId?: string | null;
-//   };
-// }
-
-// export interface FullUser extends CurrentUser {
-//   Profile?: {
-//     firstName: string | null;
-//     lastName: string | null;
-//     fullName: string | null;
-//     avatar: string | null;
-//   } | null;
-//   Tenant?: {
-//     id: string;
-//     name: string;
-//   } | null;
-//   Businesses?: Array<{
-//     id: string;
-//     name: string;
-//   }>;
-//   Permissions?: Array<{
-//     businessId: string;
-//     access: boolean;
-//   }>;
-// }
+export type BasicProfile = z.infer<typeof basicProfileSchema>

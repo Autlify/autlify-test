@@ -10,12 +10,12 @@
  */
 
 import type { ModuleCode, SubModuleOf, ResourceOf, KEYS, RegistryDisplayInfo } from '@/lib/registry/keys/permissions'
- 
+
 
 /** Resource codes (e.g., 'account', 'subaccounts', 'team_member') */
 export type FeatureCode = {
-  [M in ModuleCode]: { 
-    [S in SubModuleOf<M>]: ResourceOf<M, S> 
+  [M in ModuleCode]: {
+    [S in SubModuleOf<M>]: ResourceOf<M, S>
   }[SubModuleOf<M>]
 }[ModuleCode];
 
@@ -130,5 +130,28 @@ export const FEATURE_INFO: Record<FeatureCode, RegistryDisplayInfo> = {
   settlement: { abbreviation: 'SETL', displayName: 'Settlement' },
   segments: { abbreviation: 'SEGM', displayName: 'Segments' },
   planning: { abbreviation: 'PLAN', displayName: 'Planning' },
-  monitoring: { abbreviation: 'MON', displayName: 'Monitoring' }
+  monitoring: { abbreviation: 'MON', displayName: 'Monitoring' },
+  matching_criteria: { abbreviation: 'MATCH', displayName: 'Matching Criteria' },
+  ar_ageing: { abbreviation: 'ARAGE', displayName: 'AR Ageing' },
+  write_off: { abbreviation: 'WO', displayName: 'Write Off' },
+  receipts: { abbreviation: 'RCPT', displayName: 'Receipts' },
+  cash_application: { abbreviation: 'CASHAPP', displayName: 'Cash Application' },
+  dunning: { abbreviation: 'DUN', displayName: 'Dunning' },
+  aging: { abbreviation: 'AGING', displayName: 'Aging' },
+  payments: { abbreviation: 'PMTS', displayName: 'Payments' },
+  grir_clearing: { abbreviation: 'GRIR', displayName: 'GR/IR Clearing' },
+  statements: { abbreviation: 'STMT', displayName: 'Statements' },
+  invoices: { abbreviation: 'INV', displayName: 'Invoices' },
+  credit_notes: { abbreviation: 'CN', displayName: 'Credit Notes' },
+  sales_orders: { abbreviation: 'SO', displayName: 'Sales Orders' },
+  delivery_notes: { abbreviation: 'DN', displayName: 'Delivery Notes' },
+  purchase_orders: { abbreviation: 'PO', displayName: 'Purchase Orders' },
+  goods_receipts: { abbreviation: 'GR', displayName: 'Goods Receipts' },
+  transfers: { abbreviation: 'TRF', displayName: 'Bank Transfers' },
+  payment_batches: { abbreviation: 'PB', displayName: 'Payment Batches' },
+  recurring_journals: { abbreviation: 'RJ', displayName: 'Recurring Journals' },
+  fx_revaluation: { abbreviation: 'FXR', displayName: 'FX Revaluation' },
+  accruals: { abbreviation: 'ACC', displayName: 'Accruals' },
+  budgets: { abbreviation: 'BUD', displayName: 'Budgets' },
+  ap_aging: { abbreviation: 'APAGE', displayName: 'AP Ageing' },
 }

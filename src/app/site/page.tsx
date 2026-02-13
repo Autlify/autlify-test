@@ -1,3 +1,4 @@
+"use client";
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,32 +9,107 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator'
 import GlassContainer from '@/components/ui/glass-container'
 import { BentoGrid } from '@/components/ui/bento-grid'
+import { Dashboard } from '@/components/site/dashboard'
 
-/**
- * Linear-inspired Home Page
- * 
- * Design Philosophy:
- * - Deep backgrounds with visual depth layers (bg-level-0, bg-level-1)
- * - Refined text hierarchy (fg-primary, fg-secondary, fg-tertiary)
- * - Whisper-quiet borders (line-primary, line-secondary)
- * - Strategic brand blue accent with gradients
- * - Typography with Linear's exact weights (300-680)
- * - Sophisticated shadows and subtle animations
- */
+import { useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
+import { motion } from "motion/react";
+
+import { cn } from "@/lib/utils";
+
+const ParallaxScroll = ({
+  images,
+  className,
+}: {
+  images: string[];
+  className?: string;
+}) => {
+  const gridRef = useRef<any>(null);
+  const { scrollYProgress } = useScroll({
+    container: gridRef, // remove this if your container is not fixed height
+    offset: ["start start", "end start"], // remove this if your container is not fixed height
+  });
+
+  const translateFirst = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const translateSecond = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const translateThird = useTransform(scrollYProgress, [0, 1], [0, -200]);
+
+  const third = Math.ceil(images.length / 3);
+
+  const firstPart = images.slice(0, third);
+  const secondPart = images.slice(third, 2 * third);
+  const thirdPart = images.slice(2 * third);
+
+  return (
+    <div
+      className={cn("h-[40rem] items-start overflow-y-auto w-full", className)}
+      ref={gridRef}
+    >
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start  max-w-5xl mx-auto gap-10 py-40 px-10"
+        ref={gridRef}
+      >
+        <div className="grid gap-10">
+          {firstPart.map((el, idx) => (
+            <motion.div
+              style={{ y: translateFirst }} // Apply the translateY motion value here
+              key={"grid-1" + idx}
+            >
+              <img
+                src={el}
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                height="400"
+                width="400"
+                alt="thumbnail"
+              />
+            </motion.div>
+          ))}
+        </div>
+        <div className="grid gap-10">
+          {secondPart.map((el, idx) => (
+            <motion.div style={{ y: translateSecond }} key={"grid-2" + idx}>
+              <img
+                src={el}
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                height="400"
+                width="400"
+                alt="thumbnail"
+              />
+            </motion.div>
+          ))}
+        </div>
+        <div className="grid gap-10">
+          {thirdPart.map((el, idx) => (
+            <motion.div style={{ y: translateThird }} key={"grid-3" + idx}>
+              <img
+                src={el}
+                className="h-80 w-full object-cover object-left-top rounded-lg gap-10 !m-0 !p-0"
+                height="400"
+                width="400"
+                alt="thumbnail"
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default function Home() {
   return (
-    <div className="min-w-full min-h-svh relative overflow-hidden bg-bg-primary text-fg-primary">
+    <div className="min-w-full min-h-full relative overflow-hidden bg-bg-primary text-fg-primary">
 
       {/* Premium: Subtle grid overlay for depth */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--line-quaternary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--line-quaternary))_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40" aria-hidden="true" />
+      {/* <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--line-quaternary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--line-quaternary))_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40" aria-hidden="true" /> */}
 
       {/* Premium: Blue gradient spotlight */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse_at_center,hsl(var(--accent-base))_0%,transparent_60%)] opacity-[0.08] blur-3xl" aria-hidden="true" />
 
       {/* Hero Section - Linear Mirror */}
       <section className="relative px-4 pt-16 sm:pt-28">
-        <div className="container mx-auto relative mb-20 md:mb-32">
+        <div className="container mx-auto relative">
 
           {/* Top Spacing - Linear's generous padding */}
           <div className="h-20 md:h-28" aria-hidden="true" />
@@ -86,13 +162,13 @@ export default function Home() {
           </div>
 
           {/* Spacing before image */}
-          <div className="h-20 md:h-28" aria-hidden="true" />
+          {/* <div className="h-20 md:h-28" aria-hidden="true" /> */}
         </div>
 
         {/* Hero Image Section - Linear's refined presentation */}
 
         {/* Hero Preview - Linear-style glass container with edge fading */}
-        <div className="relative mx-auto max-w-[1400px] px-6 lg:px-8">
+        {/* <div className="relative mx-auto max-w-[1400px] px-6 lg:px-8">
           <GlassContainer
             maskFade="bottom-right"
             outerRadius={18}
@@ -105,8 +181,57 @@ export default function Home() {
               width={1200}
               className="w-full h-full object-cover object-top"
             />
-          </GlassContainer>
-        </div> 
+          </GlassContainer> 
+        </div>  */}
+
+
+        <div
+          className='relative max-w-[1400px] mx-auto -top-4 -mt-6 items-center justify-center'
+          style={{ perspective: '1200px' }}
+        >
+          <motion.div
+            initial={{
+              opacity: 0,
+              x: 200,
+              y: -150,
+              rotateX: 45,
+              rotateY: 15,
+              rotateZ: -30,
+              scale: 0.6,
+            }}
+            animate={{
+              opacity: 1,
+              x: -100,
+              y: -5,
+              rotateX: 32.5,
+              rotateY: 5,
+              rotateZ: -20.5,
+              scale: 0.85,
+            }}
+            transition={{
+              duration: 4.6,
+              delay: 1.2,
+              ease: [0.16, 1, 0.3, 1],
+            }} 
+            style={{
+              transformStyle: 'preserve-3d',
+              transformOrigin: 'top right',
+            }}
+          >
+            <GlassContainer
+              maskFade="bottom-right"
+              outerRadius={18}
+              innerRadius={10}
+            >
+              <Dashboard />
+            </GlassContainer>
+          </motion.div>
+        </div>
+
+
+        <div className='relative mx-auto max-w-[1400px] h-full px-6 lg:px-8'>
+
+        </div>
       </section>
       {/* Spacer */}
       <div className="h-32 md:h-40" aria-hidden="true" />
@@ -213,7 +338,7 @@ export default function Home() {
 
       {/* Secondary Feature Section - Linear showcase */}
       <section className="relative items-center justify-center px-4 pt-16 sm:pt-28">
- 
+
 
         <div className="mx-auto max-w-[1024px] px-6 lg:px-8">
           <div className="text-center">
@@ -236,7 +361,7 @@ export default function Home() {
 
           <div className="h-20 md:h-28" aria-hidden="true" />
 
-        
+
           <BentoGrid className="md:grid-cols-2 md:auto-rows-[16rem] lg:auto-rows-[18rem] gap-4">
             {[
               'Manage projects end-to-end',
@@ -305,128 +430,3 @@ export default function Home() {
   )
 }
 
-
-
-{
-  /**
-   * Old Home Page
-   */
-}
-// import Image from 'next/image'
-// import Link from 'next/link'
-// import Stripe from 'stripe'
-// import clsx from 'clsx'
-// import { Check, ArrowRight, Sparkles, Zap, Shield, Users } from 'lucide-react'
-
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from '@/components/ui/card'
-// import { Separator } from '@/components/ui/separator'
-// import { pricingCards } from '@/lib/constants'
-// import { stripe } from '@/lib/stripe'
-
-// export default async function Home() {
-//   let prices: Stripe.ApiList<Stripe.Price> = { data: [], has_more: false, object: 'list', url: '' }
-
-//   // Only fetch prices if product ID is configured
-//   if (process.env.NEXT_AUTLIFY_PRODUCT_ID) {
-//     prices = await stripe.prices.list({
-//       product: process.env.NEXT_AUTLIFY_PRODUCT_ID,
-//       active: true,
-//     })
-//   }
-
-//   return (
-//     <div className="w-full min-h-screen relative overflow-hidden bg-background">
-//       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.06),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.1),transparent_50%)]" aria-hidden="true" />
-//       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_85%)]" aria-hidden="true" />
-
-//       {/* Hero Section */}
-
-
-//       <section className="relative px-4 pt-16 sm:pt-28">
-//         {/* Preview Image Container */}
-//         <div className="container mx-auto relative mb-20 md:mb-32">
-//           {/* Top border gradient line */}
-//           <div className="absolute top-0 left-0 z-10 h-[1px] w-full bg-gradient-to-r from-transparent via-zinc-700 to-transparent from-10% via-30% to-90%"></div>
-
-//           <div className="bg-gradient-to-r from-primary to-secondary-foreground text-transparent bg-clip-text relative">
-//             <h1 className="text-9xl font-bold text-center md:text-[300px]">
-//               Autlify
-//             </h1>
-//           </div>
-//           <div className="flex justify-center items-center relative md:mt-[-70px] w-full mx-auto mt-4 md:mt-0">
-//             <Image
-//               src={'/assets/preview.png'}
-//               alt="banner image"
-//               height={1200}
-//               width={1200}
-//               className="rounded-tl-2xl rounded-tr-2xl border-2 border-muted border-muted"
-//             />
-//             <div className="bottom-0 top-[50%] bg-gradient-to-t from-background via background to-transparent left-0 right-0 absolute z-10"></div>
-//           </div>
-
-//           {/* Bottom gradient fade - enhanced */}
-//         </div>
-//       </section>
-
-//       {/**Hero Section - Version 1.0.0 */}
-//       {/* <section className="relative flex items-center justify-center flex-col pt-32 md:pt-40 pb-16 md:pb-24 px-4">
-//         <div className="bg-gradient-to-r from-primary to-secondary-foreground text-transparent bg-clip-text relative mb-8 md:mb-12">
-//           <h1 className="text-7xl sm:text-8xl md:text-9xl lg:text-[200px] xl:text-[280px] font-bold text-center leading-none">
-//             Autlify
-//           </h1>
-//         </div>
-
-//         <div className="relative w-full max-w-7xl mx-auto mt-4 md:mt-0">
-//           <div className="absolute top-0 left-0 z-10 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent from-10% via-30% to-90%"></div>
-
-//           <div className="relative rounded-xl md:rounded-2xl overflow-hidden border border-neutral-800 p-2">
-//             <div className="h-full w-full overflow-hidden rounded-lg border border-neutral-800 bg-neutral-950">
-//               <Image
-//                 src={'/assets/preview.png'}
-//                 alt="banner image"
-//                 height={1200}
-//                 width={1200}
-//                 className="w-full h-auto object-cover"
-//                 priority
-//               />
-//             </div>
-//           </div>
-
-//           <div className="absolute inset-x-0 -bottom-0 h-2/4 bg-gradient-to-t from-black to-transparent" aria-hidden="true"></div>
-//         </div>
-//       </section> */}
-
-
-//       {/* Features Section */}
-//       {/* <section className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 mt-16 md:mt-24 mb-20 md:mb-32"> */}
-//         <section className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 mt-16 md:mt-24 mb-20 md:mb-32">
-//         <div className="container mx-auto grid gap-8 md:grid-cols-3">
-//           {[
-//             { icon: Zap, title: 'Lightning Fast', description: 'Built for performance with optimized code and caching' },
-//             { icon: Shield, title: 'Enterprise Security', description: 'Bank-level encryption and compliance with SOC 2' },
-//             { icon: Users, title: 'Multi-Tenant', description: 'Manage unlimited agencies and subaccounts with ease' }
-//           ].map((feature, index) => (
-//             <Card key={index} className="border-2 border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-sm hover:shadow-md transition-shadow duration-200">
-//               <CardHeader className="pb-0">
-//                 <feature.icon className="h-10 w-10 text-primary mb-4" />
-//                 <CardTitle className="text-lg font-semibold mb-2">{feature.title}</CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <CardDescription className="text-neutral-700 dark:text-neutral-300">
-//                   {feature.description}
-//                 </CardDescription>
-//               </CardContent>
-//             </Card>
-//           ))}
-//         </div>
-//       </section>
-//     </div>
-//   )
-// }

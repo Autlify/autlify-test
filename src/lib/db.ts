@@ -4,10 +4,6 @@ import { withOptimize } from "@prisma/extension-optimize";
 declare global {
   var prisma: PrismaClient | undefined
 }
-
-// export const db = globalThis.prisma || new PrismaClient({
-//   accelerateUrl: process.env.DATABASE_URL!,
-// })
  
 export const db = globalThis.prisma || new PrismaClient({
   accelerateUrl: process.env.DATABASE_URL!,

@@ -370,18 +370,18 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
        * - Shows: icon + name, scope badge, permission count, user count
        * ===================================================================== */}
       <Card className="shadow-lg">
-        <CardHeader className="px-4 pb-4 sm:px-6 sm:pb-6">
-          <CardTitle className="flex items-center gap-2 text-lg sm:gap-3 sm:text-xl">
-            <div className="bg-primary/10 ring-primary/20 rounded-lg p-1.5 ring-1 sm:p-2">
-              <Shield className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+        <CardHeader className="px-4 pb-3 sm:px-5">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <div className="bg-primary/10 ring-primary/20 rounded-lg p-1.5 ring-1">
+              <Shield className="text-primary h-4 w-4" />
             </div>
             System Roles
           </CardTitle>
-          <CardDescription className="text-sm sm:text-base">
+          <CardDescription className="text-xs sm:text-sm">
             Predefined roles that cannot be modified.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 px-4 sm:space-y-8 sm:px-6">
+        <CardContent className="px-4 pb-4 sm:px-5">
           <DataTable
             columns={systemRoleColumns}
             data={systemRoles}
@@ -399,24 +399,24 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
        * - "Add Role" button in header opens create dialog
        * ===================================================================== */}
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between px-4 pb-4 sm:px-6 sm:pb-6">
+        <CardHeader className="flex flex-row items-center justify-between px-4 pb-3 sm:px-5">
           <div>
-            <CardTitle className="flex items-center gap-2 text-lg sm:gap-3 sm:text-xl">
-              <div className="bg-primary/10 ring-primary/20 rounded-lg p-1.5 ring-1 sm:p-2">
-                <Users className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <div className="bg-primary/10 ring-primary/20 rounded-lg p-1.5 ring-1">
+                <Users className="text-primary h-4 w-4" />
               </div>
               Custom Roles
             </CardTitle>
-            <CardDescription className="text-sm sm:text-base">
+            <CardDescription className="text-xs sm:text-sm">
               Agency-specific roles you can create and manage.
             </CardDescription>
           </div>
           <Button size="sm" onClick={handleOpenCreate}>
-            <Plus className="mr-2 h-3.5 w-3.5" />
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Add Role
           </Button>
         </CardHeader>
-        <CardContent className="space-y-6 px-4 sm:space-y-8 sm:px-6">
+        <CardContent className="px-4 pb-4 sm:px-5">
           <DataTable
             columns={customRolesColumns}
             data={customRoles}
@@ -443,40 +443,42 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
        * ===================================================================== */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-[min(960px,calc(100vw-2rem))] h-[min(860px,calc(100svh-2rem))] flex flex-col">
-          <DialogHeader className="px-6 py-4 shrink-0">
-            <DialogTitle>{editingRole ? 'Edit Role' : 'Create Role'}</DialogTitle>
-            <DialogDescription>
+          <DialogHeader className="px-5 py-3 shrink-0">
+            <DialogTitle className="text-base">{editingRole ? 'Edit Role' : 'Create Role'}</DialogTitle>
+            <DialogDescription className="text-xs">
               {editingRole
                 ? 'Modify the role name and permissions.'
                 : 'Create a new custom role with specific permissions.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="col-span-3 flex items-center space-x-4 px-4 mb-4">
+          <div className="col-span-3 flex items-center space-x-3 px-5 mb-3">
             <div className="flex-1 min-w-0">
-              <Label htmlFor="roleName">Role Name</Label>
+              <Label htmlFor="roleName" className="text-xs">Role Name</Label>
               <Input
                 id="roleName"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="e.g., Finance Manager"
+                className="h-9 text-sm"
               />
             </div>
             <div className="max-w-[250px] flex-1">
-              <Label htmlFor="permSearch">Search Permissions</Label>
+              <Label htmlFor="permSearch" className="text-xs">Search Permissions</Label>
               <Input
                 id="permSearch"
                 value={permSearch}
                 onChange={(e) => setPermSearch(e.target.value)}
                 placeholder="Search…"
+                className="h-9 text-sm"
               />
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 flex flex-col space-y-2 px-4">
+          <div className="flex-1 min-h-0 flex flex-col space-y-1.5 px-5">
             <div className="flex items-end justify-between gap-3 shrink-0">
-              <div className="space-y-1">
-                <Label>Permissions</Label>
-                <p className="text-muted-foreground text-xs">
+              <div className="space-y-0.5">
+                <Label className="text-xs font-semibold">Permissions</Label>
+                <p className="text-muted-foreground text-[11px]">
                   Use “Simplified” for faster setup (Read/Write/Manage). Switch to “Advanced” for custom granular keys.
                 </p>
               </div>
@@ -487,9 +489,9 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
              * TABS: Simplified vs Advanced permission selection
              * --------------------------------------------------------- */}
             <Tabs value={permissionTab} onValueChange={(v) => setPermissionTab(v as any)} className="flex-1 min-h-0 flex flex-col">
-              <TabsList className="grid w-full grid-cols-2 shrink-0">
-                <TabsTrigger value="simplified">Simplified</TabsTrigger>
-                <TabsTrigger value="advanced">Advanced</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 shrink-0 h-9">
+                <TabsTrigger value="simplified" className="text-xs">Simplified</TabsTrigger>
+                <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
               </TabsList>
 
               {/* -------------------------------------------------------
@@ -497,8 +499,8 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                * Shows permission groups with None/Read/Write/Manage toggles
                * Grouped by category (e.g., "General Ledger", "IAM")
                * ------------------------------------------------------- */}
-              <TabsContent value="simplified" className="flex-1 min-h-0 mt-2">
-                <ScrollArea className="h-full rounded-md border p-4">
+              <TabsContent value="simplified" className="flex-1 min-h-0 mt-1.5">
+                <ScrollArea className="h-full rounded-md border p-3">
                   {bundleCategories.map((cat) => {
                     const visibleGroups = cat.groups.filter((g) => {
                       if (!permSearch.trim()) return true
@@ -511,15 +513,15 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                     if (visibleGroups.length === 0) return null
 
                     return (
-                      <div key={cat.categoryLabel} className="mb-6 border-[0.5px] border-muted/50 rounded-md p-2">
-                        <div className="mb-2 flex items-center justify-between">
-                          <h4 className="text-sm font-semibold">{cat.categoryLabel}</h4>
-                          <Badge variant="secondary" className="text-[11px]">
+                      <div key={cat.categoryLabel} className="mb-4 border-[0.5px] border-muted/50 rounded-md p-2">
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <h4 className="text-xs font-semibold">{cat.categoryLabel}</h4>
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
                             {visibleGroups.length} group(s)
                           </Badge>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           {visibleGroups.map((group) => {
                             const level = inferGroupLevel({ group, selectedIds: selectedIdSet })
                             const showCustom = level === 'custom'
@@ -531,13 +533,13 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                             return (
                               <div
                                 key={group.id}
-                                className="flex items-center justify-between gap-3 rounded-md px-4 py-1"
+                                className="flex items-center justify-between gap-2 rounded-md px-2 py-1"
                               >
                                 <div className="min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <p className="truncate text-sm font-medium">{displayLabel}</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="truncate text-xs font-medium">{displayLabel}</p>
                                     {showCustom && (
-                                      <Badge variant="outline" className="text-[11px]">
+                                      <Badge variant="outline" className="text-[10px] h-4 px-1.5">
                                         Custom
                                       </Badge>
                                     )}
@@ -551,34 +553,34 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                                     if (!v || v === 'custom') return
                                     applyGroupLevel(group, v as PermissionBundleLevel)
                                   }}
-                                  className="justify-end py-1"
+                                  className="justify-end"
                                 >
-                                  <ToggleGroupItem value="none" aria-label="None" size='sm' variant={'default'} className='border-[0.5px] text-[13px] font-semibold h-8 w-20 py-2'>
+                                  <ToggleGroupItem value="none" aria-label="None" size='sm' variant={'default'} className='border-[0.5px] text-[11px] font-semibold h-7 w-16 px-2'>
                                     None
                                   </ToggleGroupItem>
                                   <ToggleGroupItem
                                     value="read"
                                     aria-label="Read"
-                                    disabled={!group.available.read} size="sm" variant={'default'} className='border-[0.5px] text-[13px] font-semibold h-8 w-20'
+                                    disabled={!group.available.read} size="sm" variant={'default'} className='border-[0.5px] text-[11px] font-semibold h-7 w-16 px-2'
                                   >
                                     Read
                                   </ToggleGroupItem>
                                   <ToggleGroupItem
                                     value="write"
                                     aria-label="Write"
-                                    disabled={!group.available.write} size="sm" variant={'default'} className='border-[0.5px]  text-[13px] font-semibold h-8 w-20'
+                                    disabled={!group.available.write} size="sm" variant={'default'} className='border-[0.5px] text-[11px] font-semibold h-7 w-16 px-2'
                                   >
                                     Write
                                   </ToggleGroupItem>
                                   <ToggleGroupItem
                                     value="manage"
                                     aria-label="Manage"
-                                    disabled={!group.available.manage} size="sm" variant={'default'} className='border-[0.5px]  text-[13px] font-semibold h-8 w-20'
+                                    disabled={!group.available.manage} size="sm" variant={'default'} className='border-[0.5px] text-[11px] font-semibold h-7 w-16 px-2'
                                   >
                                     Manage
                                   </ToggleGroupItem>
                                   {showCustom && (
-                                    <ToggleGroupItem value="custom" aria-label="Custom" disabled size="sm" variant={'default'} className='border-[0.5px]  text-[13px] font-semibold h-8 w-20'>
+                                    <ToggleGroupItem value="custom" aria-label="Custom" disabled size="sm" variant={'default'} className='border-[0.5px] text-[11px] font-semibold h-7 w-16 px-2'>
                                       Custom
                                     </ToggleGroupItem>
                                   )}
@@ -592,11 +594,11 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                   })}
 
                   {permissionCategories.length === 0 && (
-                    <p className="text-muted-foreground text-sm">Loading permissions...</p>
+                    <p className="text-muted-foreground text-xs">Loading permissions...</p>
                   )}
 
                   {permissionCategories.length > 0 && bundleCategories.every((c) => c.groups.length === 0) && (
-                    <p className="text-muted-foreground text-sm">No permission groups available.</p>
+                    <p className="text-muted-foreground text-xs">No permission groups available.</p>
                   )}
                 </ScrollArea>
               </TabsContent>
@@ -606,8 +608,8 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                * Shows individual permission checkboxes
                * Format: "Read Accounts", "Create JournalEntries", etc.
                * ------------------------------------------------------- */}
-              <TabsContent value="advanced" className="flex-1 min-h-0 mt-2">
-                <ScrollArea className="h-full rounded-md border p-4">
+              <TabsContent value="advanced" className="flex-1 min-h-0 mt-1.5">
+                <ScrollArea className="h-full rounded-md border p-3">
                   {permissionCategories.map((category) => {
                     const perms = category.permissions.filter((perm) => {
                       if (!permSearch.trim()) return true
@@ -620,9 +622,9 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                     if (perms.length === 0) return null
 
                     return (
-                      <div key={category.category} className="mb-4">
-                        <h4 className="mb-2 font-medium text-sm">{category.category}</h4>
-                        <div className="grid grid-cols-2 gap-2">
+                      <div key={category.category} className="mb-3">
+                        <h4 className="mb-1.5 font-semibold text-xs">{category.category}</h4>
+                        <div className="grid grid-cols-2 gap-1.5">
                           {perms.map((perm) => {
                             // Format: module.submodule.feature.action → action.feature
                             const parts = perm.key.split('.')
@@ -631,37 +633,39 @@ export function RolesClient({ agencyId, initialRoles }: RolesClientProps) {
                             const label = `${action.charAt(0).toUpperCase() + action.slice(1)} ${feature.charAt(0).toUpperCase() + feature.slice(1)}`
 
                             return (
-                              <div key={perm.id} className="flex items-start space-x-2">
+                              <div key={perm.id} className="flex items-start space-x-1.5">
                                 <Checkbox
                                   id={perm.id}
                                   checked={formPermissionIds.includes(perm.id)}
                                   onCheckedChange={() => togglePermission(perm.id)}
+                                  className="mt-0.5"
                                 />
                                 <Label
                                   htmlFor={perm.id}
-                                  className="cursor-pointer text-sm font-normal leading-snug"
+                                  className="cursor-pointer text-xs font-normal leading-tight"
                                 >
-                                  <span className="text-sm font-normal">{label}</span>
+                                  {label}
                                 </Label>
                               </div>
                             )
                           })}
+
                         </div>
                       </div>
                     )
                   })}
                   {permissionCategories.length === 0 && (
-                    <p className="text-muted-foreground text-sm">Loading permissions...</p>
+                    <p className="text-muted-foreground text-xs">Loading permissions...</p>
                   )}
                 </ScrollArea>
               </TabsContent>
             </Tabs>
 
-            <p className="text-muted-foreground text-xs shrink-0">Selected: {formPermissionIds.length} permission(s)</p>
+            <p className="text-muted-foreground text-[11px] shrink-0">Selected: {formPermissionIds.length} permission(s)</p>
           </div>
 
 
-          <DialogFooter className="px-6 py-4 shrink-0">
+          <DialogFooter className="px-5 py-3 shrink-0">
             <Button
               variant="outline"
               onClick={() => setIsDialogOpen(false)}

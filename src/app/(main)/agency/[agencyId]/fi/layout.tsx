@@ -22,19 +22,24 @@ export default async function FiLayout({
     redirect('/sign-in')
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DEV JAILBREAK - Remove this line and uncomment the guard below
+  // ═══════════════════════════════════════════════════════════════════════════
+  const ok = true
+
   // Top-level guard to prevent URL-jailbreak into FI routes.
   // (entitlement-aware via hasAgencyPermission for FI/CO namespaces)
-  const keys: Partial<ActionKey>[] = [
-    'fi.general_ledger.settings.view',
-    'fi.master_data.accounts.view',
-    'fi.bank_ledger.bank_accounts.view',
-    'fi.accounts_receivable.subledgers.view',
-    'fi.accounts_payable.subledgers.view',
-    'fi.controlling.cost_centers.view',
-    'fi.advanced_reporting.financial_statements.view',
-  ]
-
-  const ok = (await Promise.all(keys.map((k) => hasAgencyPermission(agencyId, k)))).some(Boolean)
+  // const keys: Partial<ActionKey>[] = [
+  //   'fi.general_ledger.settings.view',
+  //   'fi.master_data.accounts.view',
+  //   'fi.bank_ledger.bank_accounts.view',
+  //   'fi.accounts_receivable.subledgers.view',
+  //   'fi.accounts_payable.subledgers.view',
+  //   'fi.controlling.cost_centers.view',
+  //   'fi.advanced_reporting.financial_statements.view',
+  // ]
+  //
+  // const ok = (await Promise.all(keys.map((k) => hasAgencyPermission(agencyId, k)))).some(Boolean)
 
   if (!ok) {
     return (
@@ -44,10 +49,9 @@ export default async function FiLayout({
     )
   }
 
+  return (
     <div className="space-y-4">
-      <div className="flex  sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* <PageTitle title="Billing" description="Subscription, payment methods, usage, credits, and add-ons." /> */}
- 
+      <div className="flex sm:flex-row sm:items-center sm:justify-between gap-4">
         <ModularNav
           variant='dropdown'
           from="submodule"
@@ -55,8 +59,8 @@ export default async function FiLayout({
           scope="agency"
           scopeId={agencyId}
         />
-        {/* <span className="text-xs font-light flex-1" ></span>  */}
       </div>
       {children}
     </div>
+  )
 }

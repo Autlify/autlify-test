@@ -418,6 +418,8 @@ model Agency {
   GLConfiguration             GLConfiguration?
   AccountBalances             AccountBalance[]
   ChartOfAccounts             ChartOfAccount[]
+  CostCenters                 CostCenter[]
+  ProfitCenters               ProfitCenter[]
   AgencyGroupCOAs             AgencyGroupCOA[]
   ConsolidationMappings       ConsolidationMapping[]
   FinancialPeriods            FinancialPeriod[]
@@ -443,6 +445,28 @@ model Agency {
   // FI-AP & FI-AR
   ApPayments ApPayment[]
   ArReceipts ArReceipt[]
+
+  // FI Submodules - AP
+  APInvoices     APInvoice[]
+  APCreditNotes  APCreditNote[]
+  PurchaseOrders PurchaseOrder[]
+  GoodsReceipts  GoodsReceipt[]
+
+  // FI Submodules - AR
+  ARInvoices    ARInvoice[]
+  ARCreditNotes ARCreditNote[]
+  SalesOrders   SalesOrder[]
+
+  // FI Submodules - Bank Ledger
+  BankAccounts   BankAccount[]
+  BankTransfers  BankTransfer[]
+  PaymentBatches PaymentBatch[]
+
+  // FI Submodules - GL
+  FXRevaluations    FXRevaluation[]
+  RecurringJournals RecurringJournal[]
+  Accruals          Accrual[]
+  Budgets           Budget[]
 
   ApiKeys                ApiKey[]
   IntegrationApiKeys     IntegrationApiKey[]
@@ -498,6 +522,8 @@ model SubAccount {
   Roles                 Role[]
   Memberships           SubAccountMembership[]
   ChartOfAccounts       ChartOfAccount[]
+  CostCenters           CostCenter[]
+  ProfitCenters         ProfitCenter[]
   ConsolidationMappings ConsolidationMapping[]
   FinancialPeriods      FinancialPeriod[]
   JournalEntries        JournalEntry[]
@@ -519,6 +545,28 @@ model SubAccount {
   // FI-AP & FI-AR
   ApPayments ApPayment[]
   ArReceipts ArReceipt[]
+
+  // FI Submodules - AP
+  APInvoices     APInvoice[]
+  APCreditNotes  APCreditNote[]
+  PurchaseOrders PurchaseOrder[]
+  GoodsReceipts  GoodsReceipt[]
+
+  // FI Submodules - AR
+  ARInvoices    ARInvoice[]
+  ARCreditNotes ARCreditNote[]
+  SalesOrders   SalesOrder[]
+
+  // FI Submodules - Bank Ledger
+  BankAccounts   BankAccount[]
+  BankTransfers  BankTransfer[]
+  PaymentBatches PaymentBatch[]
+
+  // FI Submodules - GL
+  FXRevaluations    FXRevaluation[]
+  RecurringJournals RecurringJournal[]
+  Accruals          Accrual[]
+  Budgets           Budget[]
 
   ApiKeys                ApiKey[]
   IntegrationApiKeys     IntegrationApiKey[]
@@ -2288,6 +2336,10 @@ model ChartOfAccount {
   EInvoiceSettingsTaxOutput  EInvoiceSettings[] @relation("EInvoiceTaxOutputAccount")
   EInvoiceLineItems          EInvoiceLineItem[]
 
+  // FI Submodules
+  BankAccounts    BankAccount[]     @relation("BankGLAccount")
+  BudgetLineItems BudgetLineItem[]  @relation("BudgetAccount")
+
   @@unique([agencyId, code])
   @@unique([subAccountId, code])
   @@index([agencyId, accountType])
@@ -2302,6 +2354,92 @@ model ChartOfAccount {
   @@index([isControlAccount])
   @@index([isSystemAccount])
   @@index([isConsolidationEnabled])
+  @@schema("finance")
+}
+
+// ========================================
+// COST CENTER & PROFIT CENTER
+// ========================================
+
+model CostCenter {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Cost center identification
+  code        String
+  name        String
+  description String? @db.Text
+
+  // Hierarchy
+  parentId String?
+  Parent   CostCenter?  @relation("CostCenterHierarchy", fields: [parentId], references: [id])
+  Children CostCenter[] @relation("CostCenterHierarchy")
+
+  // Manager
+  managerId    String?
+  managerEmail String?
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  BudgetLineItems BudgetLineItem[] @relation("BudgetCostCenter")
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, isActive])
+  @@index([parentId])
+  @@schema("finance")
+}
+
+model ProfitCenter {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Profit center identification
+  code        String
+  name        String
+  description String? @db.Text
+
+  // Hierarchy
+  parentId String?
+  Parent   ProfitCenter?  @relation("ProfitCenterHierarchy", fields: [parentId], references: [id])
+  Children ProfitCenter[] @relation("ProfitCenterHierarchy")
+
+  // Manager
+  managerId    String?
+  managerEmail String?
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  BudgetLineItems BudgetLineItem[] @relation("BudgetProfitCenter")
+
+  @@unique([agencyId, code])
+  @@unique([subAccountId, code])
+  @@index([agencyId, isActive])
+  @@index([parentId])
   @@schema("finance")
 }
 
@@ -2865,6 +3003,69 @@ model PostingTemplate {
 
   @@unique([agencyId, name])
   @@index([agencyId, isActive])
+  @@schema("finance")
+}
+
+// ========================================
+// BANK ACCOUNTS
+// ========================================
+
+model BankAccount {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Account identification
+  accountCode String
+  name        String
+  description String? @db.Text
+
+  // Bank details
+  bankName          String
+  bankBranch        String?
+  bankSwiftCode     String?
+  bankIban          String?
+  bankRoutingNumber String?
+  bankCountryCode   String? @db.Char(2)
+
+  // Account details
+  accountNumber String
+  accountType   String @default("CHECKING") // CHECKING, SAVINGS, MONEY_MARKET
+
+  // Currency
+  currency String @default("USD")
+
+  // Link to GL account
+  glAccountId String?
+  GLAccount   ChartOfAccount? @relation("BankGLAccount", fields: [glAccountId], references: [id])
+
+  // Balances
+  currentBalance   Decimal @default(0) @db.Decimal(18, 6)
+  availableBalance Decimal @default(0) @db.Decimal(18, 6)
+  lastStatementBalance Decimal? @db.Decimal(18, 6)
+  lastStatementDate    DateTime?
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  TransfersFrom  BankTransfer[]  @relation("TransferFrom")
+  TransfersTo    BankTransfer[]  @relation("TransferTo")
+  PaymentBatches PaymentBatch[]
+
+  @@unique([agencyId, accountCode])
+  @@unique([subAccountId, accountCode])
+  @@index([agencyId, isActive])
+  @@index([glAccountId])
   @@schema("finance")
 }
 
@@ -3513,6 +3714,14 @@ model Vendor {
   OpenItems  OpenItem[]  @relation("VendorOpenItems")
   ApPayments ApPayment[] @relation("VendorApPayments")
 
+  // FI Submodules
+  APInvoices        APInvoice[]       @relation("VendorAPInvoices")
+  APCreditNotes     APCreditNote[]    @relation("VendorAPCreditNotes")
+  PurchaseOrders    PurchaseOrder[]   @relation("VendorPurchaseOrders")
+  GoodsReceipts     GoodsReceipt[]    @relation("VendorGoodsReceipts")
+  PaymentBatchItems PaymentBatchItem[] @relation("BatchItemVendor")
+  Accruals          Accrual[]         @relation("AccrualVendor")
+
   @@unique([agencyId, code])
   @@unique([subAccountId, code])
   @@index([agencyId, isActive])
@@ -3598,6 +3807,13 @@ model Customer {
   OpenItems  OpenItem[]  @relation("CustomerOpenItems")
   EInvoices  EInvoice[]
   ArReceipts ArReceipt[] @relation("CustomerArReceipts")
+
+  // FI Submodules
+  ARInvoices        ARInvoice[]       @relation("CustomerARInvoices")
+  ARCreditNotes     ARCreditNote[]    @relation("CustomerARCreditNotes")
+  SalesOrders       SalesOrder[]      @relation("CustomerSalesOrders")
+  PaymentBatchItems PaymentBatchItem[] @relation("BatchItemCustomer")
+  Accruals          Accrual[]         @relation("AccrualCustomer")
 
   @@unique([agencyId, code])
   @@unique([subAccountId, code])
@@ -5102,5 +5318,1602 @@ model ExchangeRateCache {
   @@index([baseCurrency, targetCurrency])
   @@index([rateDate])
   @@map("ExchangeRateCache")
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS PAYABLE - INVOICES
+// ============================================================================
+
+enum APInvoiceStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  PARTIALLY_PAID
+  PAID
+  VOID
+
+  @@schema("finance")
+}
+
+model APInvoice {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Invoice identification
+  invoiceNumber String  // Auto-generated: API-2026-00001
+  vendorInvoiceNumber String? // Vendor's invoice number
+  reference     String? // External reference
+
+  // Vendor
+  vendorId String
+  Vendor   Vendor @relation("VendorAPInvoices", fields: [vendorId], references: [id])
+
+  // Dates
+  invoiceDate DateTime
+  postingDate DateTime?
+  dueDate     DateTime
+
+  // Type
+  invoiceType String @default("STANDARD") // STANDARD, DOWN_PAYMENT, RECURRING
+
+  // Status
+  status APInvoiceStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  paidAmount   Decimal @default(0) @db.Decimal(18, 6)
+
+  // Purchase Order link
+  purchaseOrderId String?
+  purchaseOrderNumber String?
+
+  // Goods Receipt link (3-way match)
+  goodsReceiptId String?
+
+  // Account assignments
+  apAccountId      String? // AP control account
+  expenseAccountId String? // Default expense account
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  description String?  @db.Text
+  notes       String?  @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  postedAt        DateTime?
+  postedBy        String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems APInvoiceLine[]
+  CreditNotes APCreditNote[] @relation("InvoiceCreditNotes")
+
+  @@unique([agencyId, invoiceNumber])
+  @@unique([subAccountId, invoiceNumber])
+  @@index([agencyId, status])
+  @@index([subAccountId, status])
+  @@index([vendorId])
+  @@index([invoiceDate])
+  @@index([dueDate])
+  @@schema("finance")
+}
+
+model APInvoiceLine {
+  id String @id @default(uuid())
+
+  invoiceId String
+  APInvoice APInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  description String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  // PO/GR line reference
+  purchaseOrderLineId String?
+  goodsReceiptLineId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS PAYABLE - CREDIT NOTES
+// ============================================================================
+
+enum APCreditNoteStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  APPLIED
+  VOID
+
+  @@schema("finance")
+}
+
+model APCreditNote {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Credit note identification
+  creditNoteNumber String
+  reference        String?
+
+  // Vendor
+  vendorId String
+  Vendor   Vendor @relation("VendorAPCreditNotes", fields: [vendorId], references: [id])
+
+  // Related invoice (optional)
+  invoiceId String?
+  Invoice   APInvoice? @relation("InvoiceCreditNotes", fields: [invoiceId], references: [id])
+
+  // Dates
+  creditNoteDate DateTime
+  postingDate    DateTime?
+
+  // Type
+  creditNoteType String @default("RETURN") // RETURN, PRICE_ADJUSTMENT, REBATE
+
+  // Status
+  status APCreditNoteStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  appliedAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  reason      String?  @db.Text
+  description String?  @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  postedAt        DateTime?
+  postedBy        String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems APCreditNoteLine[]
+
+  @@unique([agencyId, creditNoteNumber])
+  @@unique([subAccountId, creditNoteNumber])
+  @@index([agencyId, status])
+  @@index([vendorId])
+  @@index([invoiceId])
+  @@schema("finance")
+}
+
+model APCreditNoteLine {
+  id String @id @default(uuid())
+
+  creditNoteId String
+  APCreditNote APCreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  description String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creditNoteId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS PAYABLE - PURCHASE ORDERS
+// ============================================================================
+
+enum PurchaseOrderStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CLOSED
+  VOID
+
+  @@schema("finance")
+}
+
+model PurchaseOrder {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // PO identification
+  orderNumber String
+  reference   String?
+
+  // Vendor
+  vendorId String
+  Vendor   Vendor @relation("VendorPurchaseOrders", fields: [vendorId], references: [id])
+
+  // Dates
+  orderDate        DateTime
+  expectedDelivery DateTime?
+  validUntil       DateTime?
+
+  // Status
+  status PurchaseOrderStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  receivedAmount Decimal @default(0) @db.Decimal(18, 6)
+  invoicedAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Shipping
+  deliveryAddress Json?
+  shippingMethod  String?
+  shippingTerms   String?
+
+  // Payment terms
+  paymentTerms String?
+  paymentTermDays Int @default(30)
+
+  // Description
+  description String?  @db.Text
+  notes       String?  @db.Text
+  internalNotes String? @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  closedAt        DateTime?
+  closedBy        String?
+  closeReason     String?   @db.Text
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems     PurchaseOrderLine[]
+  GoodsReceipts GoodsReceipt[]
+
+  @@unique([agencyId, orderNumber])
+  @@unique([subAccountId, orderNumber])
+  @@index([agencyId, status])
+  @@index([vendorId])
+  @@index([orderDate])
+  @@schema("finance")
+}
+
+model PurchaseOrderLine {
+  id String @id @default(uuid())
+
+  purchaseOrderId String
+  PurchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  itemCode    String?
+  description String?
+  unit        String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Received tracking
+  receivedQuantity Decimal @default(0) @db.Decimal(18, 6)
+  invoicedQuantity Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  // Delivery
+  expectedDelivery DateTime?
+  deliveryAddress  Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([purchaseOrderId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS PAYABLE - GOODS RECEIPTS
+// ============================================================================
+
+enum GoodsReceiptStatus {
+  DRAFT
+  POSTED
+  REVERSED
+  VOID
+
+  @@schema("finance")
+}
+
+model GoodsReceipt {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // GR identification
+  receiptNumber String
+  reference     String?
+
+  // Vendor
+  vendorId String
+  Vendor   Vendor @relation("VendorGoodsReceipts", fields: [vendorId], references: [id])
+
+  // PO link
+  purchaseOrderId String?
+  PurchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+
+  // Dates
+  receiptDate DateTime
+  postingDate DateTime?
+
+  // Status
+  status GoodsReceiptStatus @default(DRAFT)
+
+  // Totals
+  currency    String  @default("USD")
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  description String? @db.Text
+  notes       String? @db.Text
+
+  // Workflow
+  postedAt    DateTime?
+  postedBy    String?
+  reversedAt  DateTime?
+  reversedBy  String?
+  reverseReason String? @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems GoodsReceiptLine[]
+
+  @@unique([agencyId, receiptNumber])
+  @@unique([subAccountId, receiptNumber])
+  @@index([agencyId, status])
+  @@index([vendorId])
+  @@index([purchaseOrderId])
+  @@index([receiptDate])
+  @@schema("finance")
+}
+
+model GoodsReceiptLine {
+  id String @id @default(uuid())
+
+  goodsReceiptId String
+  GoodsReceipt   GoodsReceipt @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  itemCode    String?
+  description String?
+  unit        String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+
+  // PO line reference
+  purchaseOrderLineId String?
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([goodsReceiptId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS RECEIVABLE - INVOICES
+// ============================================================================
+
+enum ARInvoiceStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  PARTIALLY_PAID
+  PAID
+  VOID
+
+  @@schema("finance")
+}
+
+model ARInvoice {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Invoice identification
+  invoiceNumber String
+  reference     String?
+
+  // Customer
+  customerId String
+  Customer   Customer @relation("CustomerARInvoices", fields: [customerId], references: [id])
+
+  // Sales order link
+  salesOrderId String?
+  salesOrderNumber String?
+
+  // Dates
+  invoiceDate DateTime
+  postingDate DateTime?
+  dueDate     DateTime
+
+  // Type
+  invoiceType String @default("STANDARD") // STANDARD, DOWN_PAYMENT, RECURRING, PROFORMA
+
+  // Status
+  status ARInvoiceStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  paidAmount   Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignments
+  arAccountId     String? // AR control account
+  revenueAccountId String? // Default revenue account
+
+  // Posting
+  journalEntryId String?
+
+  // Billing
+  billingAddress  Json?
+  shippingAddress Json?
+
+  // Description
+  description String?  @db.Text
+  terms       String?  @db.Text
+  notes       String?  @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  postedAt        DateTime?
+  postedBy        String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems ARInvoiceLine[]
+  CreditNotes ARCreditNote[] @relation("ARInvoiceCreditNotes")
+
+  @@unique([agencyId, invoiceNumber])
+  @@unique([subAccountId, invoiceNumber])
+  @@index([agencyId, status])
+  @@index([subAccountId, status])
+  @@index([customerId])
+  @@index([invoiceDate])
+  @@index([dueDate])
+  @@schema("finance")
+}
+
+model ARInvoiceLine {
+  id String @id @default(uuid())
+
+  invoiceId String
+  ARInvoice ARInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  itemCode    String?
+  description String?
+  unit        String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  discount    Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  // SO line reference
+  salesOrderLineId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS RECEIVABLE - CREDIT NOTES
+// ============================================================================
+
+enum ARCreditNoteStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  APPLIED
+  VOID
+
+  @@schema("finance")
+}
+
+model ARCreditNote {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Credit note identification
+  creditNoteNumber String
+  reference        String?
+
+  // Customer
+  customerId String
+  Customer   Customer @relation("CustomerARCreditNotes", fields: [customerId], references: [id])
+
+  // Related invoice (optional)
+  invoiceId String?
+  Invoice   ARInvoice? @relation("ARInvoiceCreditNotes", fields: [invoiceId], references: [id])
+
+  // Dates
+  creditNoteDate DateTime
+  postingDate    DateTime?
+
+  // Type
+  creditNoteType String @default("RETURN") // RETURN, PRICE_ADJUSTMENT, DISCOUNT
+
+  // Status
+  status ARCreditNoteStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  appliedAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  reason      String?  @db.Text
+  description String?  @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  postedAt        DateTime?
+  postedBy        String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems ARCreditNoteLine[]
+
+  @@unique([agencyId, creditNoteNumber])
+  @@unique([subAccountId, creditNoteNumber])
+  @@index([agencyId, status])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@schema("finance")
+}
+
+model ARCreditNoteLine {
+  id String @id @default(uuid())
+
+  creditNoteId String
+  ARCreditNote ARCreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  itemCode    String?
+  description String?
+  unit        String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creditNoteId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// ACCOUNTS RECEIVABLE - SALES ORDERS
+// ============================================================================
+
+enum SalesOrderStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  CLOSED
+  VOID
+
+  @@schema("finance")
+}
+
+model SalesOrder {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // SO identification
+  orderNumber String
+  reference   String?
+
+  // Customer
+  customerId String
+  Customer   Customer @relation("CustomerSalesOrders", fields: [customerId], references: [id])
+
+  // Dates
+  orderDate        DateTime
+  expectedDelivery DateTime?
+  validUntil       DateTime?
+
+  // Status
+  status SalesOrderStatus @default(DRAFT)
+
+  // Amounts
+  currency     String  @default("USD")
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+  subtotal     Decimal @default(0) @db.Decimal(18, 6)
+  taxAmount    Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount  Decimal @default(0) @db.Decimal(18, 6)
+  fulfilledAmount Decimal @default(0) @db.Decimal(18, 6)
+  invoicedAmount  Decimal @default(0) @db.Decimal(18, 6)
+
+  // Shipping
+  shippingAddress Json?
+  billingAddress  Json?
+  shippingMethod  String?
+  shippingTerms   String?
+
+  // Payment terms
+  paymentTerms String?
+  paymentTermDays Int @default(30)
+
+  // Description
+  description String?  @db.Text
+  notes       String?  @db.Text
+  internalNotes String? @db.Text
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  closedAt        DateTime?
+  closedBy        String?
+  closeReason     String?   @db.Text
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  LineItems SalesOrderLine[]
+
+  @@unique([agencyId, orderNumber])
+  @@unique([subAccountId, orderNumber])
+  @@index([agencyId, status])
+  @@index([customerId])
+  @@index([orderDate])
+  @@schema("finance")
+}
+
+model SalesOrderLine {
+  id String @id @default(uuid())
+
+  salesOrderId String
+  SalesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+
+  lineNumber  Int
+  itemCode    String?
+  description String?
+  unit        String?
+  quantity    Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice   Decimal @default(0) @db.Decimal(18, 6)
+  discount    Decimal @default(0) @db.Decimal(18, 6)
+  amount      Decimal @default(0) @db.Decimal(18, 6)
+  taxCode     String?
+  taxAmount   Decimal @default(0) @db.Decimal(18, 6)
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Fulfillment tracking
+  fulfilledQuantity Decimal @default(0) @db.Decimal(18, 6)
+  invoicedQuantity  Decimal @default(0) @db.Decimal(18, 6)
+
+  // Account assignment
+  accountId      String?
+  costCenterId   String?
+  profitCenterId String?
+
+  // Delivery
+  expectedDelivery DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([salesOrderId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// BANK LEDGER - TRANSFERS
+// ============================================================================
+
+enum BankTransferStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PROCESSED
+  VOID
+
+  @@schema("finance")
+}
+
+model BankTransfer {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Transfer identification
+  transferNumber String
+  reference      String?
+
+  // Bank accounts
+  fromBankAccountId String
+  FromBankAccount   BankAccount @relation("TransferFrom", fields: [fromBankAccountId], references: [id])
+  toBankAccountId   String
+  ToBankAccount     BankAccount @relation("TransferTo", fields: [toBankAccountId], references: [id])
+
+  // Dates
+  transferDate DateTime
+  valueDate    DateTime?
+
+  // Status
+  status BankTransferStatus @default(DRAFT)
+
+  // Amounts (source)
+  currency     String  @default("USD")
+  amount       Decimal @db.Decimal(18, 6)
+  exchangeRate Decimal @default(1) @db.Decimal(12, 6)
+
+  // Amounts (target - for cross-currency transfers)
+  toCurrency   String?
+  toAmount     Decimal? @db.Decimal(18, 6)
+  toExchangeRate Decimal? @db.Decimal(12, 6)
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  description String? @db.Text
+
+  // Workflow
+  submittedAt  DateTime?
+  submittedBy  String?
+  approvedAt   DateTime?
+  approvedBy   String?
+  processedAt  DateTime?
+  processedBy  String?
+  voidedAt     DateTime?
+  voidedBy     String?
+  voidReason   String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@unique([agencyId, transferNumber])
+  @@unique([subAccountId, transferNumber])
+  @@index([agencyId, status])
+  @@index([fromBankAccountId])
+  @@index([toBankAccountId])
+  @@index([transferDate])
+  @@schema("finance")
+}
+
+// ============================================================================
+// BANK LEDGER - PAYMENT BATCHES
+// ============================================================================
+
+enum PaymentBatchStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PROCESSING
+  COMPLETED
+  VOID
+
+  @@schema("finance")
+}
+
+enum PaymentBatchItemStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  VOID
+
+  @@schema("finance")
+}
+
+model PaymentBatch {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Batch identification
+  batchNumber String
+  batchType   String // AP_PAYMENT, AR_COLLECTION
+
+  // Bank account
+  bankAccountId String
+  BankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
+
+  // Dates
+  paymentDate DateTime
+
+  // Status
+  status PaymentBatchStatus @default(DRAFT)
+
+  // Payment method
+  paymentMethod String? // BANK_TRANSFER, CHECK, ACH, WIRE
+
+  // Totals
+  currency    String  @default("USD")
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+  itemCount   Int     @default(0)
+
+  // Description
+  description String? @db.Text
+
+  // Workflow
+  submittedAt  DateTime?
+  submittedBy  String?
+  approvedAt   DateTime?
+  approvedBy   String?
+  processedAt  DateTime?
+  processedBy  String?
+  voidedAt     DateTime?
+  voidedBy     String?
+  voidReason   String?   @db.Text
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  items PaymentBatchItem[]
+
+  @@unique([agencyId, batchNumber])
+  @@unique([subAccountId, batchNumber])
+  @@index([agencyId, status])
+  @@index([bankAccountId])
+  @@index([paymentDate])
+  @@schema("finance")
+}
+
+model PaymentBatchItem {
+  id String @id @default(uuid())
+
+  batchId      String
+  PaymentBatch PaymentBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // Payee/Recipient
+  vendorId   String?
+  Vendor     Vendor?   @relation("BatchItemVendor", fields: [vendorId], references: [id])
+  customerId String?
+  Customer   Customer? @relation("BatchItemCustomer", fields: [customerId], references: [id])
+
+  // Invoice reference
+  invoiceId     String?
+  invoiceNumber String?
+
+  // Amount
+  currency  String  @default("USD")
+  amount    Decimal @db.Decimal(18, 6)
+  reference String?
+
+  // Status
+  status      PaymentBatchItemStatus @default(PENDING)
+  processedAt DateTime?
+  errorMessage String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([vendorId])
+  @@index([customerId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// GENERAL LEDGER - FX REVALUATION
+// ============================================================================
+
+enum FXRevaluationStatus {
+  DRAFT
+  POSTED
+  REVERSED
+
+  @@schema("finance")
+}
+
+model FXRevaluation {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Run identification
+  runNumber String
+
+  // Dates
+  revaluationDate DateTime
+  postingDate     DateTime
+
+  // Base currency
+  baseCurrency String
+
+  // Status
+  status FXRevaluationStatus @default(DRAFT)
+
+  // Totals
+  totalGain     Decimal @default(0) @db.Decimal(18, 6)
+  totalLoss     Decimal @default(0) @db.Decimal(18, 6)
+  netAdjustment Decimal @default(0) @db.Decimal(18, 6)
+  itemCount     Int     @default(0)
+
+  // Posting
+  journalEntryId String?
+
+  // Description
+  description String? @db.Text
+
+  // Workflow
+  postedAt   DateTime?
+  postedBy   String?
+  reversedAt DateTime?
+  reversedBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  items FXRevaluationItem[]
+
+  @@unique([agencyId, runNumber])
+  @@unique([subAccountId, runNumber])
+  @@index([agencyId, status])
+  @@index([revaluationDate])
+  @@schema("finance")
+}
+
+model FXRevaluationItem {
+  id String @id @default(uuid())
+
+  revaluationId String
+  FXRevaluation FXRevaluation @relation(fields: [revaluationId], references: [id], onDelete: Cascade)
+
+  // Entity being revalued
+  entityType String // AP_INVOICE, AR_INVOICE, GL_ACCOUNT
+  entityId   String
+
+  // Currency info
+  originalCurrency String
+  originalAmount   Decimal @db.Decimal(18, 6)
+
+  // Rates
+  previousRate Decimal @db.Decimal(12, 6)
+  currentRate  Decimal @db.Decimal(12, 6)
+
+  // Amounts
+  previousLocalAmount Decimal @db.Decimal(18, 6)
+  currentLocalAmount  Decimal @db.Decimal(18, 6)
+  adjustmentAmount    Decimal @db.Decimal(18, 6)
+
+  createdAt DateTime @default(now())
+
+  @@index([revaluationId])
+  @@index([entityType, entityId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// GENERAL LEDGER - RECURRING JOURNALS
+// ============================================================================
+
+enum RecurringJournalStatus {
+  ACTIVE
+  PAUSED
+  EXPIRED
+  DELETED
+
+  @@schema("finance")
+}
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+
+  @@schema("finance")
+}
+
+model RecurringJournal {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Template identification
+  templateCode String
+  name         String
+  description  String? @db.Text
+
+  // Schedule
+  frequency   RecurringFrequency
+  startDate   DateTime
+  endDate     DateTime?
+  dayOfMonth  Int? // 1-31 for monthly/quarterly
+  dayOfWeek   Int? // 0-6 for weekly
+
+  // Next run
+  nextRunDate DateTime?
+  lastRunDate DateTime?
+  runCount    Int @default(0)
+
+  // Auto-post setting
+  autoPost Boolean @default(false)
+
+  // Currency
+  currency String @default("USD")
+
+  // Status
+  status RecurringJournalStatus @default(ACTIVE)
+
+  // Workflow
+  deletedAt DateTime?
+  deletedBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  lineItems  RecurringJournalLineItem[]
+  executions RecurringJournalExecution[]
+
+  @@unique([agencyId, templateCode])
+  @@unique([subAccountId, templateCode])
+  @@index([agencyId, status])
+  @@index([nextRunDate])
+  @@schema("finance")
+}
+
+model RecurringJournalLineItem {
+  id String @id @default(uuid())
+
+  recurringJournalId String
+  RecurringJournal   RecurringJournal @relation(fields: [recurringJournalId], references: [id], onDelete: Cascade)
+
+  lineNumber Int
+
+  // Account
+  accountId      String
+  costCenterId   String?
+  profitCenterId String?
+
+  // Amounts
+  debitAmount  Decimal @default(0) @db.Decimal(18, 6)
+  creditAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Description
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([recurringJournalId])
+  @@schema("finance")
+}
+
+model RecurringJournalExecution {
+  id String @id @default(uuid())
+
+  recurringJournalId String
+  RecurringJournal   RecurringJournal @relation(fields: [recurringJournalId], references: [id], onDelete: Cascade)
+
+  // Created journal entry
+  journalEntryId String?
+
+  // Execution details
+  executedAt  DateTime
+  executedBy  String
+  postingDate DateTime
+
+  // Status
+  status       String @default("SUCCESS") // SUCCESS, FAILED
+  errorMessage String? @db.Text
+
+  @@index([recurringJournalId])
+  @@index([journalEntryId])
+  @@schema("finance")
+}
+
+// ============================================================================
+// GENERAL LEDGER - ACCRUALS & DEFERRALS
+// ============================================================================
+
+enum AccrualType {
+  ACCRUED_EXPENSE
+  ACCRUED_REVENUE
+  PREPAID_EXPENSE
+  DEFERRED_REVENUE
+
+  @@schema("finance")
+}
+
+enum AccrualStatus {
+  ACTIVE
+  FULLY_RECOGNIZED
+  VOID
+
+  @@schema("finance")
+}
+
+enum RecognitionMethod {
+  STRAIGHT_LINE
+  FRONT_LOADED
+  BACK_LOADED
+  CUSTOM
+
+  @@schema("finance")
+}
+
+enum AccrualScheduleStatus {
+  PENDING
+  RECOGNIZED
+  VOID
+
+  @@schema("finance")
+}
+
+model Accrual {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Accrual identification
+  accrualNumber String
+  accrualType   AccrualType
+
+  // Description
+  description String @db.Text
+  reference   String?
+
+  // Amounts
+  currency         String  @default("USD")
+  originalAmount   Decimal @db.Decimal(18, 6)
+  recognizedAmount Decimal @default(0) @db.Decimal(18, 6)
+  remainingAmount  Decimal @db.Decimal(18, 6)
+
+  // Schedule
+  startDate         DateTime
+  endDate           DateTime
+  recognitionMethod RecognitionMethod @default(STRAIGHT_LINE)
+  totalPeriods      Int
+  recognizedPeriods Int @default(0)
+
+  // Accounts
+  accrualAccountId        String
+  expenseRevenueAccountId String
+  costCenterId            String?
+  profitCenterId          String?
+
+  // Partner (optional)
+  vendorId   String?
+  Vendor     Vendor?   @relation("AccrualVendor", fields: [vendorId], references: [id])
+  customerId String?
+  Customer   Customer? @relation("AccrualCustomer", fields: [customerId], references: [id])
+
+  // Status
+  status AccrualStatus @default(ACTIVE)
+
+  // Workflow
+  voidedAt DateTime?
+  voidedBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  schedule AccrualScheduleItem[]
+
+  @@unique([agencyId, accrualNumber])
+  @@unique([subAccountId, accrualNumber])
+  @@index([agencyId, status])
+  @@index([accrualType])
+  @@index([startDate, endDate])
+  @@schema("finance")
+}
+
+model AccrualScheduleItem {
+  id String @id @default(uuid())
+
+  accrualId String
+  Accrual   Accrual @relation(fields: [accrualId], references: [id], onDelete: Cascade)
+
+  // Period
+  periodNumber Int
+  periodDate   DateTime
+
+  // Amounts
+  scheduledAmount  Decimal @db.Decimal(18, 6)
+  recognizedAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Status
+  status AccrualScheduleStatus @default(PENDING)
+
+  // Recognition
+  journalEntryId String?
+  recognizedAt   DateTime?
+  recognizedBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accrualId])
+  @@index([periodDate])
+  @@index([status])
+  @@schema("finance")
+}
+
+// ============================================================================
+// GENERAL LEDGER - BUDGETS
+// ============================================================================
+
+enum BudgetType {
+  OPERATING
+  CAPITAL
+  CASH_FLOW
+  PROJECT
+
+  @@schema("finance")
+}
+
+enum BudgetStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  LOCKED
+  ARCHIVED
+
+  @@schema("finance")
+}
+
+enum BudgetPeriodType {
+  MONTHLY
+  QUARTERLY
+
+  @@schema("finance")
+}
+
+model Budget {
+  id String @id @default(uuid())
+
+  // Multi-tenant scope
+  agencyId     String
+  subAccountId String?
+  Agency       Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  SubAccount   SubAccount? @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+
+  // Budget identification
+  name        String
+  description String? @db.Text
+  budgetType  BudgetType @default(OPERATING)
+  fiscalYear  Int
+  version     Int @default(1)
+
+  // Currency
+  currency String @default("USD")
+
+  // Period type
+  periodType BudgetPeriodType @default(MONTHLY)
+
+  // Dates
+  startDate DateTime
+  endDate   DateTime
+
+  // Totals
+  totalBudgetAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Status
+  status BudgetStatus @default(DRAFT)
+
+  // Workflow
+  submittedAt     DateTime?
+  submittedBy     String?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?   @db.Text
+  lockedAt        DateTime?
+  lockedBy        String?
+  deletedAt       DateTime?
+  deletedBy       String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  createdBy String
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  // Relations
+  lineItems BudgetLineItem[]
+
+  @@unique([agencyId, name, fiscalYear, version])
+  @@unique([subAccountId, name, fiscalYear, version])
+  @@index([agencyId, status])
+  @@index([fiscalYear])
+  @@index([budgetType])
+  @@schema("finance")
+}
+
+model BudgetLineItem {
+  id String @id @default(uuid())
+
+  budgetId String
+  Budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  lineNumber Int
+
+  // Account
+  accountId      String
+  Account        ChartOfAccount @relation("BudgetAccount", fields: [accountId], references: [id])
+  costCenterId   String?
+  CostCenter     CostCenter?    @relation("BudgetCostCenter", fields: [costCenterId], references: [id])
+  profitCenterId String?
+  ProfitCenter   ProfitCenter?  @relation("BudgetProfitCenter", fields: [profitCenterId], references: [id])
+
+  // Period amounts (12 periods for monthly, 4 for quarterly)
+  period1  Decimal @default(0) @db.Decimal(18, 6)
+  period2  Decimal @default(0) @db.Decimal(18, 6)
+  period3  Decimal @default(0) @db.Decimal(18, 6)
+  period4  Decimal @default(0) @db.Decimal(18, 6)
+  period5  Decimal @default(0) @db.Decimal(18, 6)
+  period6  Decimal @default(0) @db.Decimal(18, 6)
+  period7  Decimal @default(0) @db.Decimal(18, 6)
+  period8  Decimal @default(0) @db.Decimal(18, 6)
+  period9  Decimal @default(0) @db.Decimal(18, 6)
+  period10 Decimal @default(0) @db.Decimal(18, 6)
+  period11 Decimal @default(0) @db.Decimal(18, 6)
+  period12 Decimal @default(0) @db.Decimal(18, 6)
+
+  // Total
+  totalAmount Decimal @default(0) @db.Decimal(18, 6)
+
+  // Notes
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([budgetId])
+  @@index([accountId])
   @@schema("finance")
 }

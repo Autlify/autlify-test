@@ -14,9 +14,11 @@ import { LogOut, User } from 'lucide-react'
 import { PremiumSignout, PremiumSignin, PremiumSettings, PremiumTerms, PremiumHelp, PremiumUsers } from '@/components/icons/premium'
 import { Button } from '@/components/ui-2/button'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 
 export function UserButton({className}: {className?: string}) {
   const { data: session } = useSession()
+  const router = useRouter()
 
   if (!session?.user) {
     return null
@@ -55,15 +57,22 @@ export function UserButton({className}: {className?: string}) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {/** More Menu Item for User based on industry best practices, other than Signout */}
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem 
+        className="cursor-pointer"
+        onClick={() => router.push(`/profile/${session.user.id}`)}
+        >
           <PremiumUsers animated className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer"
+        onClick={() => router.push(`/profile/${session.user.id}/settings`)}
+        >
           <PremiumSettings animated className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem className="cursor-pointer"
+        onClick={() => router.push('/terms')}
+        >
           <PremiumTerms animated className="mr-2 h-4 w-4" />
           <span>Terms & Privacy</span>
         </DropdownMenuItem>

@@ -263,6 +263,7 @@ const MenuOptions = ({
         const iconDef = icons.find((icon) => icon.value === option.icon)
         const IconComponent = iconDef?.path
 
+        
         if (hasSubLinks) {
             // ┌──────────────────────────────────────────────────────────────────────┐
             // │ COLLAPSED STATE (isCollapsed=true): Icon + Popover for sub-links    │

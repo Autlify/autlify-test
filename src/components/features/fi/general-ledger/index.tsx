@@ -5,6 +5,9 @@
  * @namespace Autlify.Components.FI.GeneralLedger
  */
 
+// Stats and analytics
+export * from './gl-stats'
+
 // Settings
 export * from './settings'
 

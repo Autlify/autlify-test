@@ -3297,15 +3297,21 @@ h6,
   mask-composite: intersect;
 }
 
+.gradientBorder-gradient {
+  border: linear-gradient(to bottom right, rgba(255, 255, 255, .17), transparent);
+}
+
+.gradient-background {
+  background: linear-gradient(134deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02), rgba(255, 255, 255, 0) 55%);
+}
+
 .premium .module__C0ELRa__root {
   -webkit-user-select: none;
   user-select: none;
   aspect-ratio: 432 / 320;
   --mask-bottom: linear-gradient(to bottom, var(--mask-visible) 50%, var(--mask-invisible) 100%);
   --mask-right: linear-gradient(to right, var(--mask-visible) 20%, var(--mask-invisible) 100%);
-  width: 100%;
-  max-width: 100%;
-  max-height: 100%;
+ 
   -webkit-mask-image: var(--mask-bottom), var(--mask-right);
   -webkit-mask-image: var(--mask-bottom), var(--mask-right);
   mask-image: var(--mask-bottom), var(--mask-right);
@@ -3356,9 +3362,13 @@ p2 {
 
 /* Utilities */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
+  /* Chrome/Safari */
 }

@@ -116,7 +116,7 @@ export const KEYS = {
             team_member: {
                 invite: 'org.subaccount.team_member.invite',
                 remove: 'org.subaccount.team_member.remove',
-            }, 
+            },
         },
         experimental: {
             // User preferences - action pattern
@@ -281,6 +281,50 @@ export const KEYS = {
                 clear: 'fi.general_ledger.reconciliation.clear', // -> perform clearing of open items
                 reset: 'fi.general_ledger.reconciliation.reset', // -> reset cleared items
             },
+            // Write-offs
+            write_off: {
+                view: 'fi.general_ledger.write_off.view',
+                manage: 'fi.general_ledger.write_off.manage',
+            },
+            // Recurring journal entries
+            recurring_journals: {
+                read: 'fi.general_ledger.recurring_journals.read',
+                create: 'fi.general_ledger.recurring_journals.create',
+                update: 'fi.general_ledger.recurring_journals.update',
+                delete: 'fi.general_ledger.recurring_journals.delete',
+                execute: 'fi.general_ledger.recurring_journals.execute',
+            },
+            // FX Revaluation
+            fx_revaluation: {
+                view: 'fi.general_ledger.fx_revaluation.view',
+                run: 'fi.general_ledger.fx_revaluation.run',
+                reverse: 'fi.general_ledger.fx_revaluation.reverse',
+            },
+            // Accruals and Deferrals
+            accruals: {
+                read: 'fi.general_ledger.accruals.read',
+                create: 'fi.general_ledger.accruals.create',
+                update: 'fi.general_ledger.accruals.update',
+                delete: 'fi.general_ledger.accruals.delete',
+                recognize: 'fi.general_ledger.accruals.recognize',
+            },
+            // Budget management
+            budgets: {
+                read: 'fi.general_ledger.budgets.read',
+                create: 'fi.general_ledger.budgets.create',
+                update: 'fi.general_ledger.budgets.update',
+                delete: 'fi.general_ledger.budgets.delete',
+                approve: 'fi.general_ledger.budgets.approve',
+                lock: 'fi.general_ledger.budgets.lock',
+            },
+            // Cost allocations
+            allocations: {
+                read: 'fi.general_ledger.allocations.read',
+                create: 'fi.general_ledger.allocations.create',
+                update: 'fi.general_ledger.allocations.update',
+                delete: 'fi.general_ledger.allocations.delete',
+                execute: 'fi.general_ledger.allocations.execute',
+            },
         },
         // Accounts Receivable - add-on module
         accounts_receivable: {
@@ -289,7 +333,68 @@ export const KEYS = {
                 allocate: 'fi.accounts_receivable.subledgers.allocate',
                 manage: 'fi.accounts_receivable.subledgers.manage',
             },
-
+            invoices: {
+                read: 'fi.accounts_receivable.invoices.read',
+                create: 'fi.accounts_receivable.invoices.create',
+                update: 'fi.accounts_receivable.invoices.update',
+                submit: 'fi.accounts_receivable.invoices.submit',
+                approve: 'fi.accounts_receivable.invoices.approve',
+                reject: 'fi.accounts_receivable.invoices.reject',
+                post: 'fi.accounts_receivable.invoices.post',
+                void: 'fi.accounts_receivable.invoices.void',
+            },
+            credit_notes: {
+                read: 'fi.accounts_receivable.credit_notes.read',
+                create: 'fi.accounts_receivable.credit_notes.create',
+                update: 'fi.accounts_receivable.credit_notes.update',
+                submit: 'fi.accounts_receivable.credit_notes.submit',
+                approve: 'fi.accounts_receivable.credit_notes.approve',
+                reject: 'fi.accounts_receivable.credit_notes.reject',
+                post: 'fi.accounts_receivable.credit_notes.post',
+                void: 'fi.accounts_receivable.credit_notes.void',
+            },
+            sales_orders: {
+                read: 'fi.accounts_receivable.sales_orders.read',
+                create: 'fi.accounts_receivable.sales_orders.create',
+                update: 'fi.accounts_receivable.sales_orders.update',
+                submit: 'fi.accounts_receivable.sales_orders.submit',
+                approve: 'fi.accounts_receivable.sales_orders.approve',
+                reject: 'fi.accounts_receivable.sales_orders.reject',
+                fulfill: 'fi.accounts_receivable.sales_orders.fulfill',
+                void: 'fi.accounts_receivable.sales_orders.void',
+            },
+            delivery_notes: {
+                read: 'fi.accounts_receivable.delivery_notes.read',
+                create: 'fi.accounts_receivable.delivery_notes.create',
+                update: 'fi.accounts_receivable.delivery_notes.update',
+                dispatch: 'fi.accounts_receivable.delivery_notes.dispatch',
+                void: 'fi.accounts_receivable.delivery_notes.void',
+            },
+            receipts: {
+                read: 'fi.accounts_receivable.receipts.read',
+                create: 'fi.accounts_receivable.receipts.create',
+                update: 'fi.accounts_receivable.receipts.update',
+                submit: 'fi.accounts_receivable.receipts.submit',
+                approve: 'fi.accounts_receivable.receipts.approve',
+                deposit: 'fi.accounts_receivable.receipts.deposit',
+                clear: 'fi.accounts_receivable.receipts.clear',
+                bounce: 'fi.accounts_receivable.receipts.bounce',
+                void: 'fi.accounts_receivable.receipts.void',
+                allocate: 'fi.accounts_receivable.receipts.allocate',
+            },
+            cash_application: {
+                view: 'fi.accounts_receivable.cash_application.view',
+                run: 'fi.accounts_receivable.cash_application.run',
+            },
+            dunning: {
+                view: 'fi.accounts_receivable.dunning.view',
+                manage: 'fi.accounts_receivable.dunning.manage',
+                run: 'fi.accounts_receivable.dunning.run',
+            },
+            aging: {
+                view: 'fi.accounts_receivable.aging.view',
+                generate: 'fi.accounts_receivable.aging.generate',
+            },
         },
         // Accounts Payable - add-on module
         accounts_payable: {
@@ -297,6 +402,62 @@ export const KEYS = {
                 view: 'fi.accounts_payable.subledgers.view',
                 allocate: 'fi.accounts_payable.subledgers.allocate',
                 manage: 'fi.accounts_payable.subledgers.manage',
+            },
+            invoices: {
+                read: 'fi.accounts_payable.invoices.read',
+                create: 'fi.accounts_payable.invoices.create',
+                update: 'fi.accounts_payable.invoices.update',
+                receive: 'fi.accounts_payable.invoices.receive',
+                submit: 'fi.accounts_payable.invoices.submit',
+                approve: 'fi.accounts_payable.invoices.approve',
+                reject: 'fi.accounts_payable.invoices.reject',
+                post: 'fi.accounts_payable.invoices.post',
+                void: 'fi.accounts_payable.invoices.void',
+            },
+            credit_notes: {
+                read: 'fi.accounts_payable.credit_notes.read',
+                create: 'fi.accounts_payable.credit_notes.create',
+                update: 'fi.accounts_payable.credit_notes.update',
+                submit: 'fi.accounts_payable.credit_notes.submit',
+                approve: 'fi.accounts_payable.credit_notes.approve',
+                reject: 'fi.accounts_payable.credit_notes.reject',
+                post: 'fi.accounts_payable.credit_notes.post',
+                void: 'fi.accounts_payable.credit_notes.void',
+            },
+            purchase_orders: {
+                read: 'fi.accounts_payable.purchase_orders.read',
+                create: 'fi.accounts_payable.purchase_orders.create',
+                update: 'fi.accounts_payable.purchase_orders.update',
+                submit: 'fi.accounts_payable.purchase_orders.submit',
+                approve: 'fi.accounts_payable.purchase_orders.approve',
+                reject: 'fi.accounts_payable.purchase_orders.reject',
+                close: 'fi.accounts_payable.purchase_orders.close',
+                void: 'fi.accounts_payable.purchase_orders.void',
+            },
+            goods_receipts: {
+                read: 'fi.accounts_payable.goods_receipts.read',
+                create: 'fi.accounts_payable.goods_receipts.create',
+                update: 'fi.accounts_payable.goods_receipts.update',
+                post: 'fi.accounts_payable.goods_receipts.post',
+                reverse: 'fi.accounts_payable.goods_receipts.reverse',
+            },
+            payments: {
+                read: 'fi.accounts_payable.payments.read',
+                create: 'fi.accounts_payable.payments.create',
+                update: 'fi.accounts_payable.payments.update',
+                submit: 'fi.accounts_payable.payments.submit',
+                approve: 'fi.accounts_payable.payments.approve',
+                process: 'fi.accounts_payable.payments.process',
+                void: 'fi.accounts_payable.payments.void',
+            },
+            aging: {
+                view: 'fi.accounts_payable.aging.view',
+                generate: 'fi.accounts_payable.aging.generate',
+            },
+            grir_clearing: {
+                view: 'fi.accounts_payable.grir_clearing.view',
+                manage: 'fi.accounts_payable.grir_clearing.manage',
+                run: 'fi.accounts_payable.grir_clearing.run',
             },
         },
         // Bank Ledger - add-on module
@@ -310,6 +471,38 @@ export const KEYS = {
                 allocate: 'fi.bank_ledger.subledgers.allocate',
                 manage: 'fi.bank_ledger.subledgers.manage',
             },
+            reconciliation: {
+                view: 'fi.bank_ledger.reconciliation.view',
+                match: 'fi.bank_ledger.reconciliation.match',
+                manage: 'fi.bank_ledger.reconciliation.manage',
+            },
+            matching_criteria: {
+                view: 'fi.bank_ledger.matching_criteria.view',
+                manage: 'fi.bank_ledger.matching_criteria.manage',
+            },
+            statements: {
+                view: 'fi.bank_ledger.statements.view',
+                import: 'fi.bank_ledger.statements.import',
+                manage: 'fi.bank_ledger.statements.manage',
+            },
+            transfers: {
+                read: 'fi.bank_ledger.transfers.read',
+                create: 'fi.bank_ledger.transfers.create',
+                update: 'fi.bank_ledger.transfers.update',
+                submit: 'fi.bank_ledger.transfers.submit',
+                approve: 'fi.bank_ledger.transfers.approve',
+                process: 'fi.bank_ledger.transfers.process',
+                void: 'fi.bank_ledger.transfers.void',
+            },
+            payment_batches: {
+                read: 'fi.bank_ledger.payment_batches.read',
+                create: 'fi.bank_ledger.payment_batches.create',
+                update: 'fi.bank_ledger.payment_batches.update',
+                submit: 'fi.bank_ledger.payment_batches.submit',
+                approve: 'fi.bank_ledger.payment_batches.approve',
+                process: 'fi.bank_ledger.payment_batches.process',
+                void: 'fi.bank_ledger.payment_batches.void',
+            },
         },
         // Controlling (Cost Centers) - add-on module
         // @deprecated - Use co.cost_centers instead. Kept for backward compatibility.
@@ -317,6 +510,16 @@ export const KEYS = {
             cost_centers: {
                 view: 'fi.controlling.cost_centers.view',
                 manage: 'fi.controlling.cost_centers.manage',
+            },
+        },
+        reporting: {
+            ar_ageing: {
+                view: 'fi.reporting.ar_ageing.view', // TODO: Include this key in related files
+                generate: 'fi.reporting.ar_ageing.generate', // TODO: Include this key in related files
+            },
+            ap_aging: {
+                view: 'fi.reporting.ap_aging.view', // TODO: Include this key in related files
+                generate: 'fi.reporting.ap_aging.generate', // TODO: Include this key in related files
             },
         },
         advanced_reporting: {
@@ -389,17 +592,6 @@ export const KEYS = {
             },
         },
     },
-    /**
-     * CO - Controlling Module (SAP CO equivalent)
-     * Separate from FI for internal cost analysis and management reporting.
-     * 
-     * SAP Reference:
-     * - CO-CCA: Cost Center Accounting
-     * - CO-PCA: Profit Center Accounting  
-     * - CO-PA: Profitability Analysis
-     * - CO-OM-OPA: Internal Orders
-     * - CO-PC: Product Costing
-     */
     co: {
         // CO-CCA: Cost Center Accounting
         cost_centers: {
@@ -580,7 +772,7 @@ export type SubModuleOf<M extends ModuleCode> = M extends keyof typeof KEYS
 export type ResourceOf<M extends ModuleCode, S extends SubModuleOf<M>> = Extract<
     keyof (typeof KEYS)[M][S],
     string
->; 
+>;
 
 export type ActionOf<
     M extends ModuleCode,
@@ -636,6 +828,7 @@ export const SUBMODULE_INFO: Record<SubModuleCode, RegistryDisplayInfo> = {
     'bank_ledger': { abbreviation: 'BL', displayName: 'Bank Ledger' },
     'controlling': { abbreviation: 'CO', displayName: 'Controlling' },
     'advanced_reporting': { abbreviation: 'RPT', displayName: 'Advanced Reporting' },
+    'reporting': { abbreviation: 'RPT', displayName: 'Reporting' },
     // CRM
     'customers': { abbreviation: 'CUST', displayName: 'Customers' },
     'media': { abbreviation: 'MED', displayName: 'Media' },
@@ -652,5 +845,5 @@ export const SUBMODULE_INFO: Record<SubModuleCode, RegistryDisplayInfo> = {
     // 'inventory': { abbreviation: 'Inventory', displayName: 'Inventory Management' },
     // 'invoice_verification': { abbreviation: 'Invoice Verification', displayName: 'Invoice Verification' },
     // 'configuration': { abbreviation: 'Configuration', displayName: 'Configuration' },
-    
+
 } as const;

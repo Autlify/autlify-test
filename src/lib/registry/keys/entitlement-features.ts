@@ -14,12 +14,12 @@
  * @created 2026-01-29
  */
 
-import type { 
-  FeatureValueType, 
-  MeteringType, 
-  MeterAggregation, 
+import type {
+  FeatureValueType,
+  MeteringType,
+  MeterAggregation,
   MeteringScope,
-  UsagePeriod 
+  UsagePeriod
 } from '@/generated/prisma/client'
 import type { FeatureKey } from '@/lib/registry/keys'
 
@@ -159,7 +159,7 @@ export const ENTITLEMENT_FEATURES: EntitlementFeatureSeed[] = [
   },
   {
     key: 'iam.authZ.members',
-    name: 'Role Assignments', 
+    name: 'Role Assignments',
     description: 'Maximum number of role assignments to team members',
     category: 'IAM',
     valueType: 'INTEGER',
@@ -171,7 +171,7 @@ export const ENTITLEMENT_FEATURES: EntitlementFeatureSeed[] = [
     icon: 'user-group',
     displayOrder: 30,
   },
-  
+
   {
     key: 'org.agency.storage',
     name: 'Storage',
