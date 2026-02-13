@@ -6,9 +6,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
-import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions';
 import {
     createJournalEntrySchema,
     updateJournalEntrySchema,
@@ -21,33 +19,8 @@ import { EVENT_KEYS } from '@/lib/registry/events/trigger';
 import { ConsolidationMethod, JournalEntryStatus, PeriodStatus } from '@/generated/prisma/client';
 import { format } from 'date-fns';
 import { Decimal } from 'decimal.js';
-type ActionResult<T> = {
-    success: boolean;
-    data?: T;
-    error?: string;
-};
-
-type Context = {
-    agencyId?: string;
-    subAccountId?: string;
-    userId: string;
-};
-
-const getContext = async (): Promise<Context | null> => {
-    const session = await auth();
-    if (!session?.user?.id) return null;
-
-    const dbSession = await db.session.findFirst({
-        where: { userId: session.user.id },
-        select: { activeAgencyId: true, activeSubAccountId: true },
-    });
-
-    return {
-        userId: session.user.id,
-        agencyId: dbSession?.activeAgencyId ?? undefined,
-        subAccountId: dbSession?.activeSubAccountId ?? undefined,
-    };
-};
+import { getContext } from '../utils';
+import type { ActionResult, GLContext } from '../types';
 
 /**
  * Validate double-entry balance
@@ -75,7 +48,7 @@ const updateAccountBalances = async (
     periodId: string,
     lines: Array<{ accountId: string; debitAmount: number; creditAmount: number; currency: string }>,
     userId: string,
-    context: Context
+    context: GLContext
 ) => {
     for (const line of lines) {
         const balance = await tx.accountBalance.findFirst({

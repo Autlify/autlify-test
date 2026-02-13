@@ -6,9 +6,7 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
-import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions';
 import { 
   createAccountSchema, 
   updateAccountSchema,
@@ -19,34 +17,8 @@ import {
 import { logGLAudit } from './audit';
 import { emitEvent } from './fanout';
 import { EVENT_KEYS } from '@/lib/registry/events/trigger';
-
-type ActionResult<T> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
-
-type Context = {
-  agencyId?: string;
-  subAccountId?: string;
-  userId: string;
-};
-
-const getContext = async (): Promise<Context | null> => {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-
-  const dbSession = await db.session.findFirst({
-    where: { userId: session.user.id },
-    select: { activeAgencyId: true, activeSubAccountId: true },
-  });
-
-  return {
-    userId: session.user.id,
-    agencyId: dbSession?.activeAgencyId ?? undefined,
-    subAccountId: dbSession?.activeSubAccountId ?? undefined,
-  };
-};
+import { getContext, checkPermission } from '../utils';
+import type { ActionResult, GLContext } from '../types';
 
 /**
  * Get Account by ID

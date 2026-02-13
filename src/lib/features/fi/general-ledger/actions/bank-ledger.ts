@@ -6,25 +6,13 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
-import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam/authz/permissions'
 import { ActionKey } from '@/lib/registry'
 import { AccountType } from '@/generated/prisma/client'
+import { getContext, checkPermission } from '../utils'
+import type { ActionResult, GLContext } from '../types'
 
 // ========== Types ==========
-
-type ActionResult<T> = {
-  success: boolean
-  data?: T
-  error?: string
-}
-
-type BankContext = {
-  agencyId?: string
-  subAccountId?: string
-  userId: string
-}
 
 export type BankAccountSummary = {
   id: string
@@ -50,34 +38,6 @@ export type BankTransaction = {
 
 // ========== Helper Functions ==========
 
-const getContext = async (): Promise<BankContext | null> => {
-  const session = await auth()
-  if (!session?.user?.id) return null
-
-  const dbSession = await db.session.findFirst({
-    where: { userId: session.user.id },
-    select: { activeAgencyId: true, activeSubAccountId: true },
-  })
-
-  return {
-    userId: session.user.id,
-    agencyId: dbSession?.activeAgencyId ?? undefined,
-    subAccountId: dbSession?.activeSubAccountId ?? undefined,
-  }
-}
-
-const checkPermission = async (
-  context: BankContext,
-  permissionKey: ActionKey
-): Promise<boolean> => {
-  if (context.subAccountId) {
-    return hasSubAccountPermission(context.subAccountId, permissionKey)
-  }
-  if (context.agencyId) {
-    return hasAgencyPermission(context.agencyId, permissionKey)
-  }
-  return false
-}
 
 // ========== Bank Account Actions ==========
 
