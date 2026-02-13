@@ -56,9 +56,9 @@ export const POST = withErrorHandler(async (req: Request) => {
   // This fixes the issue where existing users have their Stripe customer on Agency table, not User table
   if (!customerId) {
     // Prefer agency-level customerId (workspace billing identity) if present.
-    const membershipWithCustomer = memberships.find((m) => m.Agency?.customerId)
-    if (membershipWithCustomer?.Agency?.customerId) {
-      customerId = membershipWithCustomer.Agency.customerId
+    const membershipWithAgencyCustomer = memberships.find((m) => m.Agency?.customerId)
+    if (membershipWithAgencyCustomer?.Agency?.customerId) {
+      customerId = membershipWithAgencyCustomer.Agency.customerId
       console.log('✅ Using agency customerId:', customerId)
     }
   }
