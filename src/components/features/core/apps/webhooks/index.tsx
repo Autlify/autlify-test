@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +23,7 @@ export function WebhooksSubscriptionsPanel(props: ScopeProps) {
   const [subs, setSubs] = useState<Record<string, any[]>>({})
   const [busy, setBusy] = useState(false)
 
-  const reload = async () => {
+  const reload = useCallback(async () => {
     setBusy(true)
     try {
       const c = await fetch(`/api/features/core/webhooks/connections?${qs}`).then((r) => r.json())
@@ -43,14 +43,13 @@ export function WebhooksSubscriptionsPanel(props: ScopeProps) {
     } finally {
       setBusy(false)
     }
-  }
+  }, [qs])
 
   useEffect(() => {
     void reload()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qs])
+  }, [reload])
 
-  const toggle = async (subscriptionId: string, isActive: boolean) => {
+  const toggle = useCallback(async (subscriptionId: string, isActive: boolean) => {
     setBusy(true)
     try {
       await fetch(`/api/features/core/webhooks/subscriptions/${subscriptionId}?${qs}`, {
@@ -62,7 +61,7 @@ export function WebhooksSubscriptionsPanel(props: ScopeProps) {
     } finally {
       setBusy(false)
     }
-  }
+  }, [qs, reload])
 
   return (
     <Card>
