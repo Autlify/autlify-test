@@ -13,13 +13,6 @@ export async function getAgencyWithStripeData(agencyId: string) {
   return db.agency.findUnique({
     where: { id: agencyId },
     include: { Subscription: true },
-    select: {
-      id: true,
-      name: true,
-      companyEmail: true,
-      customerId: true,
-      Subscription: true,
-    },
   });
 }
 
