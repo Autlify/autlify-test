@@ -32,12 +32,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'subAccountId is required' }, { status: 400 })
   }
 
-  // Membership guard - check both in parallel, then validate based on scope
+  // Membership guard - query only what's needed based on scope
   const [agencyMembership, subAccountMembership] = await Promise.all([
-    db.agencyMembership.findFirst({ 
-      where: { userId, agencyId, isActive: true }, 
-      select: { id: true } 
-    }),
+    scope === 'AGENCY'
+      ? db.agencyMembership.findFirst({ 
+          where: { userId, agencyId, isActive: true }, 
+          select: { id: true } 
+        })
+      : Promise.resolve(null),
     scope === 'SUBACCOUNT' && subAccountId
       ? db.subAccountMembership.findFirst({ 
           where: { userId, subAccountId, isActive: true }, 
