@@ -13,7 +13,7 @@ import { hasAgencyPermission, hasSubAccountPermission } from '@/lib/features/iam
 import { KEYS } from '@/lib/registry/keys/permissions'
 import { z } from 'zod'
 import Decimal from 'decimal.js'
-import type { ActionResult } from '@/lib/common/result'
+import type { ActionResult } from '@/types/common/result'
 
 type FiContext = {
   userId: string

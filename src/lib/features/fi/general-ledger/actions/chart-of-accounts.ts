@@ -18,7 +18,7 @@ import { logGLAudit } from './audit';
 import { emitEvent } from './fanout';
 import { EVENT_KEYS } from '@/lib/registry/events/trigger';
 import { getActionContext, hasContextPermission, type ActionContext } from '@/lib/features/iam/authz/action-context';
-import type { ActionResult } from '@/lib/common/result';
+import type { ActionResult } from '@/types/common/result';
 };
 
 type Context = ActionContext;
