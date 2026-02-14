@@ -68,38 +68,40 @@ export const loadScopeContext = cache(async (params: ExtractedScope): Promise<Sc
     }
   }
 
-  // Get subscription/plan info (from agency subscription)
-  const subscription = await db.subscription.findUnique({
-    where: { agencyId: params.agencyId },
-    select: { plan: true, priceId: true },
-  })
+  // Get subscription/plan info and membership info in parallel
+  const [subscription, agencyMembership, subAccountMembership] = await Promise.all([
+    db.subscription.findUnique({
+      where: { agencyId: params.agencyId },
+      select: { plan: true, priceId: true },
+    }),
+    params.scope === 'AGENCY'
+      ? db.agencyMembership.findFirst({
+          where: { userId, agencyId: params.agencyId, isActive: true },
+          select: { 
+            isPrimary: true,
+            Role: { select: { name: true } },
+          },
+        })
+      : Promise.resolve(null),
+    params.subAccountId
+      ? db.subAccountMembership.findFirst({
+          where: { userId, subAccountId: params.subAccountId, isActive: true },
+          select: {
+            Role: { select: { name: true } },
+          },
+        })
+      : Promise.resolve(null),
+  ])
 
-  // Get membership info for role name
+  // Extract membership info
   let roleName: string | null = null
   let isPrimary = false
 
-  if (params.scope === 'AGENCY') {
-    const membership = await db.agencyMembership.findFirst({
-      where: { userId, agencyId: params.agencyId, isActive: true },
-      select: { 
-        isPrimary: true,
-        Role: { select: { name: true } },
-      },
-    })
-    if (membership) {
-      roleName = membership.Role?.name ?? null
-      isPrimary = membership.isPrimary
-    }
-  } else if (params.subAccountId) {
-    const membership = await db.subAccountMembership.findFirst({
-      where: { userId, subAccountId: params.subAccountId, isActive: true },
-      select: {
-        Role: { select: { name: true } },
-      },
-    })
-    if (membership) {
-      roleName = membership.Role?.name ?? null
-    }
+  if (agencyMembership) {
+    roleName = agencyMembership.Role?.name ?? null
+    isPrimary = agencyMembership.isPrimary
+  } else if (subAccountMembership) {
+    roleName = subAccountMembership.Role?.name ?? null
   }
 
   // Determine admin status from permissions
